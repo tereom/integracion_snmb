@@ -1,0 +1,557 @@
+---
+title: "Reporte de entrega"
+output: pdf_document
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(plyr)
+library(tidyr)
+library(stringr)
+library(stringi)
+library(RSQLite)
+library(dplyr)
+library(knitr)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#### Inputs
+# entrega: nombre del directorio donde se guardará el análisis
+# dir_j: ruta de la carpeta donde se buscará la base de datos a revisar
+# pattern_db: regex que identifica las bases de datos a considerar
+# entrega <- "prueba_fer"
+# dir_j <- "bases_prueba"
+# pattern_db <- "\\.sqlite$"
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# crear estructura de carpetas
+# directorio padre dentro de carpeta reportes
+dir.create("reportes")
+dir_padre <- paste("reportes/", entrega, sep = "")
+dir.create(dir_padre)
+
+# directorio donde se copian las bases de datos locales
+# dir_bases <- paste(dir_padre, "/bases_datos", sep = "")
+# dir.create(dir_bases)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Obtenemos la ruta de la base de la forma pattern_db localizadas en dir_j
+bases_rutas <- list.files(path = dir_j, 
+ recursive = TRUE, full.names = TRUE, pattern = pattern_db)
+
+# copiamos la base a una carpeta local
+copiaRenombra <- function(dir_j_archivo, dir_local, nombre_db){
+  # dir_j_archivo: directorio (con nombre archivo) donde se ubica la base a copiar
+  # dir_local: directorio (sin nombre de archivo) donde se copiará la base
+  # id_db: id numérico que se utilizará para distinguir bases en migración  
+  copia <- file.copy(dir_j_archivo, dir_local, overwrite = FALSE)
+  renombra <- file.rename(from = paste(dir_local, basename(dir_j_archivo), 
+    sep = "/"), 
+    to = paste(dir_local, "/", nombre_db, ".db", sep = ""))
+}
+
+# Copia la base a la carpeta local (solo tomará en cuenta la primera)
+copiaRenombra(bases_rutas[1], dir_padre, entrega)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+### Cámara
+base <- paste(dir_padre, "/", entrega, ".db", sep = "")
+
+base_input <- src_sqlite(base)
+
+conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+  select(id, nombre)
+
+sitio <- collect(tbl(base_input, "Sitio_muestra")) %>%
+  select(id, conglomerado_muestra_id, sitio_numero)
+
+camara <- collect(tbl(base_input, "Camara")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  mutate(conglomerado_nombre = nombre.y, camara = nombre.x) %>%
+  select(-nombre.x, -nombre.y)
+  
+archivo_camara <- collect(tbl(base_input, "Archivo_camara"))
+
+archivos <- archivo_camara %>%
+  right_join(select(camara, conglomerado_nombre, id, fecha_inicio, hora_inicio,
+    fecha_termino, hora_termino), 
+    by = c("camara_id" = "id")) 
+
+tab_camara <- archivos %>%
+  mutate(
+    tipo = substring(archivo_nombre_original, nchar(archivo_nombre_original) -2, 
+      nchar(archivo_nombre_original))
+    ) %>%
+  group_by(cgl = conglomerado_nombre) %>%
+  summarise(
+    fecha_inicio = first(fecha_inicio),
+    hora_inicio = first(hora_inicio),
+    fecha_termino = first(fecha_termino),
+    hora_termino = first(hora_termino),
+    fecha_inicio = paste(fecha_inicio, hora_inicio),
+    fecha_termino = paste(fecha_termino, hora_termino),
+    n = sum(!is.na(id)),
+    fotos = round(100 * (sum(tipo == "JPG") / n)),
+    videos = round(100 * (sum(tipo == "AVI") / n)),
+    fauna = round(100 * (sum(presencia == "T", na.rm = TRUE) / n)),
+    sin_fauna = round(100 * (sum(presencia == "F", na.rm = TRUE) / n))
+    ) %>%
+  select(-hora_inicio, -hora_termino)
+
+flag_camara <- nrow(camara) > 0
+rm(archivos, archivo_camara, camara)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+### Grabadora
+grabadora <- collect(tbl(base_input, "Grabadora")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  mutate(conglomerado_nombre = nombre.y, camara = nombre.x) %>%
+  select(-nombre.x, -nombre.y)
+  
+archivo_grabadora <- collect(tbl(base_input, "Archivo_grabadora"))
+
+archivos <- archivo_grabadora %>%
+  right_join(select(grabadora, conglomerado_nombre, id, fecha_inicio, 
+    hora_inicio, fecha_termino, hora_termino), 
+    by = c("grabadora_id" = "id")) 
+
+tab_grabadora <- archivos %>%
+  mutate(
+    audible = stri_detect(archivo_nombre_original, regex = "__1__"),
+    ultra = stri_detect(archivo_nombre_original, regex = "__0__")
+    ) %>%
+  group_by(cgl = conglomerado_nombre) %>%
+  summarise(
+    fecha_inicio = first(fecha_inicio),
+    hora_inicio = first(hora_inicio),
+    fecha_termino = first(fecha_termino),
+    hora_termino = first(hora_termino),
+    fecha_inicio = paste(fecha_inicio, hora_inicio),
+    fecha_termino = paste(fecha_termino, hora_termino),
+    n = sum(!is.na(id)),
+    audibles = round(100 * (sum(audible, na.rm = TRUE) / n)),
+    ultrasonicos = round(100 * (sum(ultra, na.rm = TRUE) / n))
+    ) %>%
+  select(-hora_inicio, -hora_termino)
+
+flag_grabadora <- nrow(grabadora) > 0
+rm(archivos, archivo_grabadora, grabadora)
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+## Especies invasoras
+transecto_especie <- collect(tbl(base_input, 
+    "Transecto_especies_invasoras_muestra")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  mutate(conglomerado_nombre = nombre) %>%
+  group_by(conglomerado_nombre) %>%
+  mutate(
+    n_transectos = n(), 
+    # primera fecha
+    fecha = first(fecha)
+  )
+
+especie <- collect(tbl(base_input, "Especie_invasora")) %>%
+  right_join(select(transecto_especie, conglomerado_nombre, id, fecha, 
+    n_transectos), 
+    by = c("transecto_especies_invasoras_id" = "id")) %>%
+  group_by(conglomerado_nombre) %>%
+  mutate(
+    n_registros = sum(!is.na(id))
+  )
+
+archivo_especie <- collect(tbl(base_input, "Archivo_especie_invasora")) 
+
+archivos <- archivo_especie %>%
+  right_join(select(especie, conglomerado_nombre, id, fecha, 
+    n_transectos, n_registros), 
+    by = c("especie_invasora_id" = "id")) 
+
+tab_ei <- archivos %>%
+  group_by(cgl = conglomerado_nombre) %>%
+  summarise(
+    fecha = first(fecha),
+    n_transectos = first(n_transectos),
+    n_registros = first(n_registros),
+    n_archivos = sum(!is.na(id))
+    )
+
+flag_ei <- nrow(transecto_especie) > 0
+rm(archivos, archivo_especie, especie, transecto_especie)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+## Huellas y excretas
+transecto_huella <- collect(tbl(base_input, 
+  "Transecto_huellas_excretas_muestra")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  mutate(conglomerado_nombre = nombre) %>%
+  group_by(conglomerado_nombre) %>%
+  mutate(
+    n_transectos = n(), 
+    # primera fecha
+    fecha = first(fecha)
+  )
+
+huella <- collect(tbl(base_input, "Huella_excreta")) %>%
+  right_join(select(transecto_huella, conglomerado_nombre, id, fecha, 
+    n_transectos), 
+    by = c("transecto_huellas_excretas_id" = "id")) %>%
+  group_by(conglomerado_nombre) %>%
+  mutate(
+    n_registros = sum(!is.na(id))
+  )
+
+archivo_huella <- collect(tbl(base_input, "Archivo_huella_excreta")) 
+
+archivos <- archivo_huella %>%
+  right_join(select(huella, conglomerado_nombre, id, fecha, 
+    n_transectos, n_registros), 
+    by = c("huella_excreta_id" = "id")) 
+
+tab_he <- archivos %>%
+  group_by(cgl = conglomerado_nombre) %>%
+  summarise(
+    fecha = first(fecha),
+    n_transectos = first(n_transectos),
+    n_registros = first(n_registros),
+    n_archivos = sum(!is.na(id))
+    ) 
+
+flag_he <- nrow(transecto_huella) > 0
+rm(archivos, archivo_huella, huella, transecto_huella)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+### Registros extra: especimen/resto
+especimen <- collect(tbl(base_input, "Especimen_restos_extra")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  mutate(conglomerado_nombre = nombre) %>%
+  group_by(conglomerado_nombre) %>%
+  mutate(
+    n = n(),
+    especimen = round(100 * (sum(es_especimen == "T", na.rm = TRUE)/n)),
+    resto = round(100 * (sum(es_especimen == "F", na.rm = TRUE)/n)),
+    fecha = first(fecha)
+  )
+
+archivo_especimen <- collect(tbl(base_input, "Archivo_especimen_restos_extra"))
+
+archivos <- archivo_especimen %>%
+  right_join(select(especimen, conglomerado_nombre, id, fecha, n, especimen, 
+    resto), by = c("especimen_restos_extra_id" = "id")) 
+
+tab_er_extra <- archivos %>%
+  group_by(cgl = conglomerado_nombre) %>%
+  summarise(
+    fecha = first(fecha),
+    n_registros = first(n),
+    especimen = first(especimen),
+    resto = first(resto),
+    n_archivos = sum(!is.na(id))
+    ) 
+
+flag_er_extra <- nrow(especimen) > 0
+
+### Registros extra: especie invasora
+especie <- collect(tbl(base_input, "Especie_invasora_extra")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  mutate(conglomerado_nombre = nombre) %>%
+  group_by(conglomerado_nombre) %>%
+  mutate(
+    n = n(),
+    fecha = first(fecha)
+  )
+
+archivo_especie <- collect(tbl(base_input, "Archivo_especie_invasora_extra"))
+
+archivos <- archivo_especie %>%
+  right_join(select(especie, conglomerado_nombre, id, fecha, n), 
+    by = c("especie_invasora_extra_id" = "id")) 
+
+tab_ei_extra <- archivos %>%
+  group_by(cgl = conglomerado_nombre) %>%
+  summarise(
+    fecha = first(fecha),
+    n_registros = first(n),
+    n_archivos = sum(!is.na(id))
+  ) 
+
+flag_ei_extra <- nrow(especie) > 0
+
+### Registros extra: huella/excreta
+huella <- collect(tbl(base_input, "Huella_excreta_extra")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  mutate(conglomerado_nombre = nombre) %>%
+  group_by(conglomerado_nombre) %>%
+  mutate(
+    n = n(),
+    huella = round(100 * (sum(es_huella == "T", na.rm = TRUE)/n)),
+    excreta = round(100 * (sum(es_huella == "F", na.rm = TRUE)/n)),
+    fecha = first(fecha)
+  )
+
+archivo_huella <- collect(tbl(base_input, "Archivo_huella_excreta_extra"))
+
+archivos <- archivo_huella %>%
+  right_join(select(huella, conglomerado_nombre, id, fecha, n, huella, 
+    excreta), by = c("huella_excreta_extra_id" = "id")) 
+
+tab_he_extra <- archivos %>%
+  group_by(cgl = conglomerado_nombre) %>%
+  summarise(
+    fecha = first(fecha),
+    n_registros = first(n),
+    huella = first(huella),
+    excreta = first(excreta),
+    n_archivos = sum(!is.na(id))
+    )
+
+flag_he_extra <- nrow(huella) > 0
+  
+rm(archivos, archivo_especie, archivo_especimen, archivo_huella, especimen, 
+  especie, huella)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+### Conglomerados y sitio
+cgl <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+  select(id, cgl = nombre, fecha = fecha_visita, compania, 
+    estado, municipio, monitoreo_tipo) 
+# SAR-MOD/SAC-MOD
+tipo <- cgl$monitoreo_tipo[1]
+
+num_sitios <- sitio %>%
+  filter(sitio_numero != "Punto de control") %>%
+  group_by(conglomerado_muestra_id) %>%
+  summarise(
+    n_sitios = n()
+    )
+
+not.na <- function(x) ifelse(!is.na(x), "+", "-")
+tab_cgl <- cgl %>%
+  left_join(num_sitios, by = c("id" = "conglomerado_muestra_id")) %>%
+  select(-monitoreo_tipo, -id, -compania) %>%
+  left_join(select(tab_camara, cgl, cam_b = n)) %>%
+  left_join(select(tab_grabadora, cgl, grab_b = n)) %>%
+  left_join(select(tab_ei, cgl, ei_b = n_transectos)) %>%
+  left_join(select(tab_he, cgl, he_b = n_transectos)) %>%
+  left_join(select(tab_ei_extra, cgl, ei_extra_b = n_registros)) %>%
+  left_join(select(tab_he_extra, cgl, he_extra_b = n_registros)) %>%
+  left_join(select(tab_er_extra, cgl, er_extra_b = n_registros)) %>%
+  mutate_each(funs(not.na), contains("_b")) 
+
+
+flag_cgl <- nrow(cgl) > 0
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+##### CONANP
+### Aves
+punto <- collect(tbl(base_input, "Punto_conteo_aves")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  select(id, nombre, fecha, hora_inicio, hora_termino)
+  
+aves <- collect(tbl(base_input, "Conteo_ave")) %>%
+  group_by(punto_conteo_aves_id) %>%
+  summarise(n_registros = sum(!is.na(id))) %>%
+  right_join(punto, by = c("punto_conteo_aves_id" = "id"))
+
+tab_ave <- aves %>%
+  select(nombre, fecha, hora_inicio, hora_termino, n_registros)
+
+flag_ave <- nrow(punto) > 0
+rm(punto, aves)
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+### Incendio
+tab_incendio <- collect(tbl(base_input, "Incendio")) %>%
+  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  select(nombre, hay_evidencia)
+
+### Epífitas
+tab_epifitas <- collect(tbl(base_input, "Informacion_epifitas")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  select(nombre, epif_b = helechos_observados)
+
+### Ramas
+tab_ramas <- collect(tbl(base_input, "Transecto_ramas")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(nombre) %>%
+  summarise(n_puntos = sum(pendiente)) %>%
+  select(nombre, ramas_b = n_puntos)
+
+### Árbol cuadrante
+tab_cuad <- collect(tbl(base_input, "Arbol_cuadrante")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(nombre) %>%
+  summarise(cuad_b = sum(existe == "T")) %>%
+  select(nombre, cuad_b)
+
+### Árbol transecto
+tab_trans <- collect(tbl(base_input, "Arbol_transecto")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(nombre) %>%
+  summarise(trans_b = sum(individuo_numero)) %>%
+  select(nombre, trans_b)
+
+tab_cgl_sar <- select(cgl, cgl) %>%
+  left_join(select(tab_ave, cgl = nombre, ave_b = n_registros)) %>%
+  left_join(select(tab_incendio, cgl = nombre, incen_b = hay_evidencia)) %>%
+  left_join(select(tab_epifitas, cgl = nombre, epif_b)) %>%
+  left_join(select(tab_ramas, cgl = nombre, ramas_b)) %>%
+  left_join(select(tab_cuad, cgl = nombre, cuad_b)) %>%
+  left_join(select(tab_trans, cgl = nombre, trans_b)) %>%
+  mutate_each(funs(not.na), contains("_b")) 
+```
+
+La base contiene `r length(unique(cgl$cgl))` conglomerados 
+correspondientes a un monitoreo `r tipo`. 
+
+## Conglomerados y sitio
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+if(flag_cgl){
+  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios", "cam.", 
+    "grab.", "EI tr", "HE tr", "EI ex", "HE ex", "ER ex")
+  kable(select(tab_cgl, 1:5))
+}else{
+  kable("No hay registros")
+} 
+if(flag_cgl){
+  kable(select(tab_cgl, c(1, 6:12)))
+}
+
+if(flag_cgl & tipo == "SAR-MOD"){
+  colnames(tab_cgl_sar) <- c("cgl", "ave", "incen.", "epif.", "ramas", "cuad.", 
+    "trans.")
+  kable(tab_cgl_sar)
+}
+```
+
+## Cámara
+```{r, echo=FALSE}
+if(flag_camara){
+  colnames(tab_camara) <- c("cgl", "inicio", "término", "# archivos", 
+    "% foto", "% video", "% fauna", "% sin fauna")
+  kable(tab_camara)  
+}else{
+  kable("No hay registros")
+}
+```
+
+## Grabadora
+```{r, echo=FALSE}
+if(flag_grabadora){
+  colnames(tab_grabadora) <- c("cgl", "inicio", "término", "# archivos", 
+    "% audio", "% ultra.")
+  kable(tab_grabadora)
+}else{
+  kable("No hay registros")
+}
+```
+
+## Especies invasoras
+```{r, echo=FALSE}
+if(flag_ei){
+  colnames(tab_ei) <- c("cgl", "fecha", "# Trans.", "# obs.", "# archivos")
+  kable(tab_ei)  
+}else{
+  kable("No hay registros")
+}
+```
+
+
+## Huellas y excretas
+
+```{r, echo=FALSE}
+if(flag_he){
+  colnames(tab_he) <- c("cgl", "fecha", "# Trans.", "# obs.", "# archivos")
+  kable(tab_he)  
+}else{
+  kable("No hay registros")
+}
+```
+
+## Registros extra
+### Especimen/resto
+
+```{r, echo=FALSE}
+if(flag_er_extra){
+  colnames(tab_er_extra) <- c("cgl", "fecha", "# obs.",  "% especimen", 
+    "% resto", "# archivos")
+  kable(tab_er_extra)  
+}else{
+  kable("No hay registros")
+}
+```
+
+### Especies invasoras
+```{r, echo=FALSE}
+if(flag_ei_extra){
+  colnames(tab_ei_extra) <- c("cgl", "fecha", "# obs.",  "# archivos")
+  kable(tab_ei_extra)  
+}else{
+  kable("No hay registros")
+}
+```
+
+### Huella/excreta
+
+```{r, echo=FALSE}
+if(flag_he_extra){
+  colnames(tab_he_extra) <- c("cgl", "fecha", "# obs.",  "% huella", 
+    "% excretas", "# archivos")
+  kable(tab_he_extra)  
+}else{
+  kable("No hay registros")
+}
+```
+
+## Aves
+
+```{r, echo=FALSE}
+if(flag_ave){
+  colnames(tab_ave) <- c("cgl", "fecha", "inicio",  "término", "# Obs.")
+  kable(tab_ave)  
+}else{
+  kable("No hay registros")
+}
+```
+
+```{r, eval=FALSE, echo=FALSE}
+# Copiar archivos
+
+copiaArchivos <- function(cgl, dir_j){
+  ruta_local <- paste("../datos/imagenes/", cgl, sep = "")
+  dir.create(ruta_local, showWarnings = TRUE, recursive = FALSE, mode = "0777")
+  archivos_cgl <- filter(archivos, conglomerado_nombre == cgl)
+  rutas_archivos <- paste(dir_j, archivos_cgl$archivo, sep = "")
+  fallas_1 <- file.copy(rutas_archivos, ruta_local)
+  nombre <- paste(ruta_local, "/", archivos_cgl$archivo, sep = "")
+  nombre_original <- paste(ruta_local, "/", 
+    archivos_cgl$archivo_nombre_original, sep = "")
+  file.rename(nombre, nombre_original)
+}
+
+dir_j <- "/Volumes/sacmod/sac20150430/fusionador_conafor_windows/fusionador_snmb/applications/init/uploads/"
+
+ldply(conglomerado$nombre, copiaArchivos, dir_j)
+```
+
+
