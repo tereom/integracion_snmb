@@ -1,17 +1,19 @@
-Pasos a seguir para recibir información (clientes de captura) del SNAMB
+Pasos a seguir para recibir información (clientes de captura) del SNMB
+
 1. Fusionar los clientes de captura.
 2. Crear reporte de entrega
 3. Fusionar a base fnal (postgresql)
 
 ## 1. Fusionar
 Este proceso consta de dos pasos: 
-a. Extraer las bases sqlite de los clientes entregados y exportar a csv, este paso debe hacerse usando el python de web2py y cargando los modelos del cliente. Para esto se utilzan los scripts de la carpeta *exportar_csv*, y se corre el bash exportar.sh indicando el directorio que contiene los clientes a exportar, por ejemplo:
+
+1. Extraer las bases sqlite de los clientes entregados y exportar a csv, este paso debe hacerse usando el python de web2py y cargando los modelos del cliente. Para esto se utilzan los scripts de la carpeta *exportar_csv*, y se corre el bash exportar.sh indicando el directorio que contiene los clientes a exportar, por ejemplo:
 ```
 bash exportar.sh ~/Documents/SNMB/revision_snmb
 ```
 Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
 
-b. Fusionar los archivos csv y crear una nueva base sqlite.
+2. Fusionar los archivos csv y crear una nueva base sqlite.
 
 
 # Reportes_SNMB
