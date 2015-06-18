@@ -1,4 +1,6 @@
-Pasos a seguir para recibir información (clientes de captura) del SNMB
+# Revisión e integración de información del SNMB
+
+Pasos a seguir para recibir información (clientes de captura) del SNMB:
 
 1. Fusionar los clientes de captura.
 2. Crear reporte de entrega
@@ -16,7 +18,7 @@ Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
 2. Fusionar los archivos csv y crear una nueva base sqlite.
 
 
-# Reportes_SNMB
+## Reporte de entrega
 
 Genera reportes de entrega para el SNMB, consiste en generar queries a la base de datos local (sqlite) y generar tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada.
 
