@@ -420,6 +420,16 @@ tab_cgl_sar <- select(cgl, cgl) %>%
   mutate_each(funs(not.na), contains("_b")) 
 ```
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+if(is.na(tipo)){
+  tipo_na = TRUE
+  tipo = "SAR-MOD"
+}
+```
+
+**Nota:** `r if(tipo_na) "No se escribió la variable monitoreo_tipo, supondremos 
+SAR-MOD."`
+
 La base contiene `r length(unique(cgl$cgl))` conglomerados 
 correspondientes a un monitoreo `r tipo`. 
 
@@ -436,7 +446,6 @@ if(flag_cgl){
 if(flag_cgl){
   kable(select(tab_cgl, c(1, 6:12)))
 }
-
 if(flag_cgl & tipo == "SAR-MOD"){
   colnames(tab_cgl_sar) <- c("cgl", "ave", "incen.", "epif.", "ramas", "cuad.", 
     "trans.")
