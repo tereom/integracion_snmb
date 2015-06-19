@@ -40,3 +40,6 @@ El resultado es:
 Funcionamiento:
 
 **crear_reporte.R** genera variables de la entrega y llama a **revision_gral.Rmd** que crea el _pdf_ y a **revision_gral_word.Rmd** que crea un reporte análogo en formato _.docx_.
+
+## Carpetas y Archivos
+Dentro de la carpeta exportar sqlite debe crearse una carpeta web2py que incluya _web2py.app_ con dos aplicaciones la correspondiente al cliente, deberá llamarse _cliente\_web2py_ y la del fusionador, esta se debe llamar _fusionador\_hf_. Y deberá existir una carpeta llamada bases donde se almacenarán las exportaciones csv temporales
