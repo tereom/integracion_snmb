@@ -39,7 +39,7 @@ Funcionamiento:
 *crear_reporte.R* genera tablas con la información entregada y llama a *revision_gral.Rmd* que crea el _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
 ### Carpetas y Archivos
-Dentro de la carpeta exportar sqlite debe crearse una carpeta web2py que incluya _web2py.app_ con dos aplicaciones la correspondiente al cliente, deberá llamarse _cliente\_web2py_ y la del fusionador, esta se debe llamar _fusionador\_hf_. Y deberá existir una carpeta llamada bases donde se almacenarán las exportaciones csv temporales.
+La estructura de archivos es como sigue.
 
 ```
 revision_snmb
@@ -51,7 +51,7 @@ revision_snmb
 |   │   |   borrar_tabla.py
 |   │   |   exportar.py
 |   │   |   fusionar.py
-|   ├───web2py
+|   ├───web2py**
 |   │   ├───web2py.app |...|   cliente_web2py
 |   │   │                  |   fusionador_hf
 |   ├───bases*
@@ -70,3 +70,4 @@ revision_snmb
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
 ```
 \*La carpeta bases y sus contenidos se generan al correr el script exportar.sh, de manera similar reportes y todos sus contenidos se generan con el script *crear_reportes.R*.
+\*\*La carpeta web2py se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_hf* y *cliente_web2py*.
