@@ -17,7 +17,7 @@ Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
 
 b. Fusionar los archivos csv y crear una nueva base sqlite.
 
-### Reporte de entrega
+### 2. Reporte de entrega
 
 Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y generar tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada.
 
@@ -39,7 +39,7 @@ Funcionamiento:
 
 *crear_reporte.R* genera tablas con la información entregada y llama a *revision_gral.Rmd* que crea el _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
-## Carpetas y Archivos
+### Carpetas y Archivos
 Dentro de la carpeta exportar sqlite debe crearse una carpeta web2py que incluya _web2py.app_ con dos aplicaciones la correspondiente al cliente, deberá llamarse _cliente\_web2py_ y la del fusionador, esta se debe llamar _fusionador\_hf_. Y deberá existir una carpeta llamada bases donde se almacenarán las exportaciones csv temporales.
 
 ```
