@@ -54,10 +54,19 @@ revision_snmb
 |   ├───web2py
 |   │   ├───web2py.app |...| cliente_web2py
 |   │   │                  |fusionador_hf
+|   ├───bases*
+|   │   | snmb_0.csv
+|   │   | snmb_1.csv
+|   │   | ...
+|   │   | storage.sqlite
 └───2_crear_reportes
 |   │   crear_reporte.R
 |   │   revision_gral.Rmd
 |   │   revision_gral_word.Rmd
 |   ├───reportes*
+|   |   ├───aaaa_mm_dd_TITULO
+|   |   |   |   aaaa_mm_dd_TITULO.db
+|   |   |   |   aaaa_mm_dd_TITULO.docx
+|   |   |   |   aaaa_mm_dd_TITULO.pdf
 ```
-* La carpeta reportes se genera de manera automática con el script *crear_reportes.R*.
+\*La carpeta bases y sus contenidos se generan al correr el script exportar.sh, de manera similar reportes y todos sus contenidos se generan con el script *crear_reportes.R*.
