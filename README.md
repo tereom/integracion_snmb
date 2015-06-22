@@ -46,17 +46,17 @@ Dentro de la carpeta exportar sqlite debe crearse una carpeta web2py que incluya
 revision_snmb
 │   README.md
 │
-└───exportar_sqlite
-    │   exportar.sh
-    ├───scripts_py
-    │   |   borrar_tabla.py
-    │   |   exportar.py
-    │   |   fusionar.py
-    ├───web2py
-    │   ├───web2py.app |...| cliente_web2py
-    │   │                  |fusionador_hf
-    └───crear_reportes
-        │   crear_reporte.R
-        │   revision_gral.Rmd
-        │   revision_gral_word.Rmd
+└───1_exportar_sqlite
+|   │   exportar.sh
+|   ├───scripts_py
+|   │   |   borrar_tabla.py
+|   │   |   exportar.py
+|   │   |   fusionar.py
+|   ├───web2py
+|   │   ├───web2py.app |...| cliente_web2py
+|   │   │                  |fusionador_hf
+└───2_crear_reportes
+|   │   crear_reporte.R
+|   │   revision_gral.Rmd
+|   │   revision_gral_word.Rmd
 ```
