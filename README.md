@@ -52,13 +52,13 @@ revision_snmb
 |   │   |   exportar.py
 |   │   |   fusionar.py
 |   ├───web2py
-|   │   ├───web2py.app |...| cliente_web2py
-|   │   │                  |fusionador_hf
+|   │   ├───web2py.app |...|   cliente_web2py
+|   │   │                  |   fusionador_hf
 |   ├───bases*
-|   │   | snmb_0.csv
-|   │   | snmb_1.csv
-|   │   | ...
-|   │   | storage.sqlite
+|   │   |   snmb_0.csv
+|   │   |   snmb_1.csv
+|   │   |   ...
+|   │   |   storage.sqlite
 └───2_crear_reportes
 |   │   crear_reporte.R
 |   │   revision_gral.Rmd
