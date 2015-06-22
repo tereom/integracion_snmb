@@ -9,37 +9,69 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
 
-1. Extraer las bases sqlite de los clientes entregados y exportar a csv, este paso debe hacerse usando el python de web2py y cargando los modelos del cliente. Para esto se utilzan los scripts de la carpeta *exportar_csv*, y se corre el bash exportar.sh indicando el directorio que contiene los clientes a exportar, por ejemplo:
++ Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *borrar_tabla.py* almacenados en la carpeta *scripts_py*, este paso debe hacerse usando el python de web2py pues se utiliza la aplicación *cliente_web2py*. Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
++ El segundo paso consiste en fusinar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar.py*, que corre en el python de web2py usando los modelos de la aplicación *fusionador_hf*.
+
+Ejemplo:
 ```
 bash exportar.sh /Volumes/sacmod/FMCN
 ```
-Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
+donde el argumentos es:
+* _dir\_j_: ruta de la carpeta donde se buscarán los clientes a considerar.
 
-2. Fusionar los archivos csv y crear una nueva base sqlite.
+El resultado es: 
+* base de datos fusionada: bases/storage.sqlite
 
+### 2. Reporte de entrega
+Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. 
 
-### Reporte de entrega
++ *crear_reporte.R* llama a *revision_gral.Rmd* que crea un reporte en _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
-Genera reportes de entrega para el SNMB, consiste en generar queries a la base de datos local (sqlite) y generar tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada.
-
-### Ejemplo: 
-Se corre el script crear_reporte.R desde la terminal:
+Se corre el script crear_reporte.R desde la terminal. Por ejemplo:
 ```
-> Rscript crear_reporte.R 'FMCN' 'bases_prueba' '\.sqlite'
+> Rscript crear_reporte.R 'FMCN' '../1_exportar_sqlite'
 ```
 donde los argumentos son:
 * _entrega_: nombre del directorio donde se guardará el análisis
 * _dir\_j_: ruta de la carpeta donde se buscará la base de datos a revisar
-* _pattern_db_: regex que identifica las bases de datos a considerar
 
 El resultado es:
 * copia base de datos: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.db
 * reporte pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.pdf
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
 
-Funcionamiento:
 
-**crear_reporte.R** genera variables de la entrega y llama a **revision_gral.Rmd** que crea el _pdf_ y a **revision_gral_word.Rmd** que crea un reporte análogo en formato _.docx_.
 
-## Carpetas y Archivos
-Dentro de la carpeta exportar sqlite debe crearse una carpeta web2py que incluya _web2py.app_ con dos aplicaciones la correspondiente al cliente, deberá llamarse _cliente\_web2py_ y la del fusionador, esta se debe llamar _fusionador\_hf_. Y deberá existir una carpeta llamada bases donde se almacenarán las exportaciones csv temporales
+### Carpetas y Archivos
+La estructura de archivos y carpetas es como sigue.
+
+```
+revision_snmb
+│   README.md
+│
+└───1_exportar_sqlite
+|   │   exportar.sh
+|   ├───scripts_py
+|   │   |   borrar_tabla.py
+|   │   |   exportar.py
+|   │   |   fusionar.py
+|   ├───web2py**
+|   │   ├───web2py.app |...|   cliente_web2py
+|   │   │                  |   fusionador_hf
+|   ├───bases*
+|   │   |   snmb_0.csv
+|   │   |   snmb_1.csv
+|   │   |   ...
+|   │   |   storage.sqlite
+└───2_crear_reportes
+|   │   crear_reporte.R
+|   │   revision_gral.Rmd
+|   │   revision_gral_word.Rmd
+|   ├───reportes*
+|   |   ├───aaaa_mm_dd_TITULO
+|   |   |   |   aaaa_mm_dd_TITULO.db
+|   |   |   |   aaaa_mm_dd_TITULO.docx
+|   |   |   |   aaaa_mm_dd_TITULO.pdf
+```
+\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar *reportes* y sus contenidos se generan con el script *crear_reportes.R*.    
+\*\*La carpeta *web2py* se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_hf* y *cliente_web2py*.
