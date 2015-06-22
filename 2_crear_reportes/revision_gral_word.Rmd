@@ -1,0 +1,147 @@
+---
+title: "Reporte de entrega"
+output: word_document
+---
+
+**Observaciones:** 
+
+* Fecha de creación: `r format(Sys.time(), '%d-%m-%y')`.
+
+* La base contiene `r cgls_unicos` conglomerados distintos correspondientes a un 
+monitoreo `r tipo`. 
+
+`r if(tipo_na) "* No se escribió la variable monitoreo_tipo, supondremos 
+SAR-MOD."`
+
+`r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos."`
+
+## Conglomerados y sitio
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+if(flag_cgl){
+  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios", "cam.", 
+    "grab.", "EI tr", "HE tr", "EI ex", "HE ex", "ER ex")
+  kable(select(tab_cgl, 1:5) %>% arrange(cgl))
+}else{
+  kable("No hay registros")
+} 
+if(flag_cgl){
+  kable(select(tab_cgl, c(1, 6:12)) %>% arrange(cgl) %>% distinct())
+}
+if(flag_cgl & tipo == "SAR-MOD"){
+  colnames(tab_cgl_sar) <- c("cgl", "ave", "incen.", "epif.", "ramas", "cuad.", 
+    "trans.")
+  kable(tab_cgl_sar %>% arrange(cgl) %>% distinct())
+}
+```
+
+## Cámara
+```{r, echo=FALSE}
+if(flag_camara){
+  colnames(tab_camara) <- c("cgl", "inicio", "término", "# archivos", 
+    "% foto", "% video", "% fauna", "% sin fauna")
+  kable(tab_camara %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+## Grabadora
+```{r, echo=FALSE}
+if(flag_grabadora){
+  colnames(tab_grabadora) <- c("cgl", "inicio", "término", "# archivos", 
+    "% audio", "% ultra.")
+  kable(tab_grabadora %>% arrange(cgl) %>% distinct())
+}else{
+  kable("No hay registros")
+}
+```
+
+## Especies invasoras
+```{r, echo=FALSE}
+if(flag_ei){
+  colnames(tab_ei) <- c("cgl", "fecha", "# Trans.", "# obs.", "# archivos")
+  kable(tab_ei %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+
+## Huellas y excretas
+
+```{r, echo=FALSE}
+if(flag_he){
+  colnames(tab_he) <- c("cgl", "fecha", "# Trans.", "# obs.", "# archivos")
+  kable(tab_he %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+## Registros extra
+### Especimen/resto
+
+```{r, echo=FALSE}
+if(flag_er_extra){
+  colnames(tab_er_extra) <- c("cgl", "fecha", "# obs.",  "% especimen", 
+    "% resto", "# archivos")
+  kable(tab_er_extra %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+### Especies invasoras
+```{r, echo=FALSE}
+if(flag_ei_extra){
+  colnames(tab_ei_extra) <- c("cgl", "fecha", "# obs.",  "# archivos")
+  kable(tab_ei_extra %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+### Huella/excreta
+
+```{r, echo=FALSE}
+if(flag_he_extra){
+  colnames(tab_he_extra) <- c("cgl", "fecha", "# obs.",  "% huella", 
+    "% excretas", "# archivos")
+  kable(tab_he_extra %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+## Aves
+
+```{r, echo=FALSE}
+if(flag_ave){
+  colnames(tab_ave) <- c("cgl", "fecha", "inicio",  "término", "# Obs.")
+  kable(tab_ave %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+```{r, eval=FALSE, echo=FALSE}
+# Copiar archivos
+copiaArchivos <- function(cgl, dir_j){
+  ruta_local <- paste("../datos/imagenes/", cgl, sep = "")
+  dir.create(ruta_local, showWarnings = TRUE, recursive = FALSE, mode = "0777")
+  archivos_cgl <- filter(archivos, conglomerado_nombre == cgl)
+  rutas_archivos <- paste(dir_j, archivos_cgl$archivo, sep = "")
+  fallas_1 <- file.copy(rutas_archivos, ruta_local)
+  nombre <- paste(ruta_local, "/", archivos_cgl$archivo, sep = "")
+  nombre_original <- paste(ruta_local, "/", 
+    archivos_cgl$archivo_nombre_original, sep = "")
+  file.rename(nombre, nombre_original)
+}
+
+dir_j <- "/Volumes/sacmod/sac20150430/fusionador_conafor_windows/fusionador_snmb/applications/init/uploads/"
+
+ldply(conglomerado$nombre, copiaArchivos, dir_j)
+```
+
+
