@@ -9,17 +9,23 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
 
-a. Extraer las bases sqlite de los clientes entregados y exportar a csv, este paso debe hacerse usando el python de web2py para cargar los modelos del cliente. Para esto se utilzan los scripts de la carpeta *exportar_csv*, y se corre el bash exportar.sh indicando el directorio que contiene los clientes a exportar, por ejemplo:
++ Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *borrar_tabla.py* almacenados en la carpeta *scripts_py*, este paso debe hacerse usando el python de web2py pues se utiliza la aplicación *cliente_web2py*. Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
++ El segundo paso consiste en fusinar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar.py*, que corre en el python de web2py usando los modelos de la aplicación *fusionador_hf*.
+
+Ejemplo:
 ```
 bash exportar.sh /Volumes/sacmod/FMCN
 ```
-Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
+donde el argumentos es:
+* _dir\_j_: ruta de la carpeta donde se buscarán los clientes a considerar.
 
-b. Fusionar los archivos csv y crear una nueva base sqlite.
+El resultado es: 
+* base de datos fusionada: bases/storage.sqlite
 
 ### 2. Reporte de entrega
+Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. 
 
-Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y generar tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada.
++ *crear_reporte.R* llama a *revision_gral.Rmd* que crea un reporte en _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
 Se corre el script crear_reporte.R desde la terminal. Por ejemplo:
 ```
@@ -34,9 +40,7 @@ El resultado es:
 * reporte pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.pdf
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
 
-Funcionamiento:
 
-*crear_reporte.R* genera tablas con la información entregada y llama a *revision_gral.Rmd* que crea el _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
 ### Carpetas y Archivos
 La estructura de archivos y carpetas es como sigue.
