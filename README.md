@@ -23,12 +23,11 @@ Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de 
 
 Se corre el script crear_reporte.R desde la terminal. Por ejemplo:
 ```
-> Rscript crear_reporte.R 'FMCN' 'bases_prueba' '\.sqlite'
+> Rscript crear_reporte.R 'FMCN' '../1_exportar_sqlite'
 ```
 donde los argumentos son:
 * _entrega_: nombre del directorio donde se guardará el análisis
 * _dir\_j_: ruta de la carpeta donde se buscará la base de datos a revisar
-* _pattern_db_: regex que identifica las bases de datos a considerar
 
 El resultado es:
 * copia base de datos: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.db
@@ -59,4 +58,6 @@ revision_snmb
 |   │   crear_reporte.R
 |   │   revision_gral.Rmd
 |   │   revision_gral_word.Rmd
+|   ├───reportes*
 ```
+* La carpeta reportes se genera de manera automática con el script *crear_reportes.R*.
