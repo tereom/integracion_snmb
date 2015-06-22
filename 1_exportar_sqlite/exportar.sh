@@ -55,3 +55,5 @@ rm -rfv ${base_fusionador%%/}/*
 web2py/web2py.app/Contents/MacOS/web2py -S fusionador_hf -M -R ${base_dir%%/}/scripts_py/fusionar.py -A ${base_dir%%/}/bases
 
 mv ${base_fusionador%%/}/storage.sqlite ${base_dir%%/}/bases/storage.sqlite
+
+rm -rfv ${base_web2py%%/}/*
