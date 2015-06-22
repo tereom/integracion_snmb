@@ -39,7 +39,7 @@ Funcionamiento:
 *crear_reporte.R* genera tablas con la información entregada y llama a *revision_gral.Rmd* que crea el _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
 ### Carpetas y Archivos
-La estructura de archivos es como sigue.
+La estructura de archivos y carpetas es como sigue.
 
 ```
 revision_snmb
@@ -69,5 +69,5 @@ revision_snmb
 |   |   |   |   aaaa_mm_dd_TITULO.docx
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
 ```
-\*La carpeta bases y sus contenidos se generan al correr el script exportar.sh, de manera similar reportes y todos sus contenidos se generan con el script *crear_reportes.R*.
-\*\*La carpeta web2py se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_hf* y *cliente_web2py*.
+\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar *reportes* y sus contenidos se generan con el script *crear_reportes.R*.    
+\*\*La carpeta *web2py* se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_hf* y *cliente_web2py*.
