@@ -46,18 +46,17 @@ El resultado es:
 La estructura de archivos y carpetas es como sigue.
 
 ```
-revision_snmb
+integracion_snmb
 │   README.md
-│
+├───web2py**
+│   ├───web2py.app |...|   cliente_web2py
+│   │                  |   fusionador_sqlite
 └───1_exportar_sqlite
 |   │   exportar.sh
 |   ├───scripts_py
 |   │   |   borrar_tabla.py
 |   │   |   exportar.py
 |   │   |   fusionar.py
-|   ├───web2py**
-|   │   ├───web2py.app |...|   cliente_web2py
-|   │   │                  |   fusionador_sqlite
 |   ├───bases*
 |   │   |   snmb_0.csv
 |   │   |   snmb_1.csv
