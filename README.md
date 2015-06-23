@@ -10,7 +10,7 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 Este proceso consta de dos pasos: 
 
 + Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *borrar_tabla.py* almacenados en la carpeta *scripts_py*, este paso debe hacerse usando el python de web2py pues se utiliza la aplicación *cliente_web2py*. Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
-+ El segundo paso consiste en fusionar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar.py*, que corre en el python de web2py usando los modelos de la aplicación *fusionador_hf*.
++ El segundo paso consiste en fusionar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar.py*, que corre en el python de web2py usando los modelos de la aplicación *fusionador_sqlite*.
 
 Ejemplo:
 ```
@@ -57,7 +57,8 @@ revision_snmb
 |   │   |   fusionar.py
 |   ├───web2py**
 |   │   ├───web2py.app |...|   cliente_web2py
-|   │   │                  |   fusionador_hf
+|   │   │                  |   fusionador_sqlite
+|   |   |                  |   fusionador_postgres
 |   ├───bases*
 |   │   |   snmb_0.csv
 |   │   |   snmb_1.csv
@@ -74,4 +75,4 @@ revision_snmb
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
 ```
 \*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar *reportes* y sus contenidos se generan con el script *crear_reportes.R*.    
-\*\*La carpeta *web2py* se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_hf* y *cliente_web2py*.
+\*\*La carpeta *web2py* se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_sqlite*, *fusionador_postgres* y *cliente_web2py*.
