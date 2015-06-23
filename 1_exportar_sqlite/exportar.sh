@@ -1,15 +1,19 @@
 #!/bin/bash 
 
 # Argumentos
-# dir: ruta a la carpeta que contiene el archivo .sqlite
+# dir: ruta a la carpeta que contiene los archivos .sqlite
 # Ejemplo: bash exportar.sh /Volumes/sacmod/FMCN
 
-# Directorio dentro de web2py (variable global)
-base_web2py=web2py/web2py.app/Contents/Resources/applications/cliente_web2py/databases
+# El && sirve para ejecutar una acción si y sólo si la anterior fue exitosa.
 base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # ${BASH_SOURCE[0]}: nombre del script
 
+# Directorio dentro de web2py (variable global)
+base_web2py=$(cd ${base_dir%%/} && cd "../web2py/web2py.app/Contents/Resources/applications/cliente_web2py/databases" && pwd)
+
 # Creamos la carpeta bases (en caso de que no exista)
+mkdir ${base_dir%%/}/bases
+
 # Comenzamos borrando las bases en la carpeta bases para tener una sesión nueva
 rm -rfv ${base_dir%%/}/bases/*
 
@@ -19,8 +23,9 @@ exporta_csv () {
 	# Borrar los contenidos del directorio databases
 	rm -rfv ${base_web2py%%/}/*
 
-	# Crear nuevas tablas 
-	web2py/web2py.app/Contents/MacOS/web2py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/borrar_tabla.py
+	# Crear nuevas tablas
+	# -M es para cargar los modelos de la aplicación utilizada.
+	../web2py/web2py.app/Contents/MacOS/web2py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/borrar_tabla.py
 
 	# Copiar base de datos sqlite que nos entregaron y pegarla en el cliente
 	echo "reemplazar"
@@ -28,7 +33,7 @@ exporta_csv () {
 
 	# Exportar la base de datos
 	# # -M importar modelos, -R correr script de python
-	web2py/web2py.app/Contents/MacOS/web2py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/exportar.py
+	../web2py/web2py.app/Contents/MacOS/web2py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/exportar.py
 
 	# # Renombro archivo
 	nuevo_nom=bases/snmb_$2.csv
@@ -48,11 +53,11 @@ do
 done
 
 # Antes de fusionar borrar todo lo del folder databases del fusionador
-base_fusionador=web2py/web2py.app/Contents/Resources/applications/fusionador_hf/databases
+base_fusionador=$(cd ${base_dir%%/} && cd "../web2py/web2py.app/Contents/Resources/applications/fusionador_sqlite/databases" && pwd)
 
 rm -rfv ${base_fusionador%%/}/*
 
-web2py/web2py.app/Contents/MacOS/web2py -S fusionador_hf -M -R ${base_dir%%/}/scripts_py/fusionar.py -A ${base_dir%%/}/bases
+../web2py/web2py.app/Contents/MacOS/web2py -S fusionador_sqlite -M -R ${base_dir%%/}/scripts_py/fusionar.py -A ${base_dir%%/}/bases
 
 mv ${base_fusionador%%/}/storage.sqlite ${base_dir%%/}/bases/storage.sqlite
 
