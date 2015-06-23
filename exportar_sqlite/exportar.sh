@@ -6,6 +6,9 @@
 
 # Directorio dentro de web2py (variable global)
 base_web2py=web2py/web2py.app/Contents/Resources/applications/cliente_web2py/databases
+
+# base_dir: directorio donde se encuentra este script. Ejecuta el pwd si y sólo si
+# pudo hacer el cd.
 base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # ${BASH_SOURCE[0]}: nombre del script
 
