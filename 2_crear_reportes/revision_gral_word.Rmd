@@ -16,6 +16,11 @@ SAR-MOD."`
 `r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos."`
 
 ## Conglomerados y sitio
+En la siguiente tabla las columnas indican si se llenaron las tablas:
+fecha: fecha de vista, edo: estado, mun: municipio, # sitios: número de sitios
+eistentes.  
+
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
@@ -25,12 +30,27 @@ if(flag_cgl){
 }else{
   kable("No hay registros")
 } 
+```
+
+cam: información de la trampa cámara, grab: información de la grabadora, 
+EI tr: transecto de especies invasoras, HE tr: transecto de huellas y excretas,
+EI ex: registros adicionales de especies invasoras, HE ex: registros adicionales 
+de huellas y excretas, ER ex: registros adicionales de especímenes y restos.
+
+`r if(tipo == "SAR-MOD") "ave: Punto de conteo de aves, incen: incendios, 
+epif: epífitas, leñoso: material leñoso caído, aa.gde: árboles grandes, a.chico:
+árboles pequeños y arbustos, carbono: carbono en el mantillo, plagas: plagas, 
+impactos: impactos actuales."`
+
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
   kable(select(tab_cgl, c(1, 6:12)) %>% arrange(cgl) %>% distinct())
 }
 if(flag_cgl & tipo == "SAR-MOD"){
-  colnames(tab_cgl_sar) <- c("cgl", "ave", "incen.", "epif.", "ramas", "cuad.", 
-    "trans.")
+  colnames(tab_cgl_sar) <- c("cgl", "ave", "incen.", "epif.", "leñoso", "a.gde", 
+    "a.chico", "carbono", "plagas", "impactos")
   kable(tab_cgl_sar %>% arrange(cgl) %>% distinct())
 }
 ```
@@ -60,7 +80,7 @@ if(flag_grabadora){
 ## Especies invasoras
 ```{r, echo=FALSE}
 if(flag_ei){
-  colnames(tab_ei) <- c("cgl", "fecha", "# Trans.", "# obs.", "# archivos")
+  colnames(tab_ei) <- c("cgl", "fecha", "# trans.", "# obs.", "# archivos")
   kable(tab_ei %>% arrange(cgl) %>% distinct())  
 }else{
   kable("No hay registros")
@@ -72,7 +92,7 @@ if(flag_ei){
 
 ```{r, echo=FALSE}
 if(flag_he){
-  colnames(tab_he) <- c("cgl", "fecha", "# Trans.", "# obs.", "# archivos")
+  colnames(tab_he) <- c("cgl", "fecha", "# trans.", "# obs.", "# archivos")
   kable(tab_he %>% arrange(cgl) %>% distinct())  
 }else{
   kable("No hay registros")
@@ -95,7 +115,7 @@ if(flag_er_extra){
 ### Especies invasoras
 ```{r, echo=FALSE}
 if(flag_ei_extra){
-  colnames(tab_ei_extra) <- c("cgl", "fecha", "# obs.",  "# archivos")
+  colnames(tab_ei_extra) <- c("cgl", "fecha", "# obs.", "# archivos")
   kable(tab_ei_extra %>% arrange(cgl) %>% distinct())  
 }else{
   kable("No hay registros")
@@ -118,30 +138,57 @@ if(flag_he_extra){
 
 ```{r, echo=FALSE}
 if(flag_ave){
-  colnames(tab_ave) <- c("cgl", "fecha", "inicio",  "término", "# Obs.")
+  colnames(tab_ave) <- c("cgl", "fecha", "inicio",  "término", "# obs.")
   kable(tab_ave %>% arrange(cgl) %>% distinct())  
 }else{
   kable("No hay registros")
 }
 ```
 
-```{r, eval=FALSE, echo=FALSE}
-# Copiar archivos
-copiaArchivos <- function(cgl, dir_j){
-  ruta_local <- paste("../datos/imagenes/", cgl, sep = "")
-  dir.create(ruta_local, showWarnings = TRUE, recursive = FALSE, mode = "0777")
-  archivos_cgl <- filter(archivos, conglomerado_nombre == cgl)
-  rutas_archivos <- paste(dir_j, archivos_cgl$archivo, sep = "")
-  fallas_1 <- file.copy(rutas_archivos, ruta_local)
-  nombre <- paste(ruta_local, "/", archivos_cgl$archivo, sep = "")
-  nombre_original <- paste(ruta_local, "/", 
-    archivos_cgl$archivo_nombre_original, sep = "")
-  file.rename(nombre, nombre_original)
+## Material leñoso
+
+```{r, echo=FALSE}
+if(flag_lenoso){
+  colnames(tab_lenoso) <- c("cgl", "# trans.", "# ramas")
+  kable(tab_lenoso %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
 }
+```
 
-dir_j <- "/Volumes/sacmod/sac20150430/fusionador_conafor_windows/fusionador_snmb/applications/init/uploads/"
+## Árboles grandes 
+Las útimas cuatro columnas corresponden a las medias por conglomerado de 
+_altura_, _diámetro normal_ y _diámetro copa_.
 
-ldply(conglomerado$nombre, copiaArchivos, dir_j)
+```{r, echo=FALSE}
+if(flag_cuad){
+  colnames(tab_cuad) <- c("cgl", "# sitios", "# árboles", "altura", "d.normal",
+    "d.copa")
+  kable(tab_cuad %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
+
+## Árboles pequeños y arbustos
+
+```{r, echo=FALSE}
+if(flag_trans){
+  colnames(tab_trans) <- c("cgl", "# sitios", "# trans.", "# árboles")
+  kable(tab_trans %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
 ```
 
 
+## Carbono en el mantillo
+
+```{r, echo=FALSE}
+if(flag_carbono){
+  colnames(tab_carbono) <- c("cgl", "# sitios", "# muestras")
+  kable(tab_carbono %>% arrange(cgl) %>% distinct())  
+}else{
+  kable("No hay registros")
+}
+```
