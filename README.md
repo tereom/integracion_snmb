@@ -5,6 +5,8 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 1. Fusionar los clientes de captura.
 2. Crear reporte de entrega.
 3. Fusionar a base final (postgresql).
+4. Guardar _media_: grabaciones, imágenes y videos.
+5. Crear _shapes_ para navegador.
 
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
