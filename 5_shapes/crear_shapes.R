@@ -8,32 +8,16 @@ library("RSQLite")
 library("RPostgreSQL")
 library("dplyr")
 
-# cargar coordenadas (shapes de Pedro)
-coords <- readOGR("shapes_22025/Cong22025_lamb.shp", "Cong22025_lamb")
+### Argumentos
+# dir_base: directorio de la base de datos sqlite
+# nombre: institución que muestreó
+dir_base <- "../2_crear_reportes/reportes/2015_06_29_FMCN/2015_06_29_FMCN.db"
+nombre <- "FMCN"
 
-coords_df <- data.frame(coords)
-names(coords_df) <- c("IdConglomerado", "Latitud", "Longitud", "coords.x1", 
-  "coords.x2")
-coords_df$IdConglomerado <- as.character(coords_df$IdConglomerado)
-head(coords_df)
-
-# base de datos para unir
-base_input <- src_sqlite("../bases_prueba/storage.sqlite")
-
-cgl <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
-  select(id, IdConglomerado = nombre, perturbado)
-
-cgl_coords <- inner_join(conglomerado, coords_df, by = "IdConglomerado") %>%
-  select(IdConglomerado, perturbado, coords.x1, coords.x2) %>%
-  as.data.frame()
-
-coordinates(ei_merged) = ~coords.x1 + coords.x2
-projection(ei_merged) <- projection(coords)
-
-writeOGR(ei_merged, "shapes", "prueba", driver = "ESRI Shapefile")
+base_input <- src_sqlite(base)
 
 # información para el shape
-cgl <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
   select(id, cgl = nombre, fecha_visita)
 
 # número de sitios
@@ -41,12 +25,25 @@ sitio <- collect(tbl(base_input, "Sitio_muestra")) %>%
   select(id, conglomerado_muestra_id, sitio_numero)
 
 tab_sitio <- sitio %>%
-  left_join(cgl, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
   filter(sitio_numero != "Punto de control") %>%
   group_by(cgl) %>%
   summarise(
     n_sitios = n()
   )
+
+# en caso de que queramos obtener las coordenadas del sitio
+sitio_coords <- collect(tbl(base_input, "Sitio_muestra")) %>%
+  filter(sitio_numero == "Centro") %>%
+  mutate(
+    lat = lat_grado + lat_min/60 + lat_seg/3600, 
+    lon = lon_grado + lon_min/60 + lon_seg/3600, 
+    lat = abs(lat),
+    lon = abs(lon)
+    ) %>%
+  select(conglomerado_muestra_id, lat, lon) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  select(cgl, lat, lon)
 
 # número de registros de especies invasoras
 transecto_especie <- collect(tbl(base_input, 
@@ -85,7 +82,7 @@ tab_he <- collect(tbl(base_input, "Huella_excreta")) %>%
 # número de fotos con fauna
 camara <- collect(tbl(base_input, "Camara")) %>%
   left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  left_join(cgl, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
   select(camara = nombre, cgl, id)
 
 archivo_camara <- collect(tbl(base_input, "Archivo_camara"))
@@ -123,8 +120,8 @@ tab_er_extra <- collect(tbl(base_input, "Especimen_restos_extra")) %>%
   group_by(cgl) %>%
   summarise(
     n_registros_er_extra = n()
-  )
-tab_ei_extra <- collect(tbl(base_input, "Especimen_restos_extra")) %>%
+  ) 
+tab_ei_extra <- collect(tbl(base_input, "Especie_invasora_extra")) %>%
   left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
   group_by(cgl) %>%
   summarise(
@@ -148,22 +145,167 @@ tab_extra <- tab_er_extra %>%
 
 # hay conteo de aves
 tab_ave <- collect(tbl(base_input, "Punto_conteo_aves")) %>%
-  mutate(ave = "Sí") %>%
+  mutate(ave_b = TRUE) %>%
   left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
   left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
-  select(cgl, ave)
+  select(cgl, ave_b)
 
-tab_cgl <- cgl %>%
-  left_join(tab_sitio, by = "cgl") %>%
-  left_join(tab_ei, by = "cgl") %>%
-  left_join(tab_he, by = "cgl") %>%
-  left_join(tab_camara, by = "cgl") %>%
-  left_join(tab_grabadora, by = "cgl") %>%
-  left_join(tab_extra, by = "cgl") %>%
-  left_join(tab_ave, by = "cgl") %>%
+# Ramas (material leñoso)
+tab_lenoso <- collect(tbl(base_input, "Transecto_ramas")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+  summarise(
+    lenoso_b = TRUE
+    )
+
+# hay punto carbono (carbono en el mantillo)
+tab_carbono <- collect(tbl(base_input, "Punto_carbono")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+  summarise(
+    carbono_b = TRUE
+    )
+
+# número de árboles pequeños
+tab_trans <- collect(tbl(base_input, "Arbol_transecto")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+  summarise(
+    n_arboles_p = n()
+    )
+
+# número de árboles grandes
+tab_cuad <- collect(tbl(base_input, "Arbol_cuadrante")) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+  summarise(n_arboles_g = sum(existe == "T"))
+
+# número de epífitas distintas (cambiará con el nuevo modelo!)
+tab_epifitas <- collect(tbl(base_input, "Informacion_epifitas")) %>%
+  mutate_each(
+    funs(. == "T"), matches("observa")
+    ) %>%
+  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
+  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+    summarise_each(
+      funs(sum(.) > 0), matches("observa")
+      ) %>%
+    mutate(
+    n_epifitas = helechos_observados + orquideas_observadas + musgos_observados +
+      liquenes_observados + cactaceas_observadas + bromeliaceas_observadas +
+      otras_observadas
+      ) %>%
+  select(cgl, n_epifitas)
+
+# hay info. de incendios
+tab_incendio <- collect(tbl(base_input, "Incendio")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+  summarise(
+    incendio_b = TRUE) %>%
+  select(cgl, incendio_b)
+
+# número de plagas
+tab_plagas <- collect(tbl(base_input, "Plaga")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+  summarise(
+    num_plagas = n()
+    )
+
+# Impactos actuales
+tab_impactos <- collect(tbl(base_input, "Impacto_actual")) %>%
+  left_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  group_by(cgl) %>%
+  summarise(
+    num_impactos = sum(hay_evidencia == "T")
+  )
+
+
+# obtenemos el tipo de muestreo
+cgl_tipo <- collect(tbl(base_input, "Conglomerado_muestra"))$monitoreo_tipo[1]
+cgl_tipo <- ifelse(is.na(cgl_tipo), "SAR-MOD", cgl_tipo)
+
+if(cgl_tipo == "SAC-MOD"){
+  tab_shape <- conglomerado %>%
+    left_join(tab_sitio, by = "cgl") %>%
+    left_join(tab_ei, by = "cgl") %>%
+    left_join(tab_he, by = "cgl") %>%
+    left_join(tab_camara, by = "cgl") %>%
+    left_join(tab_grabadora, by = "cgl") %>%
+    left_join(tab_extra, by = "cgl")  
   
+  # NA->'No disp.'
+  codeNA <- function(x) ifelse(is.na(x), "No disp.", x)
+  tab_shape_f <- tab_shape %>%
+    mutate_each(funs(codeNA)) %>%
+    select(-id)
+  colnames(tab_shape_f) <- c("Cgl", "Visita", "Sitios", "Invasoras", 
+    "Huella/ex", "Fauna", "Grab", "Extra")
+}else{
+  codeTrue <- function(x) ifelse(x, "Sí", NA)
+  tab_shape <- conglomerado %>%
+    left_join(tab_sitio, by = "cgl") %>%
+    left_join(tab_ei, by = "cgl") %>%
+    left_join(tab_he, by = "cgl") %>%
+    left_join(tab_camara, by = "cgl") %>%
+    left_join(tab_grabadora, by = "cgl") %>%
+    left_join(tab_extra, by = "cgl") %>% 
+    left_join(tab_ave, by = "cgl") %>%
+    left_join(tab_lenoso, by = "cgl") %>%
+    left_join(tab_carbono, by = "cgl") %>%
+    left_join(tab_trans, by = "cgl") %>%
+    left_join(tab_cuad, by = "cgl") %>%
+    left_join(tab_epifitas, by = "cgl") %>%  
+    left_join(tab_incendio, by = "cgl") %>%
+    left_join(tab_plagas, by = "cgl") %>%
+    left_join(tab_impactos, by = "cgl") %>%
+    mutate_each(funs(codeTrue), contains("_b"))   
+  
+  # NA->'No disp.'
+  codeNA <- function(x) ifelse(is.na(x), "No disp.", x)
+  tab_shape_f <- tab_shape %>%
+    mutate_each(funs(codeNA)) %>%
+    select(-id)
+  colnames(tab_shape_f) <- c("Cgl", "Visita", "Sitios", "Invasoras", 
+    "Huella/ex", "Fauna", "Grab", "Extra", "Ave", "Leñoso", "Carbono", 
+    "Arb_ch", "Arb_gd", "Epifitas", "Incendio", "Plagas", "Impactos")
+}
 
-  left_join(select(tab_ei_extra, cgl, ei_extra_b = n_registros)) %>%
-  left_join(select(tab_he_extra, cgl, he_extra_b = n_registros)) %>%
-  left_join(select(tab_er_extra, cgl, er_extra_b = n_registros)) %>%
-  mutate_each(funs(not.na), contains("_b")) 
+# guardar Rdata para pruebas ggvis
+save(tab_shape, file = paste("salidas/", nombre, ".Rdata", sep = ""))
+
+
+### hacer shapes
+# cargar coordenadas (shapes de Pedro)
+coords <- readOGR("shapes_22025/Cong22025_lamb.shp", "Cong22025_lamb")
+
+coords_df <- coords %>%
+  data.frame() %>%
+  mutate(
+    Cgl = as.character(IdConglome)
+    ) %>%
+  select(-IdConglome, -Latitud, -Longitud)
+
+# Unir con tablas de sarmod/sacmod
+tab_coords <- tab_shape_f %>%
+  inner_join(coords_df, by = c("Cgl")) %>%
+  as.data.frame()
+coordinates(tab_coords) = ~coords.x1 + coords.x2
+projection(tab_coords) <- projection(coords)
+
+dir <- paste("shapes/", nombre, sep = "")
+dir.create(dir)
+
+writeOGR(tab_coords, dir, "fmcn", driver = "ESRI Shapefile", verbose = TRUE, 
+  overwrite_layer = TRUE)
+
+
+# para geojason
+# writeOGR(tab_coords, "shapes/prueba.geojson", "prueba", driver = "GeoJSON", 
+#   verbose = TRUE, overwrite_layer = TRUE)
