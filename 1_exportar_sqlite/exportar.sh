@@ -7,10 +7,10 @@
 # El && sirve para ejecutar una acción si y sólo si la anterior fue exitosa.
 base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # ${BASH_SOURCE[0]}: nombre del script
-
+echo $base_dir
 # Directorio dentro de web2py (variable global)
-base_web2py=$(cd ${base_dir%%/} && cd "../web2py/web2py.app/Contents/Resources/applications/cliente_web2py/databases" && pwd)
-
+base_web2py=$(cd "../web2py/web2py.app/Contents/Resources/applications/cliente_web2py/databases" && pwd)
+echo $base_web2py
 # Creamos la carpeta bases (en caso de que no exista)
 mkdir ${base_dir%%/}/bases
 
@@ -53,7 +53,7 @@ do
 done
 
 # Antes de fusionar borrar todo lo del folder databases del fusionador
-base_fusionador=$(cd ${base_dir%%/} && cd "../web2py/web2py.app/Contents/Resources/applications/fusionador_sqlite/databases" && pwd)
+base_fusionador=$(cd "../web2py/web2py.app/Contents/Resources/applications/fusionador_sqlite/databases" && pwd)
 
 rm -rfv ${base_fusionador%%/}/*
 
