@@ -56,7 +56,7 @@ integracion_snmb
 └───1_exportar_sqlite
 |   │   exportar.sh
 |   ├───scripts_py
-|   │   |   borrar_tabla.py
+|   │   |   crear_tablas.py
 |   │   |   exportar.py
 |   │   |   fusionar.py
 |   ├───bases*
