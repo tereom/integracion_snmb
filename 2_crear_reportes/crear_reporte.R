@@ -12,7 +12,7 @@
 
 library(rmarkdown)
 
-Sys.setenv(RSTUDIO_PANDOC='/Applications/RStudio.app/Contents/MacOS/pandoc')
+Sys.setenv(RSTUDIO_PANDOC = '/Applications/RStudio.app/Contents/MacOS/pandoc')
 args <- commandArgs(trailingOnly = TRUE)
 
 nombre_entrega <- args[1]

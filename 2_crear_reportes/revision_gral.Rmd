@@ -37,8 +37,11 @@ dir.create(dir_padre)
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obtenemos la ruta de la base de la forma pattern_db localizadas en dir_j
-bases_rutas <- list.files(path = dir_j, 
+base_sqlite <- list.files(path = dir_j, 
  recursive = TRUE, full.names = TRUE, pattern = pattern_db)
+
+# Si hay una base en csv la copia a la carpeta del reporte
+base_csv <- paste(dir_j, "/storage.csv", sep = "")
 
 # copiamos la base a una carpeta local
 copiaRenombra <- function(dir_j_archivo, dir_local, nombre_db){
@@ -52,7 +55,8 @@ copiaRenombra <- function(dir_j_archivo, dir_local, nombre_db){
 }
 
 # Copia la base a la carpeta local (solo tomará en cuenta la primera)
-copiaRenombra(bases_rutas[1], dir_padre, entrega)
+copiaRenombra(base_sqlite[1], dir_padre, entrega)
+copiaRenombra(base_csv, dir_padre, entrega)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
