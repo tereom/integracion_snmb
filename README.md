@@ -65,6 +65,7 @@ integracion_snmb
 |   │   |   snmb_1.csv
 |   │   |   ...
 |   │   |   storage.sqlite
+|   |   |   storage.csv
 └───2_crear_reportes
 |   │   crear_reporte.R
 |   │   revision_gral.Rmd
