@@ -12,7 +12,7 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 Este proceso consta de dos pasos: 
 
 + Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *crear_tablas.py* almacenados en la carpeta *scripts_py*, este paso debe hacerse usando el python de web2py pues se utiliza la aplicación *cliente_web2py*. Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
-+ El segundo paso consiste en fusionar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar.py*, que corre en el python de web2py usando los modelos de la aplicación *fusionador_sqlite*. El resultado son dos archivos: *storage.sqlite* y *storage.csv*.
++ El segundo paso consiste en fusionar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar_sqlite.py*, que corre en el python de web2py usando los modelos de la aplicación *fusionador_sqlite*. El resultado son dos archivos: *storage.sqlite* y *storage.csv*.
 
 Ejemplo:
 ```
@@ -59,7 +59,7 @@ integracion_snmb
 |   ├───scripts_py
 |   │   |   crear_tablas.py
 |   │   |   exportar.py
-|   │   |   fusionar.py
+|   │   |   fusionar_sqlite.py
 |   ├───bases*
 |   │   |   snmb_0.csv
 |   │   |   snmb_1.csv
