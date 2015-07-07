@@ -75,6 +75,16 @@ integracion_snmb
 |   |   |   |   aaaa_mm_dd_TITULO.db
 |   |   |   |   aaaa_mm_dd_TITULO.docx
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
+└───5_crear_shapes
+|   │   crear_shape.R
+|   │   ├───mallaSiNaMBioD
+|   │   ├───shapes*
+|   |   |   ├───aaaa_NOMBRE
+|   |   |   |   |   aaaa_NOMBRE.dbf
+|   |   |   |   |   aaaa_NOMBRE.prj
+|   |   |   |   |   aaaa_NOMBRE.shp
+|   |   |   |   |   aaaa_NOMBRE.shx
+
 ```
-\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar *reportes* y sus contenidos se generan con el script *crear_reportes.R*.    
+\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes* y *shapes* (con sus contenidos) se generan con el script *crear_reportes.R* y *crear_shape.R* respectivamente.    
 \*\*La carpeta *web2py* se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_sqlite*, *fusionador_postgres* y *cliente_web2py* respectivamente.
