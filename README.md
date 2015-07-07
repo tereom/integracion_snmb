@@ -50,10 +50,9 @@ La estructura de archivos y carpetas es como sigue.
 ```
 integracion_snmb
 │   README.md
-├───web2py**
-│   ├───web2py.app |...|   cliente_web2py
-│   │                  |   fusionador_sqlite
-|   |                  |   fusionador_postgres
+├───web2py** |...|   cliente_web2py
+│   │            |   fusionador_sqlite
+|   |            |   fusionador_postgres
 └───1_exportar_sqlite
 |   │   exportar.sh
 |   ├───scripts_py
@@ -75,6 +74,10 @@ integracion_snmb
 |   |   |   |   aaaa_mm_dd_TITULO.db
 |   |   |   |   aaaa_mm_dd_TITULO.docx
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
+└───3_fusionar_postgres
+|   |   fusionar.sh
+|   ├───scripts_py
+|   │   |   fusionar_postgres.py
 └───5_crear_shapes
 |   │   crear_shape.R
 |   │   ├───mallaSiNaMBioD
@@ -87,4 +90,4 @@ integracion_snmb
 
 ```
 \*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes* y *shapes* (con sus contenidos) se generan con el script *crear_reportes.R* y *crear_shape.R* respectivamente.    
-\*\*La carpeta *web2py* se debe agregar manualmente, es decir, no forma parte del repositorio ni se crea con los scripts, dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_sqlite*, *fusionador_postgres* y *cliente_web2py* respectivamente.
+\*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_sqlite*, *fusionador_postgres* y *cliente_web2py* respectivamente.
