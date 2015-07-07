@@ -1,3 +1,10 @@
+### Observaciones
+# 1. En conglomerado incluir filtro de CONANP, CONAFOR, FMCN,...
+# 2. No estamos llenando la variable monitoreo_tipo, por lo tanto para detectar
+#     el tipo de monitoreo usamos el argumento nombre y comparamos con 
+#     el string CONAFOR (sensible a mayúsculas)
+
+
 ### Shapefiles
 # paquetes
 library("rgdal")
@@ -11,13 +18,29 @@ library("dplyr")
 ### Argumentos
 # dir_base: directorio de la base de datos sqlite
 # nombre: institución que muestreó
-dir_base <- "../2_crear_reportes/reportes/2015_06_29_FMCN/2015_06_29_FMCN.db"
-nombre <- "FMCN"
+# dir_base <- "../2_crear_reportes/reportes/2015_06_22_CONAFOR/2015_06_22_CONAFOR.db"
+# nombre <- "CONAFOR"
+# anio_shape <- "2015"
 
-base_input <- src_sqlite(base)
+args <- commandArgs(trailingOnly = TRUE)
+
+dir_base <- args[1]
+nombre <- args[2]
+anio_shape <- args[3]
+
+# Carpeta y nombre de salidas
+nombre_shape <- paste(anio_shape, nombre, sep = "_")
+dir <- paste("shapes/", nombre_shape, sep = "")
+dir.create(dir)
+
+base_input <- src_sqlite(dir_base)
 
 # información para el shape
 conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+  mutate(
+    anio = substr(fecha_visita, 1, 4)
+  ) %>%
+  filter(anio == anio_shape) %>% # este filtro debe incluir FMCN, CONANP, ...
   select(id, cgl = nombre, fecha_visita)
 
 # número de sitios
@@ -226,12 +249,7 @@ tab_impactos <- collect(tbl(base_input, "Impacto_actual")) %>%
     num_impactos = sum(hay_evidencia == "T")
   )
 
-
-# obtenemos el tipo de muestreo
-cgl_tipo <- collect(tbl(base_input, "Conglomerado_muestra"))$monitoreo_tipo[1]
-cgl_tipo <- ifelse(is.na(cgl_tipo), "SAR-MOD", cgl_tipo)
-
-if(cgl_tipo == "SAC-MOD"){
+if(nombre == "CONAFOR"){
   tab_shape <- conglomerado %>%
     left_join(tab_sitio, by = "cgl") %>%
     left_join(tab_ei, by = "cgl") %>%
@@ -248,7 +266,7 @@ if(cgl_tipo == "SAC-MOD"){
   colnames(tab_shape_f) <- c("Cgl", "Visita", "Sitios", "Invasoras", 
     "Huella/ex", "Fauna", "Grab", "Extra")
 }else{
-  codeTrue <- function(x) ifelse(x, "Sí", NA)
+  codeTrue <- function(x) ifelse(x, "Si", NA)
   tab_shape <- conglomerado %>%
     left_join(tab_sitio, by = "cgl") %>%
     left_join(tab_ei, by = "cgl") %>%
@@ -278,19 +296,30 @@ if(cgl_tipo == "SAC-MOD"){
 }
 
 # guardar Rdata para pruebas ggvis
-save(tab_shape, file = paste("salidas/", nombre, ".Rdata", sep = ""))
+save(tab_shape, sitio_coords, 
+  file = paste("salidas/", nombre_shape, ".Rdata", sep = ""))
 
 
 ### hacer shapes
-# cargar coordenadas (shapes de Pedro)
-coords <- readOGR("shapes_22025/Cong22025_lamb.shp", "Cong22025_lamb")
+# cargar coordenadas (shapes 22025)
+# coords <- readOGR("shapes_22025/Cong22025_lamb.shp", "Cong22025_lamb")
+# coords_df <- coords %>%
+#   data.frame() %>%
+#   mutate(
+#     Cgl = as.character(IdConglome)
+#     ) %>%
+#   select(-IdConglome, -Latitud, -Longitud)
+# 
+
+# cargar coordenadas (shapes SINaMBioD)
+coords <- readOGR("mallaSiNaMBioD/mallaSiNaMBioD.shp", "mallaSiNaMBioD")
 
 coords_df <- coords %>%
   data.frame() %>%
   mutate(
-    Cgl = as.character(IdConglome)
+    Cgl = as.character(id_snmb)
     ) %>%
-  select(-IdConglome, -Latitud, -Longitud)
+  select(Cgl, coords.x1, coords.x2)
 
 # Unir con tablas de sarmod/sacmod
 tab_coords <- tab_shape_f %>%
@@ -299,13 +328,7 @@ tab_coords <- tab_shape_f %>%
 coordinates(tab_coords) = ~coords.x1 + coords.x2
 projection(tab_coords) <- projection(coords)
 
-dir <- paste("shapes/", nombre, sep = "")
-dir.create(dir)
-
-writeOGR(tab_coords, dir, "fmcn", driver = "ESRI Shapefile", verbose = TRUE, 
+# Escribir shapes
+writeOGR(tab_coords, dir, nombre_shape, driver = "ESRI Shapefile", 
+  verbose = FALSE, 
   overwrite_layer = TRUE)
-
-
-# para geojason
-# writeOGR(tab_coords, "shapes/prueba.geojson", "prueba", driver = "GeoJSON", 
-#   verbose = TRUE, overwrite_layer = TRUE)
