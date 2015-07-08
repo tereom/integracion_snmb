@@ -62,7 +62,7 @@ copiaRenombra(base_csv[1], dir_padre, entrega)
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ### Cámara
-base <- paste(dir_padre, "/", entrega, ".db", sep = "")
+base <- paste(dir_padre, "/", entrega, ".sqlite", sep = "")
 
 base_input <- src_sqlite(base)
 
