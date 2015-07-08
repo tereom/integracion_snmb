@@ -52,7 +52,10 @@ Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (cr
 ```
 > pip install psycopg2
 ```
-3. [Descargar una versión de Web2py en código fuente](http://www.web2py.com/init/default/download)
+3. [Descargar una versión de Web2py en código fuente](http://www.web2py.com/init/default/download), ésto debido a que se deberá
+utilizar el python local para correr Web2py, pues es el que tiene instalado psycopg2.
+4. [Descargar una aplicación del fusionador](https://github.com/fpardourrutia/fusionador) y guardarla en la carpeta de *applications* dentro de Web2py. Cambiarle el nombre de *fusionador_snmb* a *fusionador_postgres*.
+5. Datos en archivo db.
 
 ### Carpetas y Archivos
 La estructura de archivos y carpetas es como sigue.
