@@ -15,8 +15,8 @@ base_web2py=$(cd "../web2py/web2py.app/Contents/Resources/applications/cliente_w
 # Creamos la carpeta bases (en caso de que no exista)
 mkdir ${base_dir%%/}/bases
 
-# Comenzamos borrando las bases en la carpeta bases para tener una sesión nueva
-rm -f ${base_dir%%/}/bases/*
+# Comenzamos borrando las bases/csv en la carpeta bases para tener una sesión nueva
+rm -f ${base_dir%%/}/bases/*.{sqlite,csv}
 
 # # Exportar la base de datos
 exporta_csv () {
@@ -58,8 +58,10 @@ base_fusionador=$(cd "../web2py/web2py.app/Contents/Resources/applications/fusio
 
 rm -f ${base_fusionador%%/}/*
 
-../web2py/web2py.app/Contents/MacOS/web2py -S fusionador_sqlite -M -R ${base_dir%%/}/scripts_py/fusionar.py -A ${base_dir%%/}/bases
+../web2py/web2py.app/Contents/MacOS/web2py -S fusionador_sqlite -M -R ${base_dir%%/}/scripts_py/fusionar_sqlite.py -A ${base_dir%%/}/bases
 
 mv ${base_fusionador%%/}/storage.sqlite ${base_dir%%/}/bases/storage.sqlite
+
+mv ${base_fusionador%%/}/storage.csv ${base_dir%%/}/bases/storage.csv
 
 rm -f ${base_web2py%%/}/*
