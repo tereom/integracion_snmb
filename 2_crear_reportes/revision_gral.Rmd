@@ -41,22 +41,23 @@ base_sqlite <- list.files(path = dir_j,
  recursive = TRUE, full.names = TRUE, pattern = pattern_db)
 
 # Si hay una base en csv la copia a la carpeta del reporte
-base_csv <- paste(dir_j, "/storage.csv", sep = "")
+base_csv <- list.files(path = dir_j, recursive = TRUE, full.names = TRUE, 
+  pattern = "storage.csv")
 
 # copiamos la base a una carpeta local
 copiaRenombra <- function(dir_j_archivo, dir_local, nombre_db){
   # dir_j_archivo: directorio (con nombre archivo) donde se ubica la base a copiar
-  # dir_local: directorio (sin nombre de archivo) donde se copiará la base
-  # id_db: id numérico que se utilizará para distinguir bases en migración  
+  # dir_local: directorio (sin nombre de archivo) donde se copiará la base 
   copia <- file.copy(dir_j_archivo, dir_local, overwrite = FALSE)
+  terminacion <- stri_extract_first(dir_j_archivo, regex = "\\.[a-z]+")
   renombra <- file.rename(from = paste(dir_local, basename(dir_j_archivo), 
     sep = "/"), 
-    to = paste(dir_local, "/", nombre_db, ".db", sep = ""))
+    to = paste(dir_local, "/", nombre_db, terminacion, sep = ""))
 }
 
 # Copia la base a la carpeta local (solo tomará en cuenta la primera)
 copiaRenombra(base_sqlite[1], dir_padre, entrega)
-copiaRenombra(base_csv, dir_padre, entrega)
+copiaRenombra(base_csv[1], dir_padre, entrega)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
