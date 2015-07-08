@@ -23,13 +23,14 @@ donde el argumento es:
 
 El resultado es: 
 * base de datos fusionada: bases/storage.sqlite
+* archivo csv correspondiente a la anterior: bases/storage.csv
 
 ### 2. Reporte de entrega
 Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. 
 
 + *crear_reporte.R* llama a *revision_gral.Rmd* que crea un reporte en _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
-Se corre el script crear_reporte.R desde la terminal. Por ejemplo:
+Se corre el script *crear_reporte.R* desde la terminal. Por ejemplo:
 ```
 > Rscript crear_reporte.R 'FMCN' '../1_exportar_sqlite'
 ```
@@ -38,11 +39,20 @@ donde los argumentos son:
 * _dir\_j_: ruta de la carpeta donde se buscará la base de datos a revisar
 
 El resultado es:
-* copia base de datos: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.db
+* copia base de datos: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.sqlite
+* copia csv: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.csv
 * reporte pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.pdf
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
 
+### 3. Fusionar en la base de datos final
+Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1), para integrar su información a la base de datos final (postgres). Para poder realizar éste paso, es necesario hacer lo siguiente:
 
+1. [Instalar PostgreSQL con ayuda de Homebrew](https://marcinkubala.wordpress.com/2013/11/11/postgresql-on-os-x-mavericks/).
+2. Instalar la librería de Python [psycopg2](http://initd.org/psycopg/):
+```
+> pip install psycopg2
+```
+3. [Descargar una versión de Web2py en código fuente](http://www.web2py.com/init/default/download)
 
 ### Carpetas y Archivos
 La estructura de archivos y carpetas es como sigue.
