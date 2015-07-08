@@ -71,7 +71,8 @@ integracion_snmb
 |   │   revision_gral_word.Rmd
 |   ├───reportes*
 |   |   ├───aaaa_mm_dd_TITULO
-|   |   |   |   aaaa_mm_dd_TITULO.db
+|   |   |   |   aaaa_mm_dd_TITULO.csv
+|   |   |   |   aaaa_mm_dd_TITULO.sqlite
 |   |   |   |   aaaa_mm_dd_TITULO.docx
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
 └───3_fusionar_postgres
