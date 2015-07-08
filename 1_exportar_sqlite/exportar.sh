@@ -10,7 +10,7 @@ base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # echo $base_dir
 
 # Directorio dentro de web2py (variable global)
-base_web2py=$(cd "../web2py/web2py.app/Contents/Resources/applications/cliente_web2py/databases" && pwd)
+base_web2py=$(cd "../web2py/applications/cliente_web2py/databases" && pwd)
 #echo $base_web2py
 # Creamos la carpeta bases (en caso de que no exista)
 mkdir ${base_dir%%/}/bases
@@ -26,7 +26,7 @@ exporta_csv () {
 
 	# Crear nuevas tablas
 	# -M es para cargar los modelos de la aplicación utilizada.
-	../web2py/web2py.app/Contents/MacOS/web2py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/crear_tablas.py
+	python ../web2py/web2py.py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/crear_tablas.py
 
 	# Copiar base de datos sqlite que nos entregaron y pegarla en el cliente
 	echo "reemplazar"
@@ -34,7 +34,7 @@ exporta_csv () {
 
 	# Exportar la base de datos
 	# # -M importar modelos, -R correr script de python
-	../web2py/web2py.app/Contents/MacOS/web2py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/exportar.py
+	python ../web2py/web2py.py -S cliente_web2py -M -R ${base_dir%%/}/scripts_py/exportar.py
 
 	# # Renombro archivo
 	nuevo_nom=bases/snmb_$2.csv
@@ -54,11 +54,11 @@ do
 done
 
 # Antes de fusionar borrar todo lo del folder databases del fusionador
-base_fusionador=$(cd "../web2py/web2py.app/Contents/Resources/applications/fusionador_sqlite/databases" && pwd)
+base_fusionador=$(cd "../web2py/applications/fusionador_sqlite/databases" && pwd)
 
 rm -f ${base_fusionador%%/}/*
 
-../web2py/web2py.app/Contents/MacOS/web2py -S fusionador_sqlite -M -R ${base_dir%%/}/scripts_py/fusionar_sqlite.py -A ${base_dir%%/}/bases
+python ../web2py/web2py.py -S fusionador_sqlite -M -R ${base_dir%%/}/scripts_py/fusionar_sqlite.py -A ${base_dir%%/}/bases
 
 mv ${base_fusionador%%/}/storage.sqlite ${base_dir%%/}/bases/storage.sqlite
 
