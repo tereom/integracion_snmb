@@ -11,8 +11,8 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
 
-+ Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *crear_tablas.py* almacenados en la carpeta *scripts_py*, este paso debe hacerse usando el python de web2py pues se utiliza la aplicación *cliente_web2py*. Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
-+ El segundo paso consiste en fusionar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar_sqlite.py*, que corre en el python de web2py usando los modelos de la aplicación *fusionador_sqlite*. El resultado son dos archivos: *storage.sqlite* y *storage.csv*.
++ Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *crear_tablas.py* almacenados en la carpeta *scripts_py*, este paso utiliza los modelos de la aplicación *cliente_web2py*. Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
++ El segundo paso consiste en fusionar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar_sqlite.py*, que utiliza los modelos de la aplicación *fusionador_sqlite*. El resultado son dos archivos: *storage.sqlite* y *storage.csv*.
 
 Ejemplo:
 ```
@@ -45,17 +45,53 @@ El resultado es:
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
 
 ### 3. Fusionar en la base de datos final
-Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1), para integrar su información a la base de datos final (postgres). Para poder realizar éste paso, es necesario hacer lo siguiente:
+Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1), para integrar su información a la base de datos final (postgres).
 
-1. [Instalar PostgreSQL con ayuda de Homebrew](https://marcinkubala.wordpress.com/2013/11/11/postgresql-on-os-x-mavericks/).
-2. Instalar la librería de Python [psycopg2](http://initd.org/psycopg/):
+#### Requerimientos previos
+Para poder realizar éste paso, es necesario hacer lo siguiente:
+
+* [Instalar PostgreSQL con ayuda de Homebrew](https://marcinkubala.wordpress.com/2013/11/11/postgresql-on-os-x-mavericks/).
+* Instalar la librería de Python [psycopg2](http://initd.org/psycopg/):
 ```
 > pip install psycopg2
 ```
-3. [Descargar una versión de Web2py en código fuente](http://www.web2py.com/init/default/download), ésto debido a que se deberá
+* [Descargar una versión de Web2py en código fuente](http://www.web2py.com/init/default/download), ésto debido a que se deberá
 utilizar el python local para correr Web2py, pues es el que tiene instalado psycopg2.
-4. [Descargar una aplicación del fusionador](https://github.com/fpardourrutia/fusionador) y guardarla en la carpeta de *applications* dentro de Web2py. Cambiarle el nombre de *fusionador_snmb* a *fusionador_postgres*.
-5. Datos en archivo db.
+* [Descargar una aplicación del fusionador](https://github.com/fpardourrutia/fusionador) y guardarla en la carpeta de *applications* dentro de Web2py. Cambiarle el nombre de *fusionador_snmb* a *fusionador_postgres*.
+* Abrir la terminal para crear la base de datos postgres:
+```
+> cd /usr/local/var
+> #creando la base de datos:
+> initdb nombre_base
+> #encendiendo el servidor
+> postgres -D postgres
+> #registrándola adecuadamente
+> createdb nombre_base
+```
+* Abrir el archivo: *fusionador_postgres/models/00_0_db_f.py*, y revisar que la siguiente línea esté correcta:
+```
+db = DAL('postgres://usuario:contrasena@localhost/nombre_base', db_codec='UTF-8',check_reserved=['all'], migrate = True)
+```
+Nota: `migrate = False` se utiliza para bases de datos preexistentes (por ejemplo, que hayan sido pobladas mediante algún ETL,
+antes de utilizarlas de esta manera.
+
+#### Uso
+
+*fusionar.sh* llama al script de python *fusionar_postgres.py*, que corre utilizando los modelos de la aplicación *fusionador_postgres*, para guardar la información en la base de datos.
+
+Para correr este script desde la terminal:
++ Encender el servidor postgres:
+```
+
+postgres -D /usr/local/var/postgres
+```
++ Correr el script:
+
+```
+bash fusionar.sh ../1_exportar_sqlite/bases/storage.csv 
+```
+donde el argumento es:
+* _csv_ruta_: path del csv a fusionar.
 
 ### Carpetas y Archivos
 La estructura de archivos y carpetas es como sigue.
