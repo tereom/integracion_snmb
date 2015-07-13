@@ -130,7 +130,7 @@ integracion_snmb
 |   │   |   fusionar_postgres.py
 └───5_crear_shapes
 |   │   crear_shape.R
-|   │   ├───mallaSiNaMBioD
+|   │   ├───mallaSiNaMBioD**
 |   │   ├───shapes*
 |   |   |   ├───aaaa_NOMBRE
 |   |   |   |   |   aaaa_NOMBRE.dbf
@@ -141,3 +141,4 @@ integracion_snmb
 ```
 \*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes* y *shapes* (con sus contenidos) se generan con el script *crear_reportes.R* y *crear_shape.R* respectivamente.    
 \*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_sqlite*, *fusionador_postgres* y *cliente_web2py* respectivamente.
+\*\*La carpeta *mallaSiNaMBioD* se agrega manualmente y contiene los shapes de la malla del SNMB. 
