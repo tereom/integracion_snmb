@@ -2,7 +2,7 @@
 
 # Argumentos:
 # csv_ruta: ruta al archivo csv a fusionar en la base de datos final.
-# Ejemplo: bash fusionar_postgres.sh ../1_exportar_sqlite/bases/storage.csv
+# Ejemplo: bash fusionar.sh ../1_exportar_sqlite/bases/storage.csv
 
 # Por seguridad de los datos, se deberá encender el servidor de la base postgresql
 # antes de correr este script.
