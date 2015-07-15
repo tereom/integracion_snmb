@@ -53,9 +53,15 @@ La base de datos final (postgres) tendrá implementado el esquema de datos más 
 
 Se corre el script *migrar_v10_v12.R* desde la terminal. Por ejemplo:
 ```
-> Rscript migrar_v10_v12.R 'FMCN' '../1_exportar_sqlite'
+> Rscript migrar_v10_v12.R 'FMCN' '../1_exportar_sqlite/bases/storage.sqlite' 'FMCN'
 ```
+donde los argumentos son:
+* _entrega_: nombre del directorio donde se guardará el análisis.
+* _base_ruta_: ruta a la base de datos a migrar de esquema.
+* _institucion_: institución que entregó los datos.
 
+El resultado es:
+* migración de la base de datos al esquema más reciente: migraciones/aaaa_mm_dd_entrega_v10_v12/aaaa_mm_dd_entrega_v10_v12.sqlite
 
 
 ### 4. Fusionar en la base de datos final
