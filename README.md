@@ -49,11 +49,11 @@ El resultado es:
 ### 3. Migración de esquema
 La base de datos final (postgres) tendrá implementado el esquema de datos más reciente, por ello, antes de fusionar la base sqlite obtenida en el paso 1, se deberá asegurar que esté en dicho esquema, de lo contrario, se deberá realizar una migración.
 
-+ *migrar_v10_v12.R* llama a *etl_v10_v12.Rmd* que crea una copia de la base _storage.sqlite_
++ *migrar_v10_v12.R* llama a *etl_v10_v12.Rmd* que crea una copia de la base _storage.sqlite_.
 
-Se corre el script *crear_reporte.R* desde la terminal. Por ejemplo:
+Se corre el script *migrar_v10_v12.R* desde la terminal. Por ejemplo:
 ```
-> Rscript crear_reporte.R 'FMCN' '../1_exportar_sqlite'
+> Rscript migrar_v10_v12.R 'FMCN' '../1_exportar_sqlite'
 ```
 
 
