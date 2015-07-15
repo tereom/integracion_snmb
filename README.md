@@ -26,7 +26,7 @@ El resultado es:
 * archivo csv correspondiente a la anterior: bases/storage.csv
 
 ### 2. Reporte de entrega
-Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. 
+Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. Además, genera un reporte de conglomerado repetidos. En el caso de existir conglomerados repetidos se debe analizar el reporte de repetios para decidir como eliminar las copias, una vez que exista un único registro por conglomerado es necesario volver a correr el reporte de entrega.
 
 + *crear_reporte.R* llama a *revision_gral.Rmd* que crea un reporte en _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
@@ -43,6 +43,7 @@ El resultado es:
 * copia csv: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.csv
 * reporte pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.pdf
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
+* reporte repetidos pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega_rep.docx
 
 ### 3. Fusionar en la base de datos final
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1), para integrar su información a la base de datos final (postgres).
@@ -118,19 +119,21 @@ integracion_snmb
 |   │   crear_reporte.R
 |   │   revision_gral.Rmd
 |   │   revision_gral_word.Rmd
+|   |   revision_repetidos.Rmd
 |   ├───reportes*
 |   |   ├───aaaa_mm_dd_TITULO
 |   |   |   |   aaaa_mm_dd_TITULO.csv
 |   |   |   |   aaaa_mm_dd_TITULO.sqlite
 |   |   |   |   aaaa_mm_dd_TITULO.docx
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
+|   |   |   |   aaaa_mm_dd_TITULO_rep.pdf
 └───3_fusionar_postgres
 |   |   fusionar.sh
 |   ├───scripts_py
 |   │   |   fusionar_postgres.py
 └───5_crear_shapes
 |   │   crear_shape.R
-|   │   ├───mallaSiNaMBioD
+|   │   ├───mallaSiNaMBioD**
 |   │   ├───shapes*
 |   |   |   ├───aaaa_NOMBRE
 |   |   |   |   |   aaaa_NOMBRE.dbf
@@ -140,4 +143,5 @@ integracion_snmb
 
 ```
 \*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes* y *shapes* (con sus contenidos) se generan con el script *crear_reportes.R* y *crear_shape.R* respectivamente.    
-\*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_sqlite*, *fusionador_postgres* y *cliente_web2py* respectivamente.
+\*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py). Estas aplicaciones deben llamarse *fusionador_sqlite*, *fusionador_postgres* y *cliente_web2py* respectivamente.  
+\*\*La carpeta *mallaSiNaMBioD* se agrega manualmente y contiene los shapes de la malla del SNMB. 
