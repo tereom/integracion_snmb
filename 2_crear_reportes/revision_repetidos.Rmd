@@ -1,0 +1,204 @@
+---
+title: "Reporte de repetidos"
+output: pdf_document
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(plyr)
+library(tidyr)
+library(stringr)
+library(stringi)
+library(RSQLite)
+library(dplyr)
+library(knitr)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# para poder comparar NAs hace falta convertirlos a string
+quitaNA <- function(x) ifelse(is.na(x), "NA", x)
+
+# extraer la tabla, filtrando por el valor id_tab en la variable id
+extraeTabla <- function(id_tab, tabla, id){
+  tabla %>%
+    filter_(paste(id, "==", id_tab)) %>%
+    select(-contains("id")) %>%
+    mutate_each(funs(quitaNA)) 
+}
+
+# para una tabla dada crea una lista de tablas donde cada entrada corresponde 
+# a una tabla construida con crearTabla
+comparaTablas <- function(cgl_ids, tabla, id = "conglomerado_muestra_id"){
+  n_reps <- length(cgl_ids)
+  tabs <- ldply(cgl_ids, extraeTabla, tabla = tabla, id = id)
+  #print(tabs)
+  n_dist <- tabs %>% 
+    distinct() %>%
+    nrow() 
+  ifelse(n_dist == nrow(tabs) / n_reps, "=", 
+    ifelse(n_dist < nrow(tabs) / n_reps, "<", ">"))
+}
+
+
+# se creó una función adicional para evitar conectarse a la base de datos en 
+# cada iteración de un conglomerado
+compara <- function(cgl_rep){
+  # Conglomerado
+  conglomerado <- collect(tbl(base_input, "Conglomerado_muestra"))
+  # Sitio
+  sitio <- collect(tbl(base_input, "Sitio_muestra"))
+  # Imagen ref. sitio
+  sitio_cgl <- sitio %>%
+    select(id_sitio = id, conglomerado_muestra_id) 
+  img_sitio <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Imagen_referencia_sitio")), 
+      by = c("id_sitio" = "sitio_muestra_id")) 
+  # Aves
+  pto_ave <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Punto_conteo_aves")), 
+      by = c("id_sitio" = "sitio_muestra_id"))  
+  conteo_ave <- pto_ave %>%
+    select(id_pto = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Conteo_ave")), 
+      by = c("id_pto" = "punto_conteo_aves_id"))  
+  arch_ave <- conteo_ave %>%
+    select(id_conteo = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_conteo_ave")), 
+      by = c("id_conteo" = "conteo_ave_id"))  
+  # Cámara
+  camara <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Camara")), 
+      by = c("id_sitio" = "sitio_muestra_id"))
+  arch_camara <- camara %>%
+    select(id_camara = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_camara")), 
+      by = c("id_camara" = "camara_id"))  
+  # Grabadora
+  grabadora <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Grabadora")), 
+      by = c("id_sitio" = "sitio_muestra_id"))
+  arch_grabadora <- grabadora %>%
+    select(id_grabadora = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_grabadora")), 
+      by = c("id_grabadora" = "grabadora_id"))  
+  # Transecto EI
+  cong <- conglomerado %>%
+    select(conglomerado_muestra_id = id)
+  tr_ei <- cong %>%
+    inner_join(collect(tbl(base_input, "Transecto_especies_invasoras_muestra")),
+      by = c("conglomerado_muestra_id"))
+  ei <- tr_ei %>%
+    select(id_tr = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Especie_invasora")),
+      by = c("id_tr" = "transecto_especies_invasoras_id"))    
+  arch_ei <- ei %>%
+    select(id_ei = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_especie_invasora")),
+      by = c("id_ei" = "especie_invasora_id"))    
+  # Transecto HE
+  tr_he <- cong %>%
+    inner_join(collect(tbl(base_input, "Transecto_huellas_excretas_muestra")),
+      by = c("conglomerado_muestra_id"))
+  he <- tr_he %>%
+    select(id_tr = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Huella_excreta")),
+      by = c("id_tr" = "transecto_huellas_excretas_id"))    
+  arch_he <- he %>%
+    select(id_he = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_huella_excreta")),
+      by = c("id_he" = "huella_excreta_id"))    
+  # Extras ER
+  ex_er <- cong %>%
+    inner_join(collect(tbl(base_input, "Especimen_restos_extra")),
+      by = c("conglomerado_muestra_id"))
+  arch_ex_er <- ex_er %>%
+    select(id_er = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_especimen_restos_extra")),
+      by = c("id_er" = "especimen_restos_extra_id"))    
+  # Extras EI
+  ex_ei <- cong %>%
+    inner_join(collect(tbl(base_input, "Especie_invasora_extra")),
+      by = c("conglomerado_muestra_id"))
+  arch_ex_ei <- ex_ei %>%
+    select(id_ei = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_especie_invasora_extra")),
+      by = c("id_ei" = "especie_invasora_extra_id"))    
+  # Extras HE
+  ex_he <- cong %>%
+    inner_join(collect(tbl(base_input, "Huella_excreta_extra")),
+      by = c("conglomerado_muestra_id"))
+  arch_ex_he <- ex_he %>%
+    select(id_he = id, conglomerado_muestra_id) %>%
+    inner_join(collect(tbl(base_input, "Archivo_huella_excreta_extra")),
+      by = c("id_he" = "huella_excreta_extra_id"))   
+  
+  comparaRep <- function(cgl){
+    # crear un data.frame, indica el patrón de repetición del conglomerado cgl
+    cgl_ids <- conglomerado %>% 
+      filter(nombre == cgl) %>% 
+      '$'(id) 
+    
+    # Conglomerado
+    tab_cgl <- comparaTablas(cgl_ids, conglomerado, id = "id")  
+    # Sitio
+    tab_sitio <- comparaTablas(cgl_ids, sitio)  
+    # Imagen ref. sitio
+    tab_img_sitio <- comparaTablas(cgl_ids, img_sitio)
+    # Aves
+    tab_pto_ave <- comparaTablas(cgl_ids, pto_ave)  
+    tab_conteo_ave <- comparaTablas(cgl_ids, conteo_ave)
+    tab_arch_ave <- comparaTablas(cgl_ids, arch_ave)  
+    # Cámara
+    tab_camara <- comparaTablas(cgl_ids, camara)
+    tab_arch_camara <- comparaTablas(cgl_ids, arch_camara)
+    tab_grabadora <- comparaTablas(cgl_ids, grabadora)
+    tab_arch_grabadora <- comparaTablas(cgl_ids, arch_grabadora)
+    # Transecto EI
+    tab_tr_ei <- comparaTablas(cgl_ids, tr_ei)
+    tab_ei <- comparaTablas(cgl_ids, ei)
+    tab_arch_ei <- comparaTablas(cgl_ids, arch_ei)
+    # Transecto HE
+    tab_tr_he <- comparaTablas(cgl_ids, tr_he)
+    tab_he <- comparaTablas(cgl_ids, he)
+    tab_arch_he <- comparaTablas(cgl_ids, arch_he)  
+    # Extras ER
+    tab_ex_er <- comparaTablas(cgl_ids, ex_er)
+    tab_arch_ex_er <- comparaTablas(cgl_ids, arch_ex_er)
+    # Extras EI
+    tab_ex_ei <- comparaTablas(cgl_ids, ex_ei)
+    tab_arch_ex_ei <- comparaTablas(cgl_ids, arch_ex_ei)
+    # Extras HE
+    tab_ex_he <- comparaTablas(cgl_ids, ex_he)
+    tab_arch_ex_he <- comparaTablas(cgl_ids, arch_ex_he)
+    
+    data.frame(Nombre = cgl, N.reps = length(cgl_ids), Cgl = tab_cgl, 
+      Sitio = tab_sitio, Img.sitio = tab_img_sitio, Pto.ave = tab_pto_ave,
+      Conteo = tab_conteo_ave, Arch.ave = tab_arch_ave, Camara = tab_camara,
+      Arch.cam = tab_arch_camara, Grabadora = tab_grabadora, 
+      Arch.grab = tab_arch_grabadora, Tr.ei = tab_tr_ei, EI = tab_ei, 
+      Tr.he = tab_tr_he, HE = tab_he, Ex.ER = tab_ex_er, 
+      Arch.ER = tab_arch_ex_er, Ex.EI = tab_ex_ei, Arch.EI = tab_arch_ei, 
+      EX.HE = tab_ex_he, Arch.HE = tab_arch_ex_he
+      )
+    }
+
+  ldply(cgl_rep, comparaRep)
+}
+
+conglomerado <- collect(tbl(base_input, "Conglomerado_muestra"))
+cgl_rep <- conglomerado$nombre[duplicated(conglomerado$nombre)] %>%
+  unique()
+
+# creamos la tabla
+tab_compara <- compara(cgl_rep)
+```
+
+La siguiente tabla indica si los conglomerados que aparecen más de una vez 
+contienen la misma información. Notemos que únicamente se revisaron las tablas
+asociadas al SAC-MOD.
+
+```{r, echo=FALSE}
+kable(tab_compara[, 1:8])
+kable(tab_compara[, c(1, 9:14)])
+kable(tab_compara[, c(1, 15:21)])
+```
+
