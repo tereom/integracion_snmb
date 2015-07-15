@@ -4,9 +4,10 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 
 1. Fusionar los clientes de captura.
 2. Crear reporte de entrega.
-3. Fusionar a base final (postgresql).
-4. Guardar _media_: grabaciones, imágenes y videos.
-5. Crear _shapes_ para navegador.
+3. Migracion de esquema: v10 a v12.
+4. Fusionar a base final (postgresql).
+5. Guardar _media_: grabaciones, imágenes y videos.
+6. Crear _shapes_ para navegador.
 
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
@@ -26,7 +27,7 @@ El resultado es:
 * archivo csv correspondiente a la anterior: bases/storage.csv
 
 ### 2. Reporte de entrega
-Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. Además, genera un reporte de conglomerado repetidos. En el caso de existir conglomerados repetidos se debe analizar el reporte de repetios para decidir como eliminar las copias, una vez que exista un único registro por conglomerado es necesario volver a correr el reporte de entrega.
+Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. Además, genera un reporte de conglomerado repetidos. En el caso de existir conglomerados repetidos se debe analizar el reporte de repetidos para decidir como eliminar las copias, una vez que exista un único registro por conglomerado es necesario volver a correr el reporte de entrega.
 
 + *crear_reporte.R* llama a *revision_gral.Rmd* que crea un reporte en _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
@@ -45,7 +46,19 @@ El resultado es:
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
 * reporte repetidos pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega_rep.docx
 
-### 3. Fusionar en la base de datos final
+### 3. Migración de esquema
+La base de datos final (postgres) tendrá implementado el esquema de datos más reciente, por ello, antes de fusionar la base sqlite obtenida en el paso 1, se deberá asegurar que esté en dicho esquema, de lo contrario, se deberá realizar una migración.
+
++ *migrar_v10_v12.R* llama a *etl_v10_v12.Rmd* que crea una copia de la base _storage.sqlite_
+
+Se corre el script *crear_reporte.R* desde la terminal. Por ejemplo:
+```
+> Rscript crear_reporte.R 'FMCN' '../1_exportar_sqlite'
+```
+
+
+
+### 4. Fusionar en la base de datos final
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1), para integrar su información a la base de datos final (postgres).
 
 #### Requerimientos previos
