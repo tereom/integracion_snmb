@@ -177,7 +177,7 @@ integracion_snmb
 |   |   |   |   |   aaaa_NOMBRE.shx
 
 ```
-\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *migraciones* y *shapes* (con sus contenidos) se generan con el script *crear_reportes.R*, *migrar_v10_v12.sh* y *crear_shape.R* respectivamente.    
-\*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las respectivas aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py), en sus versiones correspondientes. Estas aplicaciones deben llamarse *fusionador_sqlite_v10*, *fusionador_sqlite_v12*, *fusionador_postgres_v12* y *cliente_v10* respectivamente.
-\*\*La carpeta *aux* se agrega manualmente y contiene una base sqlite vacía creada al iniciar el *fusionador_sqlite_v12*.
+\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *migraciones* y *shapes* (con sus contenidos) se generan con el script *crear_reportes.R*, *migrar_v10_v12.sh* y *crear_shape.R* respectivamente.  
+\*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las respectivas aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py), en sus versiones correspondientes. Estas aplicaciones deben llamarse *fusionador_sqlite_v10*, *fusionador_sqlite_v12*, *fusionador_postgres_v12* y *cliente_v10* respectivamente.  
+\*\*La carpeta *aux* se agrega manualmente y contiene una base sqlite vacía creada al iniciar el *fusionador_sqlite_v12*.  
 \*\*La carpeta *mallaSiNaMBioD* se agrega manualmente y contiene los shapes de la malla del SNMB. 
