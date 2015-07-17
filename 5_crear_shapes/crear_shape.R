@@ -315,6 +315,7 @@ save(tab_shape, sitio_coords,
 # cargar coordenadas (shapes SINaMBioD)
 coords <- readOGR("mallaSiNaMBioD/mallaSiNaMBioD.shp", "mallaSiNaMBioD")
 
+OGRinfo(coords)
 coords_df <- coords %>%
   data.frame() %>%
   mutate(
@@ -333,3 +334,15 @@ projection(tab_coords) <- projection(coords)
 writeOGR(tab_coords, dir, nombre_shape, driver = "ESRI Shapefile", 
   verbose = FALSE, 
   overwrite_layer = TRUE)
+
+
+EPSG <- make_EPSG()
+sum(EPSG$prj4 %in% pp)
+pp <- coords@proj4string@projargs
+
+tmp <- EPSG[(stri_detect(regex="longlat", str=EPSG$prj4) & 
+    stri_detect(regex="longlat", str=EPSG$prj4) &
+    stri_detect(regex = "ellps=WGS84", str=EPSG$prj4)) , ][1:25, ]
+dim(EPSG)
+dim(tmp)
+tmp <- tmp[(grep("WGS84", EPSG$prj4)),]
