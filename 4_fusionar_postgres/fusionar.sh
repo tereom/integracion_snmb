@@ -11,4 +11,4 @@ csv_ruta=$1
 
 base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-python ../web2py/web2py.py -S fusionador_postgres -M -R ${base_dir%%/}/scripts_py/fusionar_postgres.py -A ${base_dir%%/}/${csv_ruta}
+python ../web2py/web2py.py -S fusionador_postgres_v12 -M -R ${base_dir%%/}/scripts_py/fusionar_postgres.py -A ${base_dir%%/}/${csv_ruta}
