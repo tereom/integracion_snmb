@@ -346,7 +346,7 @@ tab_cgl <- cgl %>%
   mutate_each(funs(notNa), contains("_b")) 
 
 
-flag_cgl <- nrow(cgl) > 0
+flag_cgl <- nrow(tab_cgl) > 0
 
 ```
 
@@ -486,6 +486,8 @@ tab_cgl_sar <- select(cgl, cgl) %>%
   mutate_each(funs(notNa), contains("_b")) 
 ```
 
+
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # si monitoreo_tipo es NA suponemos SAR_MOD.
 tipo_na <- FALSE
@@ -500,10 +502,36 @@ if(is.na(tipo)){
 cgls_unicos <- length(unique(cgl$cgl))
 ```
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Revisamos si hay conglomerados que ya esté en la base de datos
+# Revisamos la imagen de la base de datos postgresql
+dir_imagen <- "../4_fusionar_postgres/"
+file_imagen <- list.files(path = dir_imagen, recursive = TRUE, 
+  full.names = TRUE, pattern = pattern_db)
+flag_imagen <- FALSE
+
+if(length(file_imagen) > 0){
+  base_imagen <- tbl(src_sqlite(file_imagen), "Conglomerado_muestra")  
+  tab_imagen <- base_imagen %>%
+    filter(nombre %in% cgl$cgl) %>%
+    select(cgl = nombre, fecha = fecha_visita, edo. = estado, 
+      mun. = municipio) %>%
+    collect() %>%
+    mutate(base = "entrega")
+  tab_cgl_comp <- tab_cgl %>%
+    filter(cgl %in% tab_imagen$cgl) %>%
+    select(cgl, fecha, edo. = estado, mun. = municipio) %>%
+    mutate(base = "final")
+  tab_imagen_fecha <- tab_imagen %>%
+    rbind(tab_cgl_comp) %>%
+    arrange(cgl, base, fecha)
+  flag_imagen <- nrow(tab_imagen_fecha) > 0
+}
+```
 
 **Observaciones:** 
 
-* Fecha de creación: `r format(Sys.time(), '%d-%m-%y')`.
+* Fecha del reporte: `r format(Sys.time(), '%d-%m-%y')`.
 
 * La base contiene `r cgls_unicos` conglomerados distintos correspondientes a un 
 monitoreo `r tipo`. 
@@ -511,7 +539,11 @@ monitoreo `r tipo`.
 `r if(tipo_na) "* No se escribió la variable monitoreo_tipo, supondremos 
 SAR-MOD."`
 
-`r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos."`
+`r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos (revisar el 
+reporte correspondiente)."`
+
+`r if(flag_imagen) "* Algunos conglomerados de la entrega ya tienen registros en 
+la base de datos."`
 
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
@@ -529,6 +561,15 @@ if(flag_cgl){
 }else{
   kable("No hay registros")
 } 
+```
+
+`r if(flag_imagen){"Conglomerados con registros en la base de 
+datos:"}`
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+if(flag_imagen){
+  kable(tab_imagen_fecha)
+}
 ```
 
 En las tablas de abajo las columnas indican si se llenó la información 
