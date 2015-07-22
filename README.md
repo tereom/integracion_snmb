@@ -118,7 +118,7 @@ donde el argumento es:
 
 el resultado es:
 * incorporación de la información en el archivo csv a la base de datos postgres.
-* exportación de la base postgres más reciente a formato sqlite:
+* exportación de la base postgres más reciente a formato sqlite:  
 imagen/aaaa_mm_dd.sqlite
 
 ### Carpetas y Archivos
