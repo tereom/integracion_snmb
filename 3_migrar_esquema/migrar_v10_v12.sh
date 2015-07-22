@@ -34,8 +34,8 @@ echo "reemplazar"
 cp ${base_dir%%/}/migraciones/$entrega/$entrega.sqlite ${base_fusionador%%/}/storage.sqlite
 
 echo "exportar"
-python ../web2py/web2py.py -S fusionador_sqlite_v12 -M -R ${base_dir%%/}/scripts/crear_csv.py -A ${base_fusionador%%/}/storage.sqlite
+python ../web2py/web2py.py -S fusionador_sqlite_v12 -M -R ${base_dir%%/}/scripts/crear_csv.py -A applications/fusionador_sqlite_v12/databases/storage.csv
 
 mv ${base_fusionador%%/}/storage.csv ${base_dir%%/}/migraciones/$entrega/$entrega.csv
 
-#rm -f ${base_fusionador%%/}/*
+rm -f ${base_fusionador%%/}/*
