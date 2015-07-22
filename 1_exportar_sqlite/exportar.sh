@@ -32,26 +32,45 @@ exporta_csv () {
 	echo "reemplazar"
 	cp $1 ${base_web2py%%/}/storage.sqlite
 
+	echo "exportar"
 	# Exportar la base de datos
-	# # -M importar modelos, -R correr script de python
+	# -M importar modelos, -R correr script de python
 	python ../web2py/web2py.py -S cliente_v10 -M -R ${base_dir%%/}/scripts_py/exportar.py
 
-	# # Renombro archivo
+	# Renombro archivo
 	nuevo_nom=bases/snmb_$2.csv
 	mv ${base_web2py%%/}/snmb.csv $nuevo_nom
 }
 
+# Buscando todos los archivos "storage.sqlite" en el directorio de entrada:
 
-fileArray=($(find $1 -name 'storage.sqlite'))
-# get length of an array
+DIR="$1"
+ 
+# failsafe - regresar al directorio actual si no se especifica nada
+[ "$DIR" == "" ] && DIR="."
+ 
+# guardar IFS anteriores y cambiarlos. IFS es el separador que utiliza bash para
+# crear un arreglo (el default es espacios)
+OLDIFS=$IFS
+IFS=$'\n'
+ 
+# crear el arreglo con los paths a los archivos "storage.sqlite"
+fileArray=($(find $DIR -name 'storage.sqlite'))
+  
+# obtener longitud del arreglo
 tLen=${#fileArray[@]}
-
-# use for loop read all filenames
+ 
+# leyendo los elementos del arreglo
 for (( i=0; i<${tLen}; i++ ));
 do
-  #echo "${fileArray[$i]}"
+  echo "${fileArray[$i]}"
   exporta_csv "${fileArray[$i]}" $i
+
 done
+
+# restaurar IFS
+IFS=$OLDIFS
+
 
 # Antes de fusionar borrar todo lo del folder databases del fusionador
 base_fusionador=$(cd "../web2py/applications/fusionador_sqlite_v10/databases" && pwd)

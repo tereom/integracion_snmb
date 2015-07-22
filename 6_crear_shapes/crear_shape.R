@@ -28,6 +28,9 @@ dir_base <- args[1]
 nombre <- args[2]
 anio_shape <- args[3]
 
+
+#### dir_base <- "base_output.db"
+
 # Carpeta y nombre de salidas
 dir.create("shapes")
 nombre_shape <- paste(anio_shape, nombre, sep = "_")
