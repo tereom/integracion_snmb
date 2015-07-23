@@ -27,7 +27,7 @@ El resultado es:
 * archivo csv correspondiente a la anterior: bases/storage.csv
 
 ### 2. Reporte de entrega
-Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. Además, genera un reporte de conglomerado repetidos. En el caso de existir conglomerados repetidos se debe analizar el reporte de repetidos para decidir como eliminar las copias, una vez que exista un único registro por conglomerado es necesario volver a correr el reporte de entrega.
+Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. Además, genera un reporte de conglomerados repetidos. En el caso de existir conglomerados repetidos se debe analizar el reporte de repetidos para decidir como eliminar las copias, una vez que exista un único registro por conglomerado es necesario volver a correr el reporte de entrega.
 
 + *crear_reporte.R* llama a *revision_gral.Rmd* que crea un reporte en _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
 
@@ -67,7 +67,7 @@ El resultado es:
 migraciones/aaaa_mm_dd_entrega_v10_v12/aaaa_mm_dd_entrega_v10_v12.csv
 
 ### 4. Fusionar en la base de datos final
-Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres).
+Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres). Adicionalmente, después de cada fusión, crea una copia sqlite de la base postgres (la cuál contendrá la información más reciente). Cabe destacar que no se lleva un registro de estas copias, sino que se borrarán las antiguas.
 
 #### Requerimientos previos
 Para poder realizar éste paso, es necesario hacer lo siguiente:
@@ -99,12 +99,12 @@ antes de utilizarlas de esta manera.
 
 #### Uso
 
-*fusionar.sh* llama al script de python *fusionar_postgres.py*, que corre utilizando los modelos de la aplicación *fusionador_postgres_v12*, para guardar la información en la base de datos.
++ *fusionar.sh* llama al script de python *fusionar_postgres.py*, que corre utilizando los modelos de la aplicación *fusionador_postgres_v12*, para guardar la información en la base de datos.
++ Después de lo anterior, *fusionar.py* exportará la base postgres a csv, con ayuda del script *crear_csv.py*, para finalmente crear la imagen sqlite con ayuda de los scripts: *crear_tablas.py* y *fusionar_sqlite.py*, utilizando la app de web2py: *fusionador_sqlite_v12*. 
 
 Para correr este script desde la terminal:
 + Encender el servidor postgres:
 ```
-
 postgres -D /usr/local/var/postgres
 ```
 + Correr el script:
@@ -114,6 +114,11 @@ bash fusionar.sh ../1_exportar_sqlite/bases/storage.csv
 ```
 donde el argumento es:
 * _csv_ruta_: path del csv a fusionar.
+
+el resultado es:
+* incorporación de la información en el archivo csv a la base de datos postgres.
+* exportación de la base postgres más reciente a formato sqlite:  
+imagen/aaaa_mm_dd.sqlite
 
 ### Carpetas y Archivos
 La estructura de archivos y carpetas es como sigue.
@@ -168,6 +173,11 @@ integracion_snmb
 |   |   fusionar.sh
 |   ├───scripts_py
 |   │   |   fusionar_postgres.py
+|   |   |   crear_csv.py
+|   |   |   crear_tablas.py
+|   |   |   fusionar_sqlite.py***
+|   ├───imagen*
+|   |   |   aaaa_mm_dd.sqlite
 └───6_crear_shapes
 |   │   crear_shape.R
 |   │   ├───mallaSiNaMBioD**
@@ -179,7 +189,8 @@ integracion_snmb
 |   |   |   |   |   aaaa_NOMBRE.shx
 
 ```
-\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *migraciones* y *shapes* (con sus contenidos) se generan con el script *crear_reportes.R*, *migrar_v10_v12.sh* y *crear_shape.R* respectivamente.  
+\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *migraciones*, *imagen* y *shapes* (con sus contenidos) se generan con los scripts *crear_reportes.R*, *migrar_v10_v12.sh*, *fusionar.sh* y *crear_shape.R* respectivamente.  
 \*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las respectivas aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py), en sus versiones correspondientes. Estas aplicaciones deben llamarse *fusionador_sqlite_v10*, *fusionador_sqlite_v12*, *fusionador_postgres_v12* y *cliente_v10* respectivamente.  
 \*\*La carpeta *aux* se agrega manualmente y contiene una base sqlite vacía creada al iniciar el *fusionador_sqlite_v12*.  
-\*\*La carpeta *mallaSiNaMBioD* se agrega manualmente y contiene los shapes de la malla del SNMB. 
+\*\*La carpeta *mallaSiNaMBioD* se agrega manualmente y contiene los shapes de la malla del SNMB.  
+
