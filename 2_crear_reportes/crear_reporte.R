@@ -33,12 +33,18 @@ output_file = paste(entrega, ".docx", sep = "")
   render('revision_gral_word.Rmd', output_file = output_file, 
   output_dir = output_dir)
 
-# revisamos su hay repetidos, y si hace falta creamos reporte
+# revisamos su hay repetidos, y si hace falta creamos reporte y txt
 conglomerado_rep <- collect(tbl(base_input, "Conglomerado_muestra"))
-cgl_rep <- conglomerado_rep$nombre[duplicated(conglomerado_rep$nombre)] %>%
-  unique()
+cgl_rep <- conglomerado_rep %>%
+  select(nombre, fecha_visita) %>%
+  filter(duplicated(.)) %>%
+  select(nombre) %>%
+  c()
 if(length(cgl_rep) > 0){
   output_file = paste(entrega, "_rep.pdf", sep = "")
   render('revision_repetidos.Rmd', output_file = output_file, 
   output_dir = output_dir)
+  output_file = paste(output_dir, "/", entrega, "_rep.txt", sep = "")
+  write.table(cgl_rep, file = output_file, quote = FALSE, row.names = FALSE, 
+    col.names = FALSE)
 }
