@@ -29,9 +29,8 @@ _mun_: municipio, _# sitios_: número de sitios existentes.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
-  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios", "cam.", 
-    "grab.", "EI tr", "HE tr", "EI ex", "HE ex", "ER ex")
-  kable(select(tab_cgl, 1:5) %>% arrange(cgl))
+  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios")
+  kable(tab_cgl %>% arrange(cgl))
 }else{
   kable("No hay registros")
 } 
@@ -57,7 +56,9 @@ especímenes y restos.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
-  kable(select(tab_cgl, c(1, 6:12)) %>% arrange(cgl) %>% distinct())
+  colnames(tab_cgl_b) <- c("cgl", "cam.", "grab.", "EI tr", "HE tr", "EI ex", 
+    "HE ex", "ER ex")
+  kable(tab_cgl_b %>% arrange(cgl) %>% distinct())
 }
 ```
 

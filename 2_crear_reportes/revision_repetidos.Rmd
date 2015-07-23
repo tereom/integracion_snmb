@@ -185,8 +185,11 @@ compara <- function(cgl_rep){
 }
 
 conglomerado <- collect(tbl(base_input, "Conglomerado_muestra"))
-cgl_rep <- conglomerado$nombre[duplicated(conglomerado$nombre)] %>%
-  unique()
+cgl_rep <- conglomerado %>%
+  select(nombre, fecha_visita) %>%
+  filter(duplicated(.)) %>%
+  select(nombre) %>%
+  c()
 
 # creamos la tabla
 tab_compara <- compara(cgl_rep)
