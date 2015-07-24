@@ -41,10 +41,15 @@ echo "reemplazar"
 cp $1 ${base_fusionador%%/}/storage.sqlite
 
 echo "deduplicar"
-python ../web2py/web2py.py -S fusionador_sqlite_v10 -M -R ${base_dir%%/}/scripts_py/eliminar_registros.py -A $2 ${base_dir%%/}/bases/$nombre_salida/$nombre_salida.txt
+python ../web2py/web2py.py -S fusionador_sqlite_v10 -M -R ${base_dir%%/}/scripts_py/eliminar_registros.py -A $2 ${base_dir%%/}/bases/$nombre_salida/${nombre_salida}_eliminados.csv
+
+echo "exportar"
+python ../web2py/web2py.py -S fusionador_sqlite_v10 -M -R ${base_dir%%/}/scripts_py/crear_csv.py -A applications/fusionador_sqlite_v10/databases/storage.csv
 
 echo "copiar a carpeta de salida"
 cp ${base_fusionador%%/}/storage.sqlite ${base_dir%%/}/bases/$nombre_salida/$nombre_salida.sqlite
+cp ${base_fusionador%%/}/storage.csv ${base_dir%%/}/bases/$nombre_salida/$nombre_salida.csv
+
 
 #Limpiar fusionador:
 rm -f ${base_fusionador%%/}/*

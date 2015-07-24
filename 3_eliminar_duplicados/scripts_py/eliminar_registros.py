@@ -28,7 +28,7 @@ lista_salida = map(elimina_registros, lista_ids)
 
 # creando archivo de salida:
 archivo_salida = open(archivo_salida_ruta, 'w')
-archivo_salida.write("Relación de conglomerados eliminados\n")
+archivo_salida.write("id,nombre,fecha\n")
 for item in lista_salida:
   archivo_salida.write("%s\n" % item)
 
