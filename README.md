@@ -58,7 +58,7 @@ Se corre el script *deduplicar_v10.sh* desde la terminal. Por ejemplo:
 
 donde los argumentos son:
 * _base_ruta_: ruta de la base de datos con registros que se desean eliminar.
-* _archivo_ruta_: ruta del archivo que contiene una única columna con las id's de los conglomerados a eliminar, es decir, el archivo contiene las id's de dichos conglomerados separados por saltos de línea. Ejemplo:
+* _archivo_ruta_: ruta del archivo que contiene una única columna con las id's de los conglomerados a eliminar, es decir, el archivo contiene las id's de dichos conglomerados separados por saltos de línea. Ejemplo:  
 4  
 22
 
