@@ -177,6 +177,17 @@ integracion_snmb
 |   |   |   |   aaaa_mm_dd_TITULO.docx
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
 |   |   |   |   aaaa_mm_dd_TITULO_rep.pdf
+└───3_eliminar_duplicados
+|   |   deduplicar_v10.sh
+|   ├───scripts_py
+|   |   |   crear_tablas.py
+|   |   |   eliminar_registros.py
+|   |   |   crear_csv.py
+|   ├───bases*
+|   |   ├───nombre_base
+|   |   |   |   nombre_base.sqlite
+|   |   |   |   nombre_base.csv
+|   |   |   |   nombre_base_eliminados.csv
 └───3_migrar_esquema
 |   |   migrar_v10_v12.sh
 |   ├───scripts
@@ -210,7 +221,7 @@ integracion_snmb
 |   |   |   |   |   aaaa_NOMBRE.shx
 
 ```
-\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *migraciones*, *imagen* y *shapes* (con sus contenidos) se generan con los scripts *crear_reportes.R*, *migrar_v10_v12.sh*, *fusionar.sh* y *crear_shape.R* respectivamente.  
+\*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *bases*, *migraciones*, *imagen* y *shapes* (con sus contenidos) se generan con los scripts *crear_reportes.R*, *deduplicar_v10.sh*, *migrar_v10_v12.sh*, *fusionar.sh* y *crear_shape.R* respectivamente.  
 \*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las respectivas aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py), en sus versiones correspondientes. Estas aplicaciones deben llamarse *fusionador_sqlite_v10*, *fusionador_sqlite_v12*, *fusionador_postgres_v12* y *cliente_v10* respectivamente.  
 \*\*La carpeta *aux* se agrega manualmente y contiene una base sqlite vacía creada al iniciar el *fusionador_sqlite_v12*.  
 \*\*La carpeta *mallaSiNaMBioD* se agrega manualmente y contiene los shapes de la malla del SNMB.  
