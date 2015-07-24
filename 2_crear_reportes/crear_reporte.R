@@ -34,17 +34,16 @@ output_file = paste(entrega, ".docx", sep = "")
   output_dir = output_dir)
 
 # revisamos su hay repetidos, y si hace falta creamos reporte y txt
-conglomerado_rep <- collect(tbl(base_input, "Conglomerado_muestra"))
-cgl_rep <- conglomerado_rep %>%
-  select(nombre, fecha_visita) %>%
-  filter(duplicated(.)) %>%
-  select(nombre) %>%
-  c()
+conglomerado_reps <- collect(tbl(base_input, "Conglomerado_muestra"))
+cgl_reps <- conglomerado_rep %>%
+  select(nombre, fecha_visita, id) 
+ids_reps <- cgl_reps$id[duplicated(select(cgl_reps, nombre, fecha_visita))]
+
 if(length(cgl_rep) > 0){
   output_file = paste(entrega, "_rep.pdf", sep = "")
   render('revision_repetidos.Rmd', output_file = output_file, 
   output_dir = output_dir)
   output_file = paste(output_dir, "/", entrega, "_rep.txt", sep = "")
-  write.table(cgl_rep, file = output_file, quote = FALSE, row.names = FALSE, 
+  write.table(ids_reps, file = output_file, quote = FALSE, row.names = FALSE, 
     col.names = FALSE)
 }
