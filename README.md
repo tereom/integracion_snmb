@@ -188,7 +188,7 @@ integracion_snmb
 |   |   |   |   nombre_base.sqlite
 |   |   |   |   nombre_base.csv
 |   |   |   |   nombre_base_eliminados.csv
-└───3_migrar_esquema
+└───4_migrar_esquema
 |   |   migrar_v10_v12.sh
 |   ├───scripts
 |   |   |   migrar_v10_v12.R
