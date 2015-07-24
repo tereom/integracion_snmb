@@ -189,11 +189,11 @@ cgl_rep <- conglomerado %>%
   select(nombre, fecha_visita) %>%
   filter(base::duplicated(.)) %>%
   select(nombre) %>%
-  c()
+  distinct() %>%
+  arrange()
 
 # creamos la tabla
-tab_compara <- compara(cgl_rep) %>%
-  select(-.id)
+tab_compara <- compara(c(cgl_rep$nombre)) 
 ```
 
 La siguiente tabla indica si los conglomerados que aparecen más de una vez 
