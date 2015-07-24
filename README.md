@@ -42,10 +42,11 @@ donde los argumentos son:
 
 El resultado es:
 * copia base de datos: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.sqlite
-* copia csv: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.csv
+* copia base de datos en formato csv: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.csv
 * reporte pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.pdf
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
 * reporte repetidos pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega_rep.docx
+* lista de ids correspondientes a repetidos: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega_rep.txt
 
 ### 3. Eliminar duplicados
 Una vez que se corre el reporte correspondiente a una base de datos sqlite (esquema v10), si existen duplicados, éstos se deberán eliminar antes de proseguir. Para ello, *deduplicar_v10.sh* llama a *crear_tablas.py* y *eliminar_registros.py*,
@@ -177,6 +178,7 @@ integracion_snmb
 |   |   |   |   aaaa_mm_dd_TITULO.docx
 |   |   |   |   aaaa_mm_dd_TITULO.pdf
 |   |   |   |   aaaa_mm_dd_TITULO_rep.pdf
+|   |   |   |   aaaa_mm_dd_TITULO_rep.txt
 └───3_eliminar_duplicados
 |   |   deduplicar_v10.sh
 |   ├───scripts_py
