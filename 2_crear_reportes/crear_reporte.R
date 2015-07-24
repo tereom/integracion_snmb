@@ -35,11 +35,11 @@ output_file = paste(entrega, ".docx", sep = "")
 
 # revisamos su hay repetidos, y si hace falta creamos reporte y txt
 conglomerado_reps <- collect(tbl(base_input, "Conglomerado_muestra"))
-cgl_reps <- conglomerado_rep %>%
+cgl_reps <- conglomerado_reps %>%
   select(nombre, fecha_visita, id) 
 ids_reps <- cgl_reps$id[duplicated(select(cgl_reps, nombre, fecha_visita))]
 
-if(length(cgl_rep) > 0){
+if(length(ids_reps) > 0){
   output_file = paste(entrega, "_rep.pdf", sep = "")
   render('revision_repetidos.Rmd', output_file = output_file, 
   output_dir = output_dir)

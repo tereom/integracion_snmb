@@ -170,7 +170,7 @@ compara <- function(cgl_rep){
     tab_ex_he <- comparaTablas(cgl_ids, ex_he)
     tab_arch_ex_he <- comparaTablas(cgl_ids, arch_ex_he)
     
-    data.frame(Nombre = cgl, N.reps = length(cgl_ids), Cgl = tab_cgl, 
+    data.frame(Cgl = cgl, N.reps = length(cgl_ids), Cgl = tab_cgl, 
       Sitio = tab_sitio, Img.sitio = tab_img_sitio, Pto.ave = tab_pto_ave,
       Conteo = tab_conteo_ave, Arch.ave = tab_arch_ave, Camara = tab_camara,
       Arch.cam = tab_arch_camara, Grabadora = tab_grabadora, 
@@ -187,12 +187,13 @@ compara <- function(cgl_rep){
 conglomerado <- collect(tbl(base_input, "Conglomerado_muestra"))
 cgl_rep <- conglomerado %>%
   select(nombre, fecha_visita) %>%
-  filter(duplicated(.)) %>%
+  filter(base::duplicated(.)) %>%
   select(nombre) %>%
   c()
 
 # creamos la tabla
-tab_compara <- compara(cgl_rep)
+tab_compara <- compara(cgl_rep) %>%
+  select(-.id)
 ```
 
 La siguiente tabla indica si los conglomerados que aparecen más de una vez 
