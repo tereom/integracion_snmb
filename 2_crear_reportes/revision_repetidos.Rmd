@@ -170,14 +170,14 @@ compara <- function(cgl_rep){
     tab_ex_he <- comparaTablas(cgl_ids, ex_he)
     tab_arch_ex_he <- comparaTablas(cgl_ids, arch_ex_he)
     
-    data.frame(Cgl = cgl, N.reps = length(cgl_ids), Cgl = tab_cgl, 
-      Sitio = tab_sitio, Img.sitio = tab_img_sitio, Pto.ave = tab_pto_ave,
-      Conteo = tab_conteo_ave, Arch.ave = tab_arch_ave, Camara = tab_camara,
-      Arch.cam = tab_arch_camara, Grabadora = tab_grabadora, 
-      Arch.grab = tab_arch_grabadora, Tr.ei = tab_tr_ei, EI = tab_ei, 
-      Tr.he = tab_tr_he, HE = tab_he, Ex.ER = tab_ex_er, 
-      Arch.ER = tab_arch_ex_er, Ex.EI = tab_ex_ei, Arch.EI = tab_arch_ei, 
-      EX.HE = tab_ex_he, Arch.HE = tab_arch_ex_he
+    data.frame(cgl = cgl, n.reps = length(cgl_ids), cgl = tab_cgl, 
+      sitio = tab_sitio, img.sitio = tab_img_sitio, pto.ave = tab_pto_ave,
+      conteo = tab_conteo_ave, arch.ave = tab_arch_ave, camara = tab_camara,
+      arch.cam = tab_arch_camara, grabadora = tab_grabadora, 
+      arch.grab = tab_arch_grabadora, tr.EI = tab_tr_ei, EI = tab_ei, 
+      tr.HE = tab_tr_he, HE = tab_he, ex.ER = tab_ex_er, 
+      arch.ER = tab_arch_ex_er, ex.EI = tab_ex_ei, arch.EI = tab_arch_ei, 
+      ex.HE = tab_ex_he, arch.HE = tab_arch_ex_he
       )
     }
 
@@ -201,8 +201,9 @@ contienen la misma información. Notemos que únicamente se revisaron las tablas
 asociadas al SAC-MOD.
 
 ```{r, echo=FALSE}
-kable(tab_compara[, 1:8])
-kable(tab_compara[, c(1, 9:14)])
-kable(tab_compara[, c(1, 15:21)])
+kable(tab_compara[, 1:8] %>% arrange(cgl))
+kable(tab_compara[, c(1, 9:14)] %>% arrange(cgl))
+kable(tab_compara[, c(1, 15:21)] %>% arrange(cgl))
+
 ```
 
