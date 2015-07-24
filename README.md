@@ -87,7 +87,7 @@ El resultado es:
 * la base de datos anterior en formato csv:
 migraciones/aaaa_mm_dd_entrega_v10_v12/aaaa_mm_dd_entrega_v10_v12.csv
 
-### 4. Fusionar en la base de datos final
+### 5. Fusionar en la base de datos final
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres). Adicionalmente, después de cada fusión, crea una copia sqlite de la base postgres (la cuál contendrá la información más reciente). Cabe destacar que no se lleva un registro de estas copias, sino que se borrarán las antiguas.
 
 #### Requerimientos previos
@@ -201,7 +201,7 @@ integracion_snmb
 |   |   ├───aaaa_mm_dd_TITULO_v10_v12
 |   |   |   |   aaaa_mm_dd_TITULO_v10_v12.sqlite
 |   |   |   |   aaaa_mm_dd_TITULO_v10_v12.csv
-└───4_fusionar_postgres
+└───5_fusionar_postgres
 |   |   fusionar.sh
 |   ├───scripts_py
 |   │   |   fusionar_postgres.py
