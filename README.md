@@ -4,10 +4,11 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 
 1. Fusionar los clientes de captura.
 2. Crear reporte de entrega.
-3. Migracion de esquema: v10 a v12.
-4. Fusionar a base final (postgresql).
-5. Guardar _media_: grabaciones, imágenes y videos.
-6. Crear _shapes_ para navegador.
+3. Eliminar registros duplicados.
+4. Migracion de esquema: v10 a v12.
+5. Fusionar a base final (postgresql).
+6. Guardar _media_: grabaciones, imágenes y videos.
+7. Crear _shapes_ para navegador.
 
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
@@ -46,7 +47,27 @@ El resultado es:
 * copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
 * reporte repetidos pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega_rep.docx
 
-### 3. Migración de esquema
+### 3. Eliminar duplicados
+Una vez que se corre el reporte correspondiente a una base de datos sqlite (esquema v10), si existen duplicados, éstos se deberán eliminar antes de proseguir. Para ello, *deduplicar_v10.sh* llama a *crear_tablas.py* y *eliminar_registros.py*,
+script que, haciendo uso de los modelos del *fusionador_sqlite_v10* ([fusionador_snmb](https://github.com/fpardourrutia/fusionador_snmb) rama hotfix), realiza el proceso.
+
+Se corre el script *deduplicar_v10.sh* desde la terminal. Por ejemplo:
+```
+> bash deduplicar_v10.sh '../1_exportar_sqlite/bases/storage.sqlite' '../archivos.txt'
+```
+
+donde los argumentos son:
+* _base_ruta_: ruta de la base de datos con registros que se desean eliminar.
+* _archivo_ruta_: ruta del archivo que contiene una única columna con las id's de los conglomerados a eliminar, es decir, el archivo contiene las id's de dichos conglomerados separados por saltos de línea. Ejemplo:
+4
+22
+
+El resultado es:
+* copia base de datos: bases/nombre_base/nombre_base.sqlite
+* copia csv: bases/nombre_base/nombre_base.csv
+* archivo csv con la relación de los conglomerados eliminados: bases/nombre_base/nombre_base_eliminados.csv
+
+### 4. Migración de esquema
 La base de datos final (postgres) tendrá implementado el esquema de datos más reciente, por ello, antes de fusionar la base sqlite obtenida en el paso 1, se deberá asegurar que esté en dicho esquema, de lo contrario, se deberá realizar una migración.
 
 + *migrar_v10_v12.sh* llama a *migrar_v10_v12.R*, que a su vez llama a *etl_v10_v12.Rmd* y es el encargado de migrar una base de datos a la versión final (ambas sqlite).
