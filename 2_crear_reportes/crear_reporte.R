@@ -1,3 +1,4 @@
+# Versión de R: 3.2.1 ó superior.
 # corre el rmd que genera reportes de entrega
 # Ejemplo: 
 # > Rscript crear_reporte.R 'FMCN' 'bases_prueba' '\.sqlite'
