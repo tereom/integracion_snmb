@@ -54,7 +54,7 @@ script que, haciendo uso de los modelos del *fusionador_sqlite_v10* ([fusionador
 
 Se corre el script *deduplicar_v10.sh* desde la terminal. Por ejemplo:
 ```
-> bash deduplicar_v10.sh '../1_exportar_sqlite/bases/storage.sqlite' '../archivos.txt'
+> bash deduplicar_v10.sh '../1_exportar_sqlite/bases/nombre_base.sqlite' '../archivo.txt'
 ```
 
 donde los argumentos son:
@@ -76,17 +76,16 @@ La base de datos final (postgres) tendrá implementado el esquema de datos más 
 
 Se corre el script *migrar_v10_v12.sh* desde la terminal. Por ejemplo:
 ```
-> bash migrar_v10_v12.sh 'FMCN' '../1_exportar_sqlite/bases/storage.sqlite' 'FMCN'
+> bash migrar_v10_v12.sh '../1_exportar_sqlite/bases/nombre_base.sqlite' 'FMCN'
 ```
 donde los argumentos son:
-* _entrega_: nombre del directorio donde se guardará el análisis.
 * _base_ruta_: ruta a la base de datos a migrar de esquema.
 * _institucion_: institución que entregó los datos.
 
 El resultado es:
-* migración de la base de datos al esquema más reciente: migraciones/aaaa_mm_dd_entrega_v10_v12/aaaa_mm_dd_entrega_v10_v12.sqlite
+* migración de la base de datos al esquema más reciente: migraciones/nombre_base_v10_v12/nombre_base_v10_v12.sqlite
 * la base de datos anterior en formato csv:
-migraciones/aaaa_mm_dd_entrega_v10_v12/aaaa_mm_dd_entrega_v10_v12.csv
+migraciones/nombre_base_v10_v12/nombre_base_v10_v12.csv
 
 ### 5. Fusionar en la base de datos final
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres). Adicionalmente, después de cada fusión, crea una copia sqlite de la base postgres (la cuál contendrá la información más reciente). Cabe destacar que no se lleva un registro de estas copias, sino que se borrarán las antiguas.
@@ -200,9 +199,9 @@ integracion_snmb
 |   ├───aux**
 |   |   |   output_vacio
 |   ├───migraciones*
-|   |   ├───aaaa_mm_dd_TITULO_v10_v12
-|   |   |   |   aaaa_mm_dd_TITULO_v10_v12.sqlite
-|   |   |   |   aaaa_mm_dd_TITULO_v10_v12.csv
+|   |   ├──nombre_base_v10_v12
+|   |   |   |   nombre_base_v10_v12.sqlite
+|   |   |   |   nombre_base_v10_v12.csv
 └───5_fusionar_postgres
 |   |   fusionar.sh
 |   ├───scripts_py
