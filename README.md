@@ -72,7 +72,7 @@ El resultado es:
 La base de datos final (postgres) tendrá implementado el esquema de datos más reciente, por ello, antes de fusionar la base sqlite obtenida en el paso 1, se deberá asegurar que esté en dicho esquema, de lo contrario, se deberá realizar una migración.
 
 + *migrar_v10_v12.sh* llama a *migrar_v10_v12.R*, que a su vez llama a *etl_v10_v12.Rmd* y es el encargado de migrar una base de datos a la versión final (ambas sqlite).
-+ después de eso, *migrar_v10_v12.sh* llama a *crear_tablas.py* y *crear_csv.py* para exportar la nueva base de datos _sqlite_ a formato _csv_. Para ésto utiliza los modelos de la aplicación de Web2py: *fusionador_sqlite_v12* (commit 7cc098c).
++ después de eso, *migrar_v10_v12.sh* llama a *crear_tablas.py* y *crear_csv.py* para exportar la nueva base de datos _sqlite_ a formato _csv_. Para ésto utiliza los modelos de la aplicación de Web2py: *fusionador_sqlite_v12* (commit bacfe4b).
 
 Se corre el script *migrar_v10_v12.sh* desde la terminal. Por ejemplo:
 ```
