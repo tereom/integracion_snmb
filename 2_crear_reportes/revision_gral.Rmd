@@ -331,11 +331,11 @@ rm(archivos, archivo_especie, archivo_especimen, archivo_huella, especimen,
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ### Conglomerados y sitio
-cgl <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+cgl_1 <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
   select(id, cgl = nombre, fecha = fecha_visita, compania, 
     estado, municipio, monitoreo_tipo) 
 # SAR-MOD/SAC-MOD
-tipo <- cgl$monitoreo_tipo[1]
+tipo <- cgl_1$monitoreo_tipo[1]
 
 num_sitios <- sitio %>%
   filter(sitio_numero != "Punto de control") %>%
@@ -345,7 +345,7 @@ num_sitios <- sitio %>%
     )
 
 notNa <- function(x) ifelse(!is.na(x), "+", "-")
-tab_cgl <- cgl %>%
+tab_cgl <- cgl_1 %>%
   left_join(num_sitios, by = c("id" = "conglomerado_muestra_id")) %>%
   select(-monitoreo_tipo, -id, -compania) 
 
@@ -514,24 +514,23 @@ if(is.na(tipo)){
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Revisamos si hay conglomerados repetidos
-cgls_unicos <- length(unique(cgl$cgl))
+cgls_unicos <- length(unique(cgl_1$cgl))
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Revisamos si hay conglomerados que ya esté en la base de datos
 # Revisamos la imagen de la base de datos postgresql
-dir_imagen <- "../4_fusionar_postgres/"
+dir_imagen <- "../5_fusionar_postgres/imagen"
 file_imagen <- list.files(path = dir_imagen, recursive = TRUE, 
   full.names = TRUE, pattern = pattern_db)
 flag_imagen <- FALSE
 
 if(length(file_imagen) > 0){
-  base_imagen <- tbl(src_sqlite(file_imagen), "Conglomerado_muestra")  
+  base_imagen <- collect(tbl(src_sqlite(file_imagen), "Conglomerado_muestra"))
   tab_imagen <- base_imagen %>%
-    filter(nombre %in% cgl$cgl) %>%
+    filter(nombre %in% cgl_1$cgl) %>%
     select(cgl = nombre, fecha = fecha_visita, edo. = estado, 
       mun. = municipio) %>%
-    collect() %>%
     mutate(base = "entrega")
   tab_cgl_comp <- tab_cgl %>%
     filter(cgl %in% tab_imagen$cgl) %>%
