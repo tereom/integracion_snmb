@@ -520,7 +520,7 @@ cgls_unicos <- length(unique(cgl$cgl))
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Revisamos si hay conglomerados que ya esté en la base de datos
 # Revisamos la imagen de la base de datos postgresql
-dir_imagen <- "../4_fusionar_postgres/"
+dir_imagen <- "../5_fusionar_postgres/imagen"
 file_imagen <- list.files(path = dir_imagen, recursive = TRUE, 
   full.names = TRUE, pattern = pattern_db)
 flag_imagen <- FALSE
@@ -557,8 +557,8 @@ SAR-MOD."`
 `r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos (revisar el 
 reporte correspondiente)."`
 
-`r if(flag_imagen) "* Algunos conglomerados de la entrega ya tienen registros en 
-la base de datos."`
+`r if(flag_imagen) paste("* ", nrow(tab_imagen), " conglomerados de la entrega 
+ya tienen registros en la base de datos postgres.", sep ="")`
 
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
