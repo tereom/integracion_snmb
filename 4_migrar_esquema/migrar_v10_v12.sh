@@ -1,10 +1,6 @@
 #!/bin/bash 
 
 # Argumentos
-# nombre_entrega: parte nombre del directorio donde se guardará la base de datos.
-# A este nombre se le agregará la fecha actual, y las versiones involucradas para
-# conformar el nombre real de la carpeta.
-# nombre_entrega <- "prueba_fer"
 # base_ruta: ruta de la base de datos a migrar de esquema
 # base_ruta <- '../1_exportar_sqlite/bases/storage.sqlite'
 # institucion_input: nombre de la institución
@@ -12,14 +8,15 @@
 
 base_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-# Creando el nombre de la entrega usando fecha_actual_nombre_entrega_v10_v12.
-entrega=$(date +"%Y_%m_%d")_$1_v10_v12
+# Obteniendo el nombre de la entrega del nombre de la base de datos a migrar.
+entrega=$(basename $1)
+entrega=${entrega%.*}_v10_v12
 
 # Creando la base de datos y guardándola en una carpeta de la forma:
 # 3_migrar_esquema/migraciones/aaaa_mm_dd_NOMBRE_ENTREGA_v10_v12/
 # aaaa_mm_dd_NOMBRE_ENTREGA_v10_v12.sqlite
 
-Rscript scripts/migrar_v10_v12.R $entrega $2 $3
+Rscript scripts/migrar_v10_v12.R $entrega $1 $2
 
 base_fusionador=$(cd "../web2py/applications/fusionador_sqlite_v12/databases" && pwd)
 

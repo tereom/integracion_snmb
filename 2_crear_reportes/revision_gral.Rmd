@@ -556,8 +556,8 @@ SAR-MOD."`
 `r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos (revisar el 
 reporte correspondiente)."`
 
-`r if(flag_imagen) "* Algunos conglomerados de la entrega ya tienen registros en 
-la base de datos."`
+`r if(flag_imagen) paste("* ", nrow(tab_imagen), " conglomerados de la entrega 
+ya tienen registros en la base de datos postgres.", sep ="")`
 
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
