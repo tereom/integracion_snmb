@@ -8,7 +8,7 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 4. Migracion de esquema: v10 a v12.
 5. Fusionar a base final (postgresql).
 6. Guardar _media_: grabaciones, imágenes y videos.
-7. Crear _shapes_ para navegador.
+7. Crear _shapes.
 
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
@@ -72,7 +72,7 @@ El resultado es:
 La base de datos final (postgres) tendrá implementado el esquema de datos más reciente, por ello, antes de fusionar la base sqlite obtenida en el paso 1, se deberá asegurar que esté en dicho esquema, de lo contrario, se deberá realizar una migración.
 
 + *migrar_v10_v12.sh* llama a *migrar_v10_v12.R*, que a su vez llama a *etl_v10_v12.Rmd* y es el encargado de migrar una base de datos a la versión final (ambas sqlite).
-+ después de eso, *migrar_v10_v12.sh* llama a *crear_tablas.py* y *crear_csv.py* para exportar la nueva base de datos _sqlite_ a formato _csv_. Para ésto utiliza los modelos de la aplicación de Web2py: *fusionador_sqlite_v12* (commit 7cc098c).
++ después de eso, *migrar_v10_v12.sh* llama a *crear_tablas.py* y *crear_csv.py* para exportar la nueva base de datos _sqlite_ a formato _csv_. Para ésto utiliza los modelos de la aplicación de Web2py: *fusionador_sqlite_v12* (commit bacfe4b).
 
 Se corre el script *migrar_v10_v12.sh* desde la terminal. Por ejemplo:
 ```
@@ -126,12 +126,12 @@ antes de utilizarlas de esta manera.
 Para correr este script desde la terminal:
 + Encender el servidor postgres:
 ```
-postgres -D /usr/local/var/postgres
+> postgres -D /usr/local/var/postgres
 ```
 + Correr el script:
 
 ```
-bash fusionar.sh ../1_exportar_sqlite/bases/storage.csv 
+> bash fusionar.sh ../1_exportar_sqlite/bases/storage.csv 
 ```
 donde el argumento es:
 * _csv_ruta_: path del csv a fusionar.
@@ -140,6 +140,20 @@ el resultado es:
 * incorporación de la información en el archivo csv a la base de datos postgres.
 * exportación de la base postgres más reciente a formato sqlite:  
 imagen/aaaa_mm_dd.sqlite
+
+### 7. Crear shapes
+El objetivo es crear archivos shape de puntos, donde cada punto corresponde a un conglomerado que tiene asociada información como: número de sitios, número de archivos de audio, número de fotos con fauna,...  
+La sección de shapes tiene dos scripts: 
+
+* _crear\_shape.R_ crea una carpeta con los shapes correspondientes para cada combinación de institución y año. El script lee la información de una base sqlite. Adicionalmente guarda un Rdata para cada institucion donde se almacena un data frame con las coordenadas de cada conglomerado (obtenidas de la nformación capturada) y con el resumen de la información del mismo.
+* _prueba\_ggvis.Rmd_ crea un html con la información de los shapes en un mapa de googlemaps.
+
+Se corre el script crear_reporte.R desde la terminal. Por ejemplo:
+
+```
+> Rscript crear_shape.R '.'
+```
+donde el argumento es el directorio donde se debe buscar la base de datos (en el ejemplo es la misma carpeta '.').
 
 ### Carpetas y Archivos
 La estructura de archivos y carpetas es como sigue.
@@ -211,16 +225,18 @@ integracion_snmb
 |   |   |   fusionar_sqlite.py***
 |   ├───imagen*
 |   |   |   aaaa_mm_dd.sqlite
-└───6_crear_shapes
+└───7_crear_shapes
 |   │   crear_shape.R
-|   │   ├───mallaSiNaMBioD**
+|   |   prueba_ggvis.Rmd
+|   │   ├───salidas**
+|   |   |   aaaa_institucion1.Rdata
+|   |   |   aaaa_institucion2.Rdata
 |   │   ├───shapes*
 |   |   |   ├───aaaa_NOMBRE
 |   |   |   |   |   aaaa_NOMBRE.dbf
 |   |   |   |   |   aaaa_NOMBRE.prj
 |   |   |   |   |   aaaa_NOMBRE.shp
 |   |   |   |   |   aaaa_NOMBRE.shx
-
 ```
 \*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *bases*, *migraciones*, *imagen* y *shapes* (con sus contenidos) se generan con los scripts *crear_reportes.R*, *deduplicar_v10.sh*, *migrar_v10_v12.sh*, *fusionar.sh* y *crear_shape.R* respectivamente.  
 \*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las respectivas aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py), en sus versiones correspondientes. Estas aplicaciones deben llamarse *fusionador_sqlite_v10*, *fusionador_sqlite_v12*, *fusionador_postgres_v12* y *cliente_v10* respectivamente.  
