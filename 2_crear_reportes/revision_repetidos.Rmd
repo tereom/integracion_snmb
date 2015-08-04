@@ -185,7 +185,8 @@ compara <- function(cgl_rep){
       )
     }
 
-  ldply(cgl_rep, comparaRep)
+  tab_final <- ldply(cgl_rep, comparaRep)
+  return(tab_final)
 }
 
 # creamos la tabla
