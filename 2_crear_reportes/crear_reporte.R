@@ -42,9 +42,9 @@ ids_reps <- cgl_reps$id[duplicated(select(cgl_reps, nombre, fecha_visita))]
 
 if(length(ids_reps) > 0){
   output_file = paste(entrega, "_rep.pdf", sep = "")
-  render('revision_repetidos.Rmd', output_file = output_file, 
-  output_dir = output_dir)
   output_file = paste(output_dir, "/", entrega, "_rep.txt", sep = "")
   write.table(ids_reps, file = output_file, quote = FALSE, row.names = FALSE, 
     col.names = FALSE)
+  render('revision_repetidos.Rmd', output_file = output_file, 
+  output_dir = output_dir)
 }

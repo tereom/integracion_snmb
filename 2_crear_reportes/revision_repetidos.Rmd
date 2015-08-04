@@ -4,16 +4,9 @@ output: pdf_document
 ---
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(plyr)
-library(tidyr)
-library(stringr)
-library(stringi)
-library(RSQLite)
-library(dplyr)
-library(knitr)
-```
+borrar = ls()[ls() != "base_input"]
+rm(list = borrar)
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # para poder comparar NAs hace falta convertirlos a string
 quitaNA <- function(x) ifelse(is.na(x), "NA", x)
 
