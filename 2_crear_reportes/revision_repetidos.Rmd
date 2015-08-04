@@ -43,7 +43,11 @@ comparaTablas <- function(cgl_ids, tabla, id = "conglomerado_muestra_id"){
 # cada iteración de un conglomerado
 compara <- function(cgl_rep){
   # Conglomerado
-  conglomerado <- collect(tbl(base_input, "Conglomerado_muestra"))
+  conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+      mutate(
+        anio = substr(fecha_visita, 3, 4),
+        nombre = paste(nombre, anio, sep = "-")
+      )
   # Sitio
   sitio <- collect(tbl(base_input, "Sitio_muestra"))
   # Imagen ref. sitio
@@ -170,7 +174,7 @@ compara <- function(cgl_rep){
     tab_ex_he <- comparaTablas(cgl_ids, ex_he)
     tab_arch_ex_he <- comparaTablas(cgl_ids, arch_ex_he)
     
-    data.frame(cgl = cgl, n.reps = length(cgl_ids), cgl = tab_cgl, 
+    data.frame(numero = cgl, n.reps = length(cgl_ids), cgl = tab_cgl, 
       sitio = tab_sitio, img.sitio = tab_img_sitio, pto.ave = tab_pto_ave,
       conteo = tab_conteo_ave, arch.ave = tab_arch_ave, camara = tab_camara,
       arch.cam = tab_arch_camara, grabadora = tab_grabadora, 
@@ -184,16 +188,14 @@ compara <- function(cgl_rep){
   ldply(cgl_rep, comparaRep)
 }
 
-conglomerado <- collect(tbl(base_input, "Conglomerado_muestra"))
-cgl_rep <- conglomerado %>%
-  select(nombre, fecha_visita) %>%
-  filter(base::duplicated(.)) %>%
-  select(nombre) %>%
-  distinct() %>%
-  arrange()
-
 # creamos la tabla
-tab_compara <- compara(c(cgl_rep$nombre)) 
+conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+      mutate(
+        anio = substr(fecha_visita, 3, 4),
+        nombre = paste(nombre, anio, sep = "-")
+      )
+
+tab_compara <- compara(unique(conglomerado$nombre))
 ```
 
 La siguiente tabla indica si los conglomerados que aparecen más de una vez 
