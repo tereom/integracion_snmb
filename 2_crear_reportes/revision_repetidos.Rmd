@@ -195,7 +195,8 @@ conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
         nombre = paste(nombre, anio, sep = "-")
       )
 
-tab_compara <- compara(unique(conglomerado$nombre))
+reps <- unique(conglomerado$nombre[duplicated(conglomerado$nombre)])
+tab_compara <- compara(reps)
 ```
 
 La siguiente tabla indica si los conglomerados que aparecen más de una vez 
@@ -203,9 +204,9 @@ contienen la misma información. Notemos que únicamente se revisaron las tablas
 asociadas al SAC-MOD.
 
 ```{r, echo=FALSE}
-kable(tab_compara[, 1:8] %>% arrange(cgl))
-kable(tab_compara[, c(1, 9:14)] %>% arrange(cgl))
-kable(tab_compara[, c(1, 15:21)] %>% arrange(cgl))
+kable(tab_compara[, 1:8] %>% arrange(numero))
+kable(tab_compara[, c(1, 9:14)] %>% arrange(numero))
+kable(tab_compara[, c(1, 15:21)] %>% arrange(numero))
 
 ```
 
