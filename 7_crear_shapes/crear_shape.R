@@ -65,10 +65,10 @@ crearShape <- function(nombre_inst, anio_shape){
   sitio_coords <- collect(tbl(base_input, "Sitio_muestra")) %>%
     filter(sitio_numero == "Centro") %>%
     mutate(
-      lat = lat_grado + lat_min/60 + lat_seg/3600, 
-      lon = lon_grado + lon_min/60 + lon_seg/3600, 
-      lat = abs(lat),
-      lon = abs(lon)
+      lat = lat_grado + lat_min/60 + lat_seg/3600,
+      lon = ifelse(lon_grado > 0,  lon_grado + lon_min/60 + lon_seg/3600,
+        -(lon_grado - lon_min/60 - lon_seg/3600)),
+      lon = -lon
     ) %>%
     select(conglomerado_muestra_id, lat, lon) %>%
     right_join(conglomerado, by = c("conglomerado_muestra_id")) %>%
