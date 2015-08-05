@@ -149,7 +149,7 @@ Informacion_epifitas_n <- Informacion_epifitas %>%
       cactaceas_observadas = ifelse(sum(cactaceas_observadas) > 0, "T", "F"),
       bromeliaceas_observadas = ifelse(sum(bromeliaceas_observadas) > 0, "T", "F"),
       otras_observadas = ifelse(sum(otras_observadas) > 0, "T", "F"),
-      nombre_otras = ifelse(otras_observadas == "T", trim(gsub('NA[:space]?', '',
+      nombre_otras = ifelse(otras_observadas > 0, trim(gsub('NA[:space]?', '',
         paste(nombre_otras, collapse = " "))), NA)
       ) %>%
   select(

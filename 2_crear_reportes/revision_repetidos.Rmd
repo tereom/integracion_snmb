@@ -177,7 +177,7 @@ compara <- function(cgl_rep){
       ex.HE = tab_ex_he, arch.HE = tab_arch_ex_he
       )
     }
-
+  
   tab_final <- ldply(cgl_rep, comparaRep)
   return(tab_final)
 }
