@@ -5,9 +5,9 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 1. Fusionar los clientes de captura.
 2. Crear reporte de entrega.
 3. Eliminar registros duplicados.
-4. Migracion de esquema: v10 a v12.
-5. Fusionar a base final (postgresql).
-6. Guardar _media_: grabaciones, imágenes y videos.
+4. Migrar esquema: v10 a v12.
+5. Migrar archivos: grabaciones, imágenes y videos.
+6. Fusionar a base final (postgresql).
 7. Crear _shapes.
 
 ### 1. Fusionar
@@ -68,7 +68,7 @@ El resultado es:
 * copia csv: bases/nombre_base/nombre_base.csv
 * archivo csv con la relación de los conglomerados eliminados: bases/nombre_base/nombre_base_eliminados.csv
 
-### 4. Migración de esquema
+### 4. Migrar esquema
 La base de datos final (postgres) tendrá implementado el esquema de datos más reciente, por ello, antes de fusionar la base sqlite obtenida en el paso 1, se deberá asegurar que esté en dicho esquema, de lo contrario, se deberá realizar una migración.
 
 + *migrar_v10_v12.sh* llama a *migrar_v10_v12.R*, que a su vez llama a *etl_v10_v12.Rmd* y es el encargado de migrar una base de datos a la versión final (ambas sqlite).
@@ -87,7 +87,29 @@ El resultado es:
 * la base de datos anterior en formato csv:
 migraciones/nombre_base_v10_v12/nombre_base_v10_v12.csv
 
-### 5. Fusionar en la base de datos final
+### 5. Migrar archivos
+Ya que tenemos la base local en el esquema más reciente, lo siguiente es utilizar los registros de archivos que contiene para encontrarlos en la estructura de carpetas, y mapearlos a una estructura prediseñada.
+
+La estructura prediseñada es la siguiente:
+
+```
+# aaaa_mm_dd_nombre_entrega
+# ├───conglomerado_anio 
+# |   |   formato_campo.pdf
+# |   ├───fotos_videos
+# |   ├───grabaciones
+# |   ├───especies_invasoras
+# |   ├───huellas_excretas
+# |   ├───registros_extra
+# |   ├───referencias
+# |   ├───otros
+```
+
+Como los formatos de campo no se encuentran registrados en el cliente de captura, se tienen dos supusetos adicionales: 
+
+
+
+### 6. Fusionar en la base de datos final
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres). Adicionalmente, después de cada fusión, crea una copia sqlite de la base postgres (la cuál contendrá la información más reciente). Cabe destacar que no se lleva un registro de estas copias, sino que se borrarán las antiguas.
 
 #### Requerimientos previos
