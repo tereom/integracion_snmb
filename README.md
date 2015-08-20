@@ -93,7 +93,7 @@ Ya que tenemos la base local en el esquema más reciente, lo siguiente es utiliz
 La estructura prediseñada es la siguiente:
 
 ```
-# aaaa_mm_dd_nombre_entrega
+# nombre_entrega
 # ├───conglomerado_anio 
 # |   |   formato_campo.pdf
 # |   ├───fotos_videos
