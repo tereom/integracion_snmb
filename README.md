@@ -8,7 +8,7 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 4. Migrar esquema: v10 a v12.
 5. Migrar archivos: grabaciones, imágenes y videos.
 6. Fusionar a base final (postgresql).
-7. Crear _shapes.
+7. Crear _shapes_.
 
 ### 1. Fusionar
 Este proceso consta de dos pasos: 
