@@ -3,6 +3,7 @@
 #estructura:
 # aaaa_mm_dd_nombre_entrega
 # ├───conglomerado_anio 
+# |   |   formato_campo.pdf
 # |   ├───fotos_videos
 # |   ├───grabaciones
 # |   ├───especies_invasoras
@@ -27,12 +28,12 @@ nombre_entrega <- args[1]
 ruta_entrega <- args[2]
 
 # Ruta hacia la carpeta final:
-fecha_reporte <- format(Sys.time(), "%Y_%m_%d")
-entrega <- paste(ruta_entrega, "/", fecha_reporte, "_", nombre_entrega, sep = "")
+entrega <- paste(ruta_entrega, "/", nombre_entrega, sep = "")
 
-# Ruta de la imagen sqlite de la base postgres más reciente.
+# Ruta de la base de datos a utilizar:
 base <- args[3]
-# Ruta de la carpeta donde están los clientes de captura.
+
+# Ruta de la carpeta donde están los clientes de captura:
 dir_j <- args[4]
 
 # Conexión a la base de datos:
