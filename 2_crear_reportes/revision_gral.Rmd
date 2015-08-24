@@ -24,18 +24,6 @@ library(knitr)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-# crear estructura de carpetas
-# directorio padre dentro de carpeta reportes
-dir.create("reportes")
-dir_padre <- paste("reportes/", entrega, sep = "")
-dir.create(dir_padre)
-
-# directorio donde se copian las bases de datos locales
-# dir_bases <- paste(dir_padre, "/bases_datos", sep = "")
-# dir.create(dir_bases)
-```
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Obtenemos la ruta de la base de la forma pattern_db localizadas en dir_j
 base_sqlite <- list.files(path = dir_j, 
  recursive = TRUE, full.names = TRUE, pattern = pattern_db)
@@ -752,24 +740,4 @@ if(flag_carbono){
   kable("No hay registros")
 }
 ```
-
-```{r, eval=FALSE, echo=FALSE}
-# Copiar archivos
-copiaArchivos <- function(cgl, dir_j){
-  ruta_local <- paste("../datos/imagenes/", cgl, sep = "")
-  dir.create(ruta_local, showWarnings = TRUE, recursive = FALSE, mode = "0777")
-  archivos_cgl <- filter(archivos, conglomerado_nombre == cgl)
-  rutas_archivos <- paste(dir_j, archivos_cgl$archivo, sep = "")
-  fallas_1 <- file.copy(rutas_archivos, ruta_local)
-  nombre <- paste(ruta_local, "/", archivos_cgl$archivo, sep = "")
-  nombre_original <- paste(ruta_local, "/", 
-    archivos_cgl$archivo_nombre_original, sep = "")
-  file.rename(nombre, nombre_original)
-}
-
-dir_j <- "/Volumes/sacmod/sac20150430/fusionador_conafor_windows/fusionador_snmb/applications/init/uploads/"
-
-ldply(conglomerado$nombre, copiaArchivos, dir_j)
-```
-
 

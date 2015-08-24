@@ -4,13 +4,15 @@ output: pdf_document
 ---
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-borrar = ls()[ls() != "base_input"]
+# limpiamos el ambiente para evitar errores
+borrar = ls()[!(ls() %in% c("ruta_entrega", "base_input", "resp", "convert_to_encoding", "tipo"))]
 rm(list = borrar)
 
 # para poder comparar NAs hace falta convertirlos a string
 quitaNA <- function(x) ifelse(is.na(x), "NA", x)
 
-# extraer la tabla, filtrando por el valor id_tab en la variable id
+# extraer la sección de la tabla para cada cgl, 
+# filtrando por el valor id_tab en la variable id
 extraeTabla <- function(id_tab, tabla, id){
   tabla %>%
     filter_(paste(id, "==", id_tab)) %>%
@@ -127,6 +129,38 @@ compara <- function(cgl_rep){
     select(id_he = id, conglomerado_muestra_id) %>%
     inner_join(collect(tbl(base_input, "Archivo_huella_excreta_extra")),
       by = c("id_he" = "huella_excreta_extra_id"))   
+  # Incendio
+  incendio <- cong %>%
+    inner_join(collect(tbl(base_input, "Incendio")),
+      by = c("conglomerado_muestra_id"))
+  # Plaga
+  plaga <- cong %>%
+    inner_join(collect(tbl(base_input, "Plaga")),
+      by = c("conglomerado_muestra_id"))
+  # Impacto actual
+  impacto <- cong %>%
+    inner_join(collect(tbl(base_input, "Impacto_actual")),
+      by = c("conglomerado_muestra_id"))  
+  # Epífitas es problema por cambio de versiones esta es v11
+  epifitas <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Informacion_epifitas")), 
+      by = c("id_sitio" = "sitio_muestra_id"))
+  # Carbono
+  carbono <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Punto_carbono")), 
+      by = c("id_sitio" = "sitio_muestra_id"))
+  # Transecto ramas
+  ramas <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Transecto_ramas")), 
+      by = c("id_sitio" = "sitio_muestra_id")) 
+  # Arbol cuadrante
+  cuadrante <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Arbol_cuadrante")), 
+      by = c("id_sitio" = "sitio_muestra_id"))
+  # Arbol transecto  
+  tr_arbol <- sitio_cgl %>%
+    inner_join(collect(tbl(base_input, "Arbol_transecto")), 
+      by = c("id_sitio" = "sitio_muestra_id"))
   
   comparaRep <- function(cgl){
     # crear un data.frame, indica el patrón de repetición del conglomerado cgl
@@ -166,15 +200,34 @@ compara <- function(cgl_rep){
     # Extras HE
     tab_ex_he <- comparaTablas(cgl_ids, ex_he)
     tab_arch_ex_he <- comparaTablas(cgl_ids, arch_ex_he)
+    # Incendio
+    tab_incendio <- comparaTablas(cgl_ids, incendio)
+    # Plaga
+    tab_plaga <- comparaTablas(cgl_ids, plaga)
+    # Impacto
+    tab_impacto <- comparaTablas(cgl_ids, impacto)
+    # Epífitas
+    tab_epifitas <- comparaTablas(cgl_ids, epifitas)    
+    # Carbono
+    tab_carbono <- comparaTablas(cgl_ids, carbono)    
+    # Transecto ramas
+    tab_ramas <- comparaTablas(cgl_ids, ramas)    
+    # Arbol cuadrante
+    tab_cuadrante <- comparaTablas(cgl_ids, cuadrante)  
+    # Arbol transecto
+    tab_tr_arbol <- comparaTablas(cgl_ids, tr_arbol)  
     
     data.frame(numero = cgl, n.reps = length(cgl_ids), cgl = tab_cgl, 
-      sitio = tab_sitio, img.sitio = tab_img_sitio, pto.ave = tab_pto_ave,
-      conteo = tab_conteo_ave, arch.ave = tab_arch_ave, camara = tab_camara,
+      sitio = tab_sitio, img.sitio = tab_img_sitio, camara = tab_camara,
       arch.cam = tab_arch_camara, grabadora = tab_grabadora, 
       arch.grab = tab_arch_grabadora, tr.EI = tab_tr_ei, EI = tab_ei, 
       tr.HE = tab_tr_he, HE = tab_he, ex.ER = tab_ex_er, 
       arch.ER = tab_arch_ex_er, ex.EI = tab_ex_ei, arch.EI = tab_arch_ei, 
-      ex.HE = tab_ex_he, arch.HE = tab_arch_ex_he
+      ex.HE = tab_ex_he, arch.HE = tab_arch_ex_he, incendio = tab_incendio, 
+      plaga = tab_plaga, impacto = tab_impacto, epifitas = tab_epifitas, 
+      carbono = tab_carbono, ramas = tab_ramas, cuadrante = tab_cuadrante, 
+      tr.arbol = tab_tr_arbol, pto.ave = tab_pto_ave,
+      conteo = tab_conteo_ave, arch.ave = tab_arch_ave
       )
     }
 
@@ -194,13 +247,24 @@ tab_compara <- compara(reps)
 ```
 
 La siguiente tabla indica si los conglomerados que aparecen más de una vez 
-contienen la misma información. Notemos que únicamente se revisaron las tablas
-asociadas al SAC-MOD.
+contienen la misma información. La comparación de los conglomerados se realiza
+tabla por tabla, por ejemplo la columna *cgl* compara campo a campo todos los 
+valores registrados en la sección de conglomerado (nombre, fecha_visita, 
+compania, tipo, estado, municipio,...).
+
+Los signos "=" y "<" indican que todos los registros de la tabla contienen la 
+misma información, el signo ">" indica que para la tabla que indica la columna hay
+conglomerados con más información que otros.
 
 ```{r, echo=FALSE}
-kable(tab_compara[, 1:8] %>% arrange(numero))
-kable(tab_compara[, c(1, 9:14)] %>% arrange(numero))
-kable(tab_compara[, c(1, 15:21)] %>% arrange(numero))
+kable(tab_compara[, 1:7] %>% arrange(numero))
+kable(tab_compara[, c(1, 8:12)] %>% arrange(numero))
+kable(tab_compara[, c(1, 13:21)] %>% arrange(numero))
+```
 
+```{r, echo=FALSE}
+if(tipo == "SAR-MOD"){
+  kable(tab_compara[, c(1, 22:29)] %>% arrange(numero))  
+}
 ```
 
