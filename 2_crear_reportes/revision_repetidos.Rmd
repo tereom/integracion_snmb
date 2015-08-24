@@ -230,7 +230,7 @@ compara <- function(cgl_rep){
       conteo = tab_conteo_ave, arch.ave = tab_arch_ave
       )
     }
-
+  
   tab_final <- ldply(cgl_rep, comparaRep)
   return(tab_final)
 }
