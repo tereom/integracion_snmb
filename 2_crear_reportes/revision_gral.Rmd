@@ -623,8 +623,9 @@ ya tienen registros en la base de datos postgres.", sep ="")`
 En la siguiente tabla las columnas indican:
 
 _cgl_: número de conglomerado, _fecha_: fecha de vista, _edo_: estado, 
-_mun_: municipio, _# sitios_: número de sitios existentes, _dist_: distancia 
-del Centro de conglomerado a la malla SNMB.  
+_mun_: municipio, _# sitios_: número de sitios existentes, _dist_: distancia en 
+metros del Centro de conglomerado a la malla SNMB ("-" indica que el número de 
+conglomerado registrado no aparece en la malla).  
 
 
 
