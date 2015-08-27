@@ -331,7 +331,7 @@ rm(archivos, archivo_especie, archivo_especimen, archivo_huella, especimen,
 
 # cargamos la malla (se crea en crear_malla.R) y combina la malla real
 # con la malla teórica
-load(file = "../../datos/malla.RData")
+load(file = "malla.RData")
 
 # definimos la función que regresa la distancia en metros
 distanciaMalla <- function(){
