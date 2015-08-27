@@ -11,6 +11,7 @@ library(stringi)
 library(RSQLite)
 library(dplyr)
 library(knitr)
+library(sp)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -49,39 +50,45 @@ copiaRenombra(base_csv[1], dir_padre, entrega)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-### Cámara
+# Conexión a la base de datos
 base <- paste(dir_padre, "/", entrega, ".sqlite", sep = "")
 
 base_input <- src_sqlite(base)
 
+# Si la base contiene conglomerados repetidos cambiamos el valor de nombre por
+# nombre-aa donde aa indica el año (ej: 72372 -> 72372-14) para poder 
+# diferenciar conglomerados de distintos años
+# Ademas nos quedamos únicamente con una versión de conglomerado-aa
 conglomerado_raw <- collect(tbl(base_input, "Conglomerado_muestra"))
-
 if(anyDuplicated(conglomerado_raw$nombre)){
   conglomerado <- conglomerado_raw %>%
       mutate(
         anio = substr(fecha_visita, 3, 4),
         cgl = paste(nombre, anio, sep = "-")
       ) %>%
-    select(id, cgl) %>%
+    select(conglomerado_muestra_id = id, cgl) %>%
     filter(!duplicated(cgl))
   }else{
     conglomerado <- conglomerado_raw %>%
-    select(id, cgl = nombre)
+    select(conglomerado_muestra_id = id, cgl = nombre)
 }
 
 sitio <- collect(tbl(base_input, "Sitio_muestra")) %>%
-  select(id, conglomerado_muestra_id, sitio_numero)
+  select(sitio_muestra_id = id, conglomerado_muestra_id, sitio_numero)
 
+
+
+### Cámara
 camara <- collect(tbl(base_input, "Camara")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id"))
-  
-archivo_camara <- collect(tbl(base_input, "Archivo_camara"))
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
+  mutate(camara_id = id) %>%
+  select(-id)
 
-archivos <- archivo_camara %>%
-  right_join(select(camara, cgl, id, fecha_inicio, hora_inicio,
+archivos <- collect(tbl(base_input, "Archivo_camara")) %>%
+  right_join(select(camara, cgl, camara_id, fecha_inicio, hora_inicio,
     fecha_termino, hora_termino), 
-    by = c("camara_id" = "id")) 
+    by = "camara_id") 
 
 tab_camara <- archivos %>%
   mutate(
@@ -109,21 +116,23 @@ tab_camara <- archivos %>%
   select(-hora_inicio, -hora_termino)
 
 flag_camara <- nrow(camara) > 0
-rm(archivos, archivo_camara, camara)
+rm(archivos, camara)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ### Grabadora
 grabadora <- collect(tbl(base_input, "Grabadora")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id"))
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
+  mutate(grabadora_id = id) %>%
+  select(-id)
   
 archivo_grabadora <- collect(tbl(base_input, "Archivo_grabadora"))
 
 archivos <- archivo_grabadora %>%
-  right_join(select(grabadora, cgl, id, fecha_inicio, 
+  right_join(select(grabadora, cgl, grabadora_id, fecha_inicio, 
     hora_inicio, fecha_termino, hora_termino), 
-    by = c("grabadora_id" = "id")) 
+    by = "grabadora_id") 
 
 tab_grabadora <- archivos %>%
   mutate(
@@ -145,7 +154,7 @@ tab_grabadora <- archivos %>%
   select(-hora_inicio, -hora_termino)
 
 flag_grabadora <- nrow(grabadora) > 0
-rm(archivos, archivo_grabadora, grabadora)
+rm(archivos, grabadora)
 ```
 
 
@@ -153,7 +162,7 @@ rm(archivos, archivo_grabadora, grabadora)
 ## Especies invasoras
 transecto_especie <- collect(tbl(base_input, 
     "Transecto_especies_invasoras_muestra")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   mutate(
     n_transectos = n(), 
@@ -193,7 +202,7 @@ rm(archivos, archivo_especie, especie, transecto_especie)
 ## Huellas y excretas
 transecto_huella <- collect(tbl(base_input, 
   "Transecto_huellas_excretas_muestra")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   mutate(
     n_transectos = n(), 
@@ -232,7 +241,7 @@ rm(archivos, archivo_huella, huella, transecto_huella)
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ### Registros extra: especimen/resto
 especimen <- collect(tbl(base_input, "Especimen_restos_extra")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   mutate(
     n_registros = n(),
@@ -261,7 +270,7 @@ flag_er_extra <- nrow(especimen) > 0
 
 ### Registros extra: especie invasora
 especie <- collect(tbl(base_input, "Especie_invasora_extra")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   mutate(
     n_registros = n(),
@@ -286,7 +295,7 @@ flag_ei_extra <- nrow(especie) > 0
 
 ### Registros extra: huella/excreta
 huella <- collect(tbl(base_input, "Huella_excreta_extra")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   mutate(
     n_registros = n(),
@@ -317,11 +326,70 @@ rm(archivos, archivo_especie, archivo_especimen, archivo_huella, especimen,
   especie, huella)
 ```
 
+```{r funcion_distancia, echo = FALSE}
+### Función para calcular la distancia a la malla real/teórica
+
+# cargamos la malla (se crea en crear_malla.R) y combina la malla real
+# con la malla teórica
+load(file = "../../datos/malla.RData")
+
+# definimos la función que regresa la distancia en metros
+distanciaMalla <- function(){
+  conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
+    select(conglomerado_muestra_id = id, cgl = nombre)
+  
+  
+  # comparamos la malla con el sitio centro
+  sitio <- collect(tbl(base_input, "Sitio_muestra")) %>%
+    filter(sitio_numero == "Centro") %>%
+    inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
+    mutate(
+      lat = lat_grado + lat_min/60 + lat_seg/3600, 
+      lon = ifelse(lon_grado > 0,  lon_grado + lon_min/60 + lon_seg/3600, 
+        -(lon_grado - lon_min/60 - lon_seg/3600)), 
+      lon = -lon, 
+      cgl = as.numeric(cgl)
+      ) %>%
+    select(cgl, conglomerado_muestra_id, lon, lat) 
+  
+  # unimos la malla al sitio centro (elimnando los conglomerados sobrantes)
+  malla_sitio <- malla %>%
+    inner_join(sitio, by = "cgl")
+
+  # creamos una función de distancia que recibe el id_cgl (numero-aa)
+  # y compara la distancia ingresada con la distancia de la malla
+  distancia <- function(id_cgl, malla = malla_sitio){
+    df_id <- filter(malla, conglomerado_muestra_id == id_cgl)
+    if(nrow(df_id) == 0){
+      resp <- NA
+    }
+    else{
+      x <- select(df_id, lon = lon.x, lat = lat.x)
+      y <- select(df_id, lon = lon.y, lat = lat.y) 
+      resp  <- round(spDists(as.matrix(x), as.matrix(y), longlat = TRUE)[, 1] *
+          1000)  
+    }
+    resp
+  }
+  malla_sitio$dist <- sapply(malla_sitio$conglomerado_muestra_id, distancia)
+  distancia_m <- select(malla_sitio, conglomerado_muestra_id, dist)
+  # devuelve la distancia en metros
+  distancia_m
+}
+```
+
+
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ### Conglomerados y sitio
 cgl_1 <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
-  select(id, cgl = nombre, fecha = fecha_visita, compania, 
-    estado, municipio, monitoreo_tipo) 
+  select(conglomerado_muestra_id = id, cgl = nombre, fecha = fecha_visita, 
+    compania, estado, municipio, monitoreo_tipo) 
+
+# distanciaMalla()
+# calculamos distancia a malla
+tab_dist <- distanciaMalla()
+
 # SAR-MOD/SAC-MOD
 tipo <- cgl_1$monitoreo_tipo[1]
 
@@ -334,11 +402,15 @@ num_sitios <- sitio %>%
 
 notNa <- function(x) ifelse(!is.na(x), "+", "-")
 tab_cgl <- cgl_1 %>%
-  left_join(num_sitios, by = c("id" = "conglomerado_muestra_id")) %>%
-  select(-monitoreo_tipo, -id, -compania) 
+  left_join(num_sitios, by = "conglomerado_muestra_id")  %>%
+  left_join(tab_dist, by = "conglomerado_muestra_id") %>%
+  select(-monitoreo_tipo, -conglomerado_muestra_id, -compania) %>% 
+  mutate(
+    dist = ifelse(is.na(dist), "-", dist) # aparece "-" en lugar de NA
+  )
 
 tab_cgl_b <- conglomerado %>%
-  select(-id) %>%
+  select(-conglomerado_muestra_id) %>%
   left_join(select(tab_camara, cgl, cam_b = n)) %>%
   left_join(select(tab_grabadora, cgl, grab_b = n)) %>%
   left_join(select(tab_ei, cgl, ei_b = n_transectos)) %>%
@@ -358,8 +430,8 @@ flag_cgl <- nrow(tab_cgl) > 0
 ##### CONANP
 ### Aves
 punto <- collect(tbl(base_input, "Punto_conteo_aves")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   select(id, cgl, fecha, hora_inicio, hora_termino)
   
 aves <- collect(tbl(base_input, "Conteo_ave")) %>%
@@ -377,15 +449,15 @@ rm(punto, aves)
 
 ### Incendio
 tab_incendio <- collect(tbl(base_input, "Incendio")) %>%
-  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  right_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   summarise(hay_evidencia = first(hay_evidencia)) %>%
   select(cgl, hay_evidencia)
 
 ### Epífitas (tendrá que cambiar cuando cambie el modelo!)
 tab_epifitas <- collect(tbl(base_input, "Informacion_epifitas")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  right_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  right_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
     summarise(
       epif_b = first(helechos_observados)
@@ -394,8 +466,8 @@ tab_epifitas <- collect(tbl(base_input, "Informacion_epifitas")) %>%
 
 ### Ramas (material leñoso)
 ramas <- collect(tbl(base_input, "Transecto_ramas")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   select(cgl, id)
 
 tab_ramas <- ramas %>%
@@ -421,8 +493,8 @@ flag_lenoso <- nrow(tab_lenoso) > 0
 
 ### Árbol cuadrante (árboles grandes)
 tab_cuad <- collect(tbl(base_input, "Arbol_cuadrante")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   summarise(
     n_sitios = n_distinct(sitio_muestra_id),
@@ -435,8 +507,8 @@ flag_cuad <- nrow(tab_cuad) > 0
 
 ### Árbol transecto (árboles pequeños)
 tab_trans <- collect(tbl(base_input, "Arbol_transecto")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   summarise(
     num_sitios = n_distinct(sitio_numero),
@@ -448,8 +520,8 @@ flag_trans <- nrow(tab_trans) > 0
 
 ### Punto carbono (carbono en el mantillo)
 tab_carbono <- collect(tbl(base_input, "Punto_carbono")) %>%
-  left_join(sitio, by = c("sitio_muestra_id" = "id")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  left_join(sitio, by = "sitio_muestra_id") %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   summarise(
     num_sitios = n_distinct(sitio_numero),
@@ -460,7 +532,7 @@ flag_carbono <- nrow(tab_carbono) > 0
 
 # Plagas
 tab_plagas <- collect(tbl(base_input, "Plaga")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   summarise(
     plagas_b = n()
@@ -468,7 +540,7 @@ tab_plagas <- collect(tbl(base_input, "Plaga")) %>%
   
 # Impactos actuales
 tab_impactos <- collect(tbl(base_input, "Impacto_actual")) %>%
-  inner_join(conglomerado, by = c("conglomerado_muestra_id" = "id")) %>%
+  inner_join(conglomerado, by = "conglomerado_muestra_id") %>%
   group_by(cgl) %>%
   summarise(
     impactos_b = sum(hay_evidencia == "T")
@@ -476,7 +548,7 @@ tab_impactos <- collect(tbl(base_input, "Impacto_actual")) %>%
   
 
 tab_cgl_sar <- conglomerado %>%
-  select(-id) %>%
+  select(-conglomerado_muestra_id) %>%
   left_join(select(tab_ave, cgl, ave_b = n_registros)) %>%
   left_join(select(tab_incendio, cgl, incen_b = hay_evidencia)) %>%
   left_join(select(tab_epifitas, cgl, epif_b)) %>%
@@ -551,14 +623,15 @@ ya tienen registros en la base de datos postgres.", sep ="")`
 En la siguiente tabla las columnas indican:
 
 _cgl_: número de conglomerado, _fecha_: fecha de vista, _edo_: estado, 
-_mun_: municipio, _# sitios_: número de sitios existentes.  
+_mun_: municipio, _# sitios_: número de sitios existentes, _dist_: distancia 
+del Centro de conglomerado a la malla SNMB.  
 
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
-  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios")
-  kable(tab_cgl %>% arrange(cgl))
+  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios", "dist")
+  kable(tab_cgl %>% arrange(cgl), align = c("l", "l", "l", "l", "c", "r"))
 }else{
   kable("No hay registros")
 } 
