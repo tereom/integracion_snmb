@@ -5,12 +5,18 @@
 # ├───conglomerado_anio 
 # |   |   formato_campo.pdf
 # |   ├───fotos_videos
-# |   ├───grabaciones
+# |   ├───grabaciones_audibles
+# |   ├───grabaciones_ultrasonicas
 # |   ├───especies_invasoras
 # |   ├───huellas_excretas
 # |   ├───registros_extra
 # |   ├───referencias
 # |   ├───otros
+# ├───otros_archivos
+# |   ├───fotos_videos
+# |   ├───grabaciones
+# |   ├───pdf
+
 
 library("plyr")
 library("dplyr")
@@ -80,7 +86,10 @@ Archivo_plaga <- collect(tbl(base_input, "Archivo_plaga"))
 Incendio <- collect(tbl(base_input, "Incendio"))
 Archivo_incendio <- collect(tbl(base_input, "Archivo_incendio"))
 
-# obteniendo los datos que necesitamos de las tablas:
+# obteniendo los datos que necesitamos de las tablas. Para las tablas que no 
+# corresponden a ningún archivo, sólo se extrae lo mínimo necesario para ligar
+# a los archivos con conglomerado (a excepción de "Sitio_muestra", cuyo campo
+# "sitio_numero" se utilizará para renombrar algunos archivos)
 
 ###
 Conglomerado_muestra_sub <- Conglomerado_muestra %>%
@@ -386,9 +395,9 @@ Archivo_grabadora_info <- Conglomerado_sitio_info %>%
     conglomerado_muestra_id,
     archivo,
     es_audible
-    ) %>%
+    ) #%>%
   # obteniendo únicamente los archivos audibles
-  filter(es_audible == "T")
+  #filter(es_audible == "T")
 
 ###
 #
@@ -606,8 +615,18 @@ Archivo_camara_ruta <- Archivo_camara_info %>%
 Archivo_grabadora_ruta <- Archivo_grabadora_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
-    nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/grabaciones/", nuevo_nombre, sep = "")
+    nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo)
+    # el campo "es_audible" nunca está vacío
+  ) %>%
+  mutate(
+    carpeta = ifelse(
+      es_audible == "T",
+      "grabaciones_audibles",
+      "grabaciones_ultrasonicas")
+  ) %>%
+  mutate(
+    salida = paste(entrega, "/", nombre_anio, "/", carpeta, "/", nuevo_nombre,
+      sep = "")
   ) %>%
   select(
     conglomerado_muestra_id,
@@ -720,7 +739,8 @@ lapply(entrega_nombre_anio, dir.create)
 
 subcarpetas <- c(
   "fotos_videos",
-  "grabaciones",
+  "grabaciones_audibles",
+  "grabaciones_ultrasonicas",
   "especies_invasoras",
   "huellas_excretas",
   "registros_extra",
@@ -757,16 +777,17 @@ terminaciones <- Archivo_ruta %>%
     terminacion = substring(entrada, nchar(entrada)-2, nchar(entrada))
   ) %>%
   select(terminacion)
-tipos_archivo <- names(table(terminaciones$terminacion))
+tipos_archivo <- unique(terminaciones$terminacion)
 
 # Enlistando todos los archivos en el directorio origen y guardándlos en un df:
 # lista_archivos_j <- list.files(path = dir_j, recursive = TRUE, full.names = TRUE)
 
-# Escribir en disco
-#write.table(lista_archivos_j[], file = "2015_08_11_archivos_snmb_cluster.csv",sep=",", row.names = FALSE)
+# Escribiendo archivo
+# write.table(lista_archivos_j, file = "2015_08_11_archivos_snmb_cluster.csv",
+#    sep=",", row.names = FALSE)
 
 # Leer archivo
-lista_archivos_j <- read.csv("2015_08_11_archivos_snmb_cluster.csv", stringsAsFactors = FALSE)$x
+lista_archivos_j <- read.csv("../2015_08_11_archivos_snmb_cluster.csv", stringsAsFactors = FALSE)$x
 
 ################################################################################
 ### funciones para generar nombres de archivos incluso para los muy largos ###
@@ -806,9 +827,10 @@ splitPathFile <- function(x){
 nombres_archivos_j <- splitPathFile(lista_archivos_j)[[3]]
 
 # de donde copiar
-Archivo_origen <- data.frame(nombre = nombres_archivos_j, ruta = lista_archivos_j, stringsAsFactors = FALSE)
+Archivo_origen <- data.frame(nombre = nombres_archivos_j, ruta = lista_archivos_j,
+  stringsAsFactors = FALSE)
 
-#Haciendo el join con "rutas", para encontrar los paths de entrada/salida de los archivos:
+# Haciendo el join con "rutas", para encontrar los paths de entrada/salida de los archivos:
 Rutas_origen_destino <- Archivo_ruta %>%
   inner_join(Archivo_origen, by = c("entrada" = "nombre")) %>%
   select(
@@ -816,15 +838,29 @@ Rutas_origen_destino <- Archivo_ruta %>%
     ruta_destino = salida
   )
 
-#Copiando los archivos:
-resultados <- apply(Rutas_origen_destino, 1, function(x) file.copy(x['ruta_origen'], x['ruta_destino'], overwrite = FALSE))
+# Copiando los archivos:
+resultados <- apply(Rutas_origen_destino, 1, function(x) file.copy(x['ruta_origen'],
+  x['ruta_destino'], overwrite = FALSE))
 
 # ¿Qué archivos no se lograron copiar y cuáles sí?
+table(resultados)
 Rutas_origen_destino_success <- Rutas_origen_destino[resultados,]
 Rutas_origen_destino_fail <- Rutas_origen_destino[!resultados,]
 
-# Archivos faaail
+# Archivos faaail, una razón puede ser que guardaron el mismo archivo en dos
+# lugares distintos usando el cliente viejo, entonces al hacer join de los
+# archivos en j con los registrados en la base usando el nombre como llave,
+# se duplican los registros y no los puede guardar 2 veces.
+
 head(Rutas_origen_destino_fail)
+
+################################################################################
+
+# Ahora, se copiarán todos los archivos de lista_archivos_j con las terminaciones
+# adecuadas, que no estén en Rutas_origen_destino$ruta_origen a una estructura
+# especial de carpetas.
+
+
 
 ################################################################################
 
