@@ -132,8 +132,9 @@ donde los argumentos son:
 
 El resultado es:
 * Creación de la estructura de archivos con el contenido de los clientes de captura, de acuerdo a lo especificado por la base de datos.
-* En caso de ser necesario, archivo csv que contiene la información (conglomerado, año y ruta), de archivos que no se pudieron migrar: reportes/nombre_base/nombre_base_fallidos.csv.
-* En caso de ser necesario, archivo csv que contiene una lista de conglomerados con formato no encontrado: reportes/nombre_base/nombre_base_sin_formato.csv
+* En caso de ser necesario, archivo csv que contiene la información (conglomerado, año y ruta), de archivos registrados en la base de datos, pero que no se encontraron en la carpeta de archivos: reportes/nombre_base/nombre_base_no_encontrados.csv
+* En caso de ser necesario, archivo csv que contiene la información (conglomerado, año y ruta), de archivos registrados en la base de datos, que no se pudieron migrar por alguna otra razón (sí se encuentran en la carpeta de archivos): reportes/nombre_base/nombre_base_fallidos_otros.csv.csv
+* Archivo csv que contiene una lista de los conglomerados con el número de formatos que se le asignaron: reportes/nombre_base/nombre_base_numero_formatos.csv
 
 ### 6. Fusionar en la base de datos final
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres). Adicionalmente, después de cada fusión, crea una copia sqlite de la base postgres (la cuál contendrá la información más reciente). Cabe destacar que no se lleva un registro de estas copias, sino que se borrarán las antiguas.
