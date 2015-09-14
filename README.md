@@ -87,7 +87,55 @@ El resultado es:
 * la base de datos anterior en formato csv:
 migraciones/nombre_base_v10_v12/nombre_base_v10_v12.csv
 
-### 5. Fusionar en la base de datos final
+### 5. Migrar archivos
+Ya que tenemos la base local en el esquema más reciente, lo siguiente es utilizar los registros de archivos que contiene para encontrarlos en la estructura de carpetas, y mapearlos a una estructura prediseñada.
+
+La estructura prediseñada es la siguiente:
+
+```
+nombre_entrega
+├───conglomerado_anio 
+|   |   formato_campo.pdf
+|   ├───fotos_videos
+|   ├───grabaciones_audibles
+|   ├───grabaciones_ultrasonicas
+|   ├───especies_invasoras
+|   ├───huellas_excretas
+|   ├───registros_extra
+|   ├───referencias
+|   ├───otros
+...
+├───aaaa_mm_dd_no_reg
+|   ├───fotos_videos
+|   ├───audio
+|   ├───archivos_pdf
+```
+
+Donde *aaaa_mm_dd_no_reg* es una carpeta que contiene los archivos de tipo: _wav_, _mov_, _avi_, _jpg_ y _pdf_
+no registrados en la base. Esta opción posiblemente es útil únicamente para la primera migración de archivos
+(los que se encuentran almacenados en el cluster), por eso se encuentra desactivada por default.
+
+Como los formatos de campo no se encuentran registrados en el cliente de captura, se tienen dos supuestos adicionales: 
+
+1. Los formatos se encuentran en una ruta que contiene la palabra “formatos” (no importando mayúsculas ni minúsculas).
+2. Los formatos tienen un nombre de la forma: "0*num_conglomerado[_fecha]?[otra_cosa]?.pdf"
+
+Se corre el script *migrar_archivos.R* desde la terminal. Por ejemplo:
+```
+> Rscript migrar_archivos.R 'archivos_snmb' '/Volumes/sacmod' '../4_migrar_esquema/migraciones/prueba/base.sqlite' '../../clientes'
+```
+donde los argumentos son:
+* _nombre_entrega_: nombre de la carpeta donde se guardarán los datos.
+* _ruta_entrega_: directorio donde se quiere colocar la carpeta con los datos (puede ya existir la carpeta).
+* _base_: ruta de la base de datos a utilizar.
+* _dir\_j_: ruta de la carpeta donde se encuentran los clientes de captura.
+
+El resultado es:
+* Creación de la estructura de archivos con el contenido de los clientes de captura, de acuerdo a lo especificado por la base de datos.
+* En caso de ser necesario, archivo csv que contiene la información (conglomerado, año y ruta), de archivos que no se pudieron migrar: reportes/nombre_base/nombre_base_fallidos.csv.
+* En caso de ser necesario, archivo csv que contiene una lista de conglomerados con formato no encontrado: reportes/nombre_base/nombre_base_sin_formato.csv
+
+### 6. Fusionar en la base de datos final
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres). Adicionalmente, después de cada fusión, crea una copia sqlite de la base postgres (la cuál contendrá la información más reciente). Cabe destacar que no se lleva un registro de estas copias, sino que se borrarán las antiguas.
 
 #### Requerimientos previos
@@ -140,50 +188,6 @@ el resultado es:
 * incorporación de la información en el archivo csv a la base de datos postgres.
 * exportación de la base postgres más reciente a formato sqlite:  
 imagen/aaaa_mm_dd.sqlite
-
-### 6. Migrar archivos
-Ya que tenemos la base local en el esquema más reciente, lo siguiente es utilizar los registros de archivos que contiene para encontrarlos en la estructura de carpetas, y mapearlos a una estructura prediseñada.
-
-La estructura prediseñada es la siguiente:
-
-```
-nombre_entrega
-├───conglomerado_anio 
-|   |   formato_campo.pdf
-|   ├───fotos_videos
-|   ├───grabaciones_audibles
-|   ├───grabaciones_ultrasonicas
-|   ├───especies_invasoras
-|   ├───huellas_excretas
-|   ├───registros_extra
-|   ├───referencias
-|   ├───otros
-...
-├───aaaa_mm_dd_no_reg (archivos no registrados en la base)
-|   ├───fotos_videos
-|   ├───audio
-|   ├───archivos_pdf
-```
-
-Como los formatos de campo no se encuentran registrados en el cliente de captura, se tienen dos supuestos adicionales: 
-
-1. Los formatos se encuentran en una ruta que contiene la palabra “formatos” (no importando mayúsculas ni minúsculas).
-2. Los formatos tienen un nombre de la forma: "0*num_conglomerado[_fecha]?[otra_cosa]?.pdf"
-
-Se corre el script *migrar_archivos.R* desde la terminal. Por ejemplo:
-```
-> Rscript migrar_archivos.R 'archivos_snmb' '/Volumes/sacmod' '../4_migrar_esquema/migraciones/prueba/base.sqlite' '../../clientes'
-```
-donde los argumentos son:
-* _nombre_entrega_: nombre de la carpeta donde se guardarán los datos.
-* _ruta_entrega_: directorio donde se quiere colocar la carpeta con los datos (puede ya existir la carpeta).
-* _base_: ruta de la base de datos a utilizar.
-* _dir\_j_: ruta de la carpeta donde se encuentran los clientes de captura.
-
-El resultado es:
-* Creación de la estructura de archivos con el contenido de los clientes de captura, de acuerdo a lo especificado por la base de datos.
-* En caso de ser necesario, archivo csv que contiene la información (conglomerado, nombre y ruta), de archivos que no se pudieron migrar: reportes/nombre_base/nombre_base_fallidos.csv.
-* En caso de ser necesario, archivo csv que contiene una lista de conglomerados con formato no encontrado: reportes/nombre_base/nombre_base_sin_formato.csv
 
 ### 7. Crear shapes
 El objetivo es crear archivos shape de puntos, donde cada punto corresponde a un conglomerado que tiene asociada información como: número de sitios, número de archivos de audio, número de fotos con fauna,...  
