@@ -939,10 +939,13 @@ Formatos_origen_destino <- Formatos_origen_nombre_nuevo %>%
   )
   
 #Copiando los archivos:
-resultados <- apply(Formatos_origen_destino, 1,
+resultados_formatos <- apply(Formatos_origen_destino, 1,
   function(x) file.copy(x['ruta_origen'], x['ruta_destino'], overwrite = FALSE))
 
-#Creando tabla de cuántos formatos tiene asociado cada conglomerado (para el reporte):
+#Creando tabla de cuántos formatos tiene asociado cada conglomerado (para el reporte).
+#Notar que los conglomerados se sacan de la base de datos especificada en "base",
+#por lo que el reporte sólo es para los archivos que se están migrando en este
+#momento (no para todos los archivos en la carpeta "entrega")
 Conglomerados_formulario <- ldply(Conglomerado_carpetas$nombre_anio,
   function(x){
     ruta_carpeta <- paste(entrega, x, sep = "/")
@@ -1038,11 +1041,3 @@ Archivos_no_registrados_origen_destino <- Archivo_origen %>%
 # puesto que son archivos no registrados en la base de datos.)
 resultados_nr <- apply(Archivos_no_registrados_origen_destino, 1,
   function(x) file.copy(x['ruta_origen'], x['ruta_destino'], overwrite = FALSE))
-
-
-
-
-
-
-
-
