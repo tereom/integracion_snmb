@@ -93,7 +93,8 @@ migraciones/nombre_base_v10_v12/nombre_base_v10_v12.csv
 
 ### 5. Migrar archivos
 
-Ya que tenemos la base local en el esquema más reciente, lo siguiente es utilizar los registros de archivos que contiene para encontrarlos en la estructura de carpetas, y mapearlos a una estructura prediseñada.
+Ya que tenemos la base local en el esquema más reciente, lo siguiente es utilizar los registros de archivos que contiene para encontrarlos en la estructura de carpetas, y mapearlos a una estructura prediseñada. __Se recomienda
+asegurarse que no haya registros duplicados (llave: conglomerado_fecha) antes de correr este script__.
 
 La estructura prediseñada es la siguiente:
 
