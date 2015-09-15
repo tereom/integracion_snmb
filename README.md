@@ -6,11 +6,12 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 2. Crear reporte de entrega.
 3. Eliminar registros duplicados.
 4. Migrar esquema: v10 a v12.
-5. Fusionar a base final (postgresql).
-6. Migrar archivos: grabaciones, imágenes y videos.
+5. Migrar archivos: grabaciones, imágenes y videos.
+6. Fusionar a base final (postgresql).
 7. Crear _shapes_.
 
 ### 1. Fusionar
+
 Este proceso consta de dos pasos: 
 
 + Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *crear_tablas.py* almacenados en la carpeta *scripts_py*, este paso utiliza los modelos de la aplicación *cliente_v10* ([cliente_web2py](https://github.com/tereom/cliente_web2py) commit a4c07eb). Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
@@ -28,6 +29,7 @@ El resultado es:
 * archivo csv correspondiente a la anterior: bases/storage.csv
 
 ### 2. Reporte de entrega
+
 Genera reportes de entrega para el SNMB, consiste en hacer queries a la base de datos local (sqlite) y crear tablas para identificar si se llenaron todas las pestañas del cliente y el volumen de información capturada. Además, genera un reporte de conglomerados repetidos. En el caso de existir conglomerados repetidos se debe analizar el reporte de repetidos para decidir como eliminar las copias, una vez que exista un único registro por conglomerado es necesario volver a correr el reporte de entrega.
 
 + *crear_reporte.R* llama a *revision_gral.Rmd* que crea un reporte en _pdf_ y a *revision_gral_word.Rmd* que crea un reporte análogo en formato _.docx_.
@@ -49,6 +51,7 @@ El resultado es:
 * lista de ids correspondientes a repetidos: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega_rep.txt
 
 ### 3. Eliminar duplicados
+
 Una vez que se corre el reporte correspondiente a una base de datos sqlite (esquema v10), si existen duplicados, éstos se deberán eliminar antes de proseguir. Para ello, *deduplicar_v10.sh* llama a *crear_tablas.py* y *eliminar_registros.py*,
 script que, haciendo uso de los modelos del *fusionador_sqlite_v10* ([fusionador_snmb](https://github.com/fpardourrutia/fusionador_snmb) rama hotfix), realiza el proceso.
 
@@ -69,6 +72,7 @@ El resultado es:
 * archivo csv con la relación de los conglomerados eliminados: bases/nombre_base/nombre_base_eliminados.csv
 
 ### 4. Migrar esquema
+
 La base de datos final (postgres) tendrá implementado el esquema de datos más reciente, por ello, antes de fusionar la base sqlite obtenida en el paso 1, se deberá asegurar que esté en dicho esquema, de lo contrario, se deberá realizar una migración.
 
 + *migrar_v10_v12.sh* llama a *migrar_v10_v12.R*, que a su vez llama a *etl_v10_v12.Rmd* y es el encargado de migrar una base de datos a la versión final (ambas sqlite).
@@ -88,6 +92,7 @@ El resultado es:
 migraciones/nombre_base_v10_v12/nombre_base_v10_v12.csv
 
 ### 5. Migrar archivos
+
 Ya que tenemos la base local en el esquema más reciente, lo siguiente es utilizar los registros de archivos que contiene para encontrarlos en la estructura de carpetas, y mapearlos a una estructura prediseñada.
 
 La estructura prediseñada es la siguiente:
@@ -133,10 +138,11 @@ donde los argumentos son:
 El resultado es:
 * Creación de la estructura de archivos con el contenido de los clientes de captura, de acuerdo a lo especificado por la base de datos.
 * En caso de ser necesario, archivo csv que contiene la información (conglomerado, año y ruta), de archivos registrados en la base de datos, pero que no se encontraron en la carpeta de archivos: reportes/nombre_base/nombre_base_no_encontrados.csv
-* En caso de ser necesario, archivo csv que contiene la información (conglomerado, año y ruta), de archivos registrados en la base de datos, que no se pudieron migrar por alguna otra razón (sí se encuentran en la carpeta de archivos): reportes/nombre_base/nombre_base_fallidos_otros.csv.csv
+* En caso de ser necesario, archivo csv que contiene la información (conglomerado, año y ruta), de archivos registrados en la base de datos, que no se pudieron migrar por alguna otra razón (sí se encuentran en la carpeta de archivos): reportes/nombre_base/nombre_base_fallidos_otros.csv
 * Archivo csv que contiene una lista de los conglomerados con el número de formatos que se le asignaron: reportes/nombre_base/nombre_base_numero_formatos.csv
 
 ### 6. Fusionar en la base de datos final
+
 Utilizar el archivo csv correspondiente a una base de datos fusionada sqlite (creado en el paso 1 ó 3), para integrar su información a la base de datos final (postgres). Adicionalmente, después de cada fusión, crea una copia sqlite de la base postgres (la cuál contendrá la información más reciente). Cabe destacar que no se lleva un registro de estas copias, sino que se borrarán las antiguas.
 
 #### Requerimientos previos
@@ -191,6 +197,7 @@ el resultado es:
 imagen/aaaa_mm_dd.sqlite
 
 ### 7. Crear shapes
+
 El objetivo es crear archivos shape de puntos, donde cada punto corresponde a un conglomerado que tiene asociada información como: número de sitios, número de archivos de audio, número de fotos con fauna,...  
 La sección de shapes tiene dos scripts: 
 
@@ -265,7 +272,14 @@ integracion_snmb
 |   |   ├──nombre_base_v10_v12
 |   |   |   |   nombre_base_v10_v12.sqlite
 |   |   |   |   nombre_base_v10_v12.csv
-└───5_fusionar_postgres
+└───5_migrar_archivos
+|   |   migrar_archivos.R
+|   ├───reportes*
+|   |   ├──nombre_base
+|   |   |   |   nombre_base_no_encontrados.csv
+|   |   |   |   nombre_base_fallidos_otros.csv
+|   |   |   |   nombre_base_numero_formatos.csv
+└───6_fusionar_postgres
 |   |   fusionar.sh
 |   ├───scripts_py
 |   │   |   fusionar_postgres.py
