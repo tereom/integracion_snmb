@@ -97,7 +97,9 @@ Conglomerado_muestra_sub <- Conglomerado_muestra %>%
   select(
     id,
     nombre,
-    fecha_visita
+    fecha_visita,
+    # para los reportes de archivos registrados en la base de datos pero no vistos
+    institucion
     )
 
 Sitio_muestra_sub <- Sitio_muestra %>%
@@ -307,7 +309,8 @@ Conglomerado_info <- Conglomerado_muestra_sub %>%
   select(
     conglomerado_muestra_id = id,
     nombre,
-    fecha_visita
+    fecha_visita,
+    institucion
     )
 
 # Información de conglomerado y sitio
@@ -562,7 +565,8 @@ Conglomerado_carpetas <- Conglomerado_info %>%
   ) %>%
   select(
     conglomerado_muestra_id,
-    nombre_anio_mes
+    nombre_anio_mes,
+    institucion
     )
 
 # Creando los paths asociados a cada tipo de archivo:
@@ -580,7 +584,8 @@ Imagen_sitio_ruta <- Imagen_sitio_info %>%
     entrada = archivo,
     salida,
     #el siguiente campo se usa para los reportes
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Imagen_camara_ruta <- Imagen_camara_info %>%
@@ -596,7 +601,8 @@ Imagen_camara_ruta <- Imagen_camara_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Imagen_grabadora_ruta <- Imagen_grabadora_info %>%
@@ -610,7 +616,8 @@ Imagen_grabadora_ruta <- Imagen_grabadora_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Imagen_microfonos_ruta <- Imagen_microfonos_info %>%
@@ -624,7 +631,8 @@ Imagen_microfonos_ruta <- Imagen_microfonos_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_metadatos_ruta <- Archivo_metadatos_info %>%
@@ -638,7 +646,8 @@ Archivo_metadatos_ruta <- Archivo_metadatos_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_camara_ruta <- Archivo_camara_info %>%
@@ -658,7 +667,8 @@ Archivo_camara_ruta <- Archivo_camara_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_grabadora_ruta <- Archivo_grabadora_info %>%
@@ -681,7 +691,8 @@ Archivo_grabadora_ruta <- Archivo_grabadora_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_especie_invasora_ruta <- Archivo_especie_invasora_info %>%
@@ -695,7 +706,8 @@ Archivo_especie_invasora_ruta <- Archivo_especie_invasora_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_huella_excreta_ruta <- Archivo_huella_excreta_info %>%
@@ -709,7 +721,8 @@ Archivo_huella_excreta_ruta <- Archivo_huella_excreta_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_especie_invasora_extra_ruta <- Archivo_especie_invasora_extra_info %>%
@@ -723,7 +736,8 @@ Archivo_especie_invasora_extra_ruta <- Archivo_especie_invasora_extra_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_huella_excreta_extra_ruta <- Archivo_huella_excreta_extra_info %>%
@@ -737,7 +751,8 @@ Archivo_huella_excreta_extra_ruta <- Archivo_huella_excreta_extra_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_especimen_restos_extra_ruta <- Archivo_especimen_restos_extra_info %>%
@@ -751,7 +766,8 @@ Archivo_especimen_restos_extra_ruta <- Archivo_especimen_restos_extra_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_conteo_ave_ruta <- Archivo_conteo_ave_info %>%
@@ -764,7 +780,8 @@ Archivo_conteo_ave_ruta <- Archivo_conteo_ave_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_plaga_ruta <- Archivo_plaga_info %>%
@@ -777,7 +794,8 @@ Archivo_plaga_ruta <- Archivo_plaga_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_incendio_ruta <- Archivo_incendio_info %>%
@@ -790,7 +808,8 @@ Archivo_incendio_ruta <- Archivo_incendio_info %>%
     nombre_anio_mes,
     entrada = archivo,
     salida,
-    archivo_nombre_original
+    archivo_nombre_original,
+    institucion
   )
 
 # Creando la estructura de carpetas:
@@ -851,7 +870,7 @@ tipos_archivo <- unique(terminaciones$terminacion)
 #    sep=",", row.names = FALSE)
 
 # Leer archivo
-lista_archivos_j <- read.csv("../../2015_08_11_archivos_snmb_cluster.csv", stringsAsFactors = FALSE)$x
+lista_archivos_j <- read.csv("aux/2015_08_11_archivos_snmb_cluster.csv", stringsAsFactors = FALSE)$x
 
 ################################################################################
 ### funciones para generar nombres de archivos incluso para los muy largos ###
@@ -900,7 +919,8 @@ Rutas_origen_destino <- Archivo_ruta %>%
   select(
     nombre_anio_mes,
     ruta_origen = ruta,
-    ruta_destino = salida
+    ruta_destino = salida,
+    institucion
   )
 
 # Tabla de archivos que se encuentran registrados en la base de datos (Archivo_ruta),
@@ -911,12 +931,14 @@ Archivos_no_encontrados <- anti_join(Archivo_ruta, Archivo_origen,
   by = c("entrada" = "nombre")) %>%
   separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
   select(
+    institucion,
     conglomerado,
     anio,
     mes,
     nombre_nuevo = entrada,
     nombre_original = archivo_nombre_original
-  )
+  ) %>%
+  arrange(conglomerado)
 
 # Copiando los archivos:
 resultados <- apply(Rutas_origen_destino, 1, function(x) file.copy(x['ruta_origen'],
@@ -931,6 +953,7 @@ Rutas_origen_destino_success <- Rutas_origen_destino %>%
     conglomerado,
     anio,
     mes,
+    institucion,
     archivo_ruta = ruta_origen
   )
   
@@ -941,6 +964,7 @@ Rutas_origen_destino_fail <- Rutas_origen_destino %>%
     conglomerado,
     anio,
     mes,
+    institucion,
     archivo_ruta = ruta_origen
   )
 
