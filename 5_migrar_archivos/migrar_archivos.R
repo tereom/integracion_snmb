@@ -1,16 +1,23 @@
 # Copiar archivos del cliente a carpetas:
 
 #estructura:
-# aaaa_mm_dd_nombre_entrega
-# ├───conglomerado_anio 
-# |   |   formato_campo.pdf
+# nombre_entrega
+# ├───conglomerado
+# |   ├───anio_mes
+# |   |   |   formato_campo.pdf
+# |   |   ├───fotos_videos
+# |   |   ├───grabaciones_audibles
+# |   |   ├───grabaciones_ultrasonicas
+# |   |   ├───especies_invasoras
+# |   |   ├───huellas_excretas
+# |   |   ├───registros_extra
+# |   |   ├───referencias
+# |   |   ├───otros
+# ...
+# ├───aaaa_mm_dd_no_reg
 # |   ├───fotos_videos
-# |   ├───grabaciones
-# |   ├───especies_invasoras
-# |   ├───huellas_excretas
-# |   ├───registros_extra
-# |   ├───referencias
-# |   ├───otros
+# |   ├───audio
+# |   ├───archivos_pdf
 
 library("plyr")
 library("dplyr")
@@ -80,14 +87,19 @@ Archivo_plaga <- collect(tbl(base_input, "Archivo_plaga"))
 Incendio <- collect(tbl(base_input, "Incendio"))
 Archivo_incendio <- collect(tbl(base_input, "Archivo_incendio"))
 
-# obteniendo los datos que necesitamos de las tablas:
+# obteniendo los datos que necesitamos de las tablas. Para las tablas que no 
+# corresponden a ningún archivo, sólo se extrae lo mínimo necesario para ligar
+# a los archivos con conglomerado (a excepción de "Sitio_muestra", cuyo campo
+# "sitio_numero" se utilizará para renombrar algunos archivos)
 
 ###
 Conglomerado_muestra_sub <- Conglomerado_muestra %>%
   select(
     id,
     nombre,
-    fecha_visita
+    fecha_visita,
+    # para los reportes de archivos registrados en la base de datos pero no vistos
+    institucion
     )
 
 Sitio_muestra_sub <- Sitio_muestra %>%
@@ -100,7 +112,8 @@ Sitio_muestra_sub <- Sitio_muestra %>%
 Imagen_referencia_sitio_sub <- Imagen_referencia_sitio %>%
   select(
     sitio_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -112,13 +125,15 @@ Camara_sub <- Camara %>%
 Imagen_referencia_camara_sub <- Imagen_referencia_camara %>%
   select(
     camara_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 Archivo_camara_sub <- Archivo_camara %>%
   select(
     camara_id,
     archivo,
+    archivo_nombre_original,
     presencia
     )
 
@@ -132,22 +147,29 @@ Grabadora_sub <- Grabadora %>%
 Imagen_referencia_grabadora_sub <- Imagen_referencia_grabadora %>%
   select(
     grabadora_id,
-    archivo)
+    archivo,
+    archivo_nombre_original
+    )
 
 Archivo_referencia_grabadora_sub <- Archivo_referencia_grabadora %>%
   select(
     grabadora_id,
-    archivo)
+    archivo,
+    archivo_nombre_original
+    )
 
 Imagen_referencia_microfonos_sub <- Imagen_referencia_microfonos %>%
   select(
     grabadora_id,
-    archivo)
+    archivo,
+    archivo_nombre_original
+    )
 
 Archivo_grabadora_sub <- Archivo_grabadora %>%
   select(
     grabadora_id,
     archivo,
+    archivo_nombre_original,
     es_audible
     )
 
@@ -167,7 +189,8 @@ Especie_invasora_sub <- Especie_invasora %>%
 Archivo_especie_invasora_sub <- Archivo_especie_invasora %>%
   select(
     especie_invasora_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -186,7 +209,8 @@ Huella_excreta_sub <- Huella_excreta %>%
 Archivo_huella_excreta_sub <- Archivo_huella_excreta %>%
   select(
     huella_excreta_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -199,7 +223,8 @@ Especie_invasora_extra_sub <- Especie_invasora_extra %>%
 Archivo_especie_invasora_extra_sub <- Archivo_especie_invasora_extra %>%
   select(
     especie_invasora_extra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 Huella_excreta_extra_sub <- Huella_excreta_extra %>%
@@ -211,7 +236,8 @@ Huella_excreta_extra_sub <- Huella_excreta_extra %>%
 Archivo_huella_excreta_extra_sub <- Archivo_huella_excreta_extra %>%
   select(
     huella_excreta_extra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
   
 Especimen_restos_extra_sub <- Especimen_restos_extra %>%
@@ -223,7 +249,8 @@ Especimen_restos_extra_sub <- Especimen_restos_extra %>%
 Archivo_especimen_restos_extra_sub <- Archivo_especimen_restos_extra %>%
   select(
     especimen_restos_extra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -242,7 +269,8 @@ Conteo_ave_sub <- Conteo_ave %>%
 Archivo_conteo_ave_sub <- Archivo_conteo_ave %>%
   select(
     conteo_ave_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -255,7 +283,8 @@ Plaga_sub <- Plaga %>%
 Archivo_plaga_sub <- Archivo_plaga %>%
   select(
     plaga_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -268,7 +297,8 @@ Incendio_sub <- Incendio %>%
 Archivo_incendio_sub <- Archivo_incendio %>%
   select(
     incendio_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 # Creando las tablas de información de conglomerado y conglomerado/sitio.
@@ -279,7 +309,8 @@ Conglomerado_info <- Conglomerado_muestra_sub %>%
   select(
     conglomerado_muestra_id = id,
     nombre,
-    fecha_visita
+    fecha_visita,
+    institucion
     )
 
 # Información de conglomerado y sitio
@@ -305,7 +336,8 @@ Imagen_sitio_info <- Conglomerado_sitio_info %>%
   select(
     conglomerado_muestra_id,
     sitio_numero,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -319,7 +351,8 @@ Imagen_camara_info <- Conglomerado_sitio_info %>%
   inner_join(Imagen_referencia_camara_sub, by = "camara_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 #
 Archivo_camara_info <- Conglomerado_sitio_info %>%
@@ -332,6 +365,7 @@ Archivo_camara_info <- Conglomerado_sitio_info %>%
   select(
     conglomerado_muestra_id,
     archivo,
+    archivo_nombre_original,
     presencia
     )
 
@@ -346,7 +380,8 @@ Imagen_grabadora_info <- Conglomerado_sitio_info %>%
   inner_join(Imagen_referencia_grabadora_sub, by = "grabadora_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 #
 Imagen_microfonos_info <- Conglomerado_sitio_info %>%
@@ -358,7 +393,8 @@ Imagen_microfonos_info <- Conglomerado_sitio_info %>%
   inner_join(Imagen_referencia_microfonos_sub, by = "grabadora_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 #
@@ -371,7 +407,8 @@ Archivo_metadatos_info <- Conglomerado_sitio_info %>%
   inner_join(Archivo_referencia_grabadora_sub, by = "grabadora_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 #
@@ -385,10 +422,11 @@ Archivo_grabadora_info <- Conglomerado_sitio_info %>%
   select(
     conglomerado_muestra_id,
     archivo,
+    archivo_nombre_original,
     es_audible
-    ) %>%
+    ) #%>%
   # obteniendo únicamente los archivos audibles
-  filter(es_audible == "T")
+  #filter(es_audible == "T")
 
 ###
 #
@@ -406,7 +444,8 @@ Archivo_especie_invasora_info <- Conglomerado_info %>%
   inner_join(Archivo_especie_invasora_sub, by = "especie_invasora_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
   
 ###
@@ -425,7 +464,8 @@ Archivo_huella_excreta_info <- Conglomerado_info %>%
   inner_join(Archivo_huella_excreta_sub, by = "huella_excreta_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -439,7 +479,8 @@ Archivo_especie_invasora_extra_info <- Conglomerado_info %>%
   inner_join(Archivo_especie_invasora_extra_sub, by = "especie_invasora_extra_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 #
 Archivo_huella_excreta_extra_info <- Conglomerado_info %>%
@@ -451,7 +492,8 @@ Archivo_huella_excreta_extra_info <- Conglomerado_info %>%
   inner_join(Archivo_huella_excreta_extra_sub, by = "huella_excreta_extra_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 #
 Archivo_especimen_restos_extra_info <- Conglomerado_info %>%
@@ -463,7 +505,8 @@ Archivo_especimen_restos_extra_info <- Conglomerado_info %>%
   inner_join(Archivo_especimen_restos_extra_sub, by = "especimen_restos_extra_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -482,7 +525,8 @@ Archivo_conteo_ave_info <- Conglomerado_sitio_info %>%
   inner_join(Archivo_conteo_ave_sub, by = "conteo_ave_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 ###
@@ -496,7 +540,8 @@ Archivo_plaga_info <- Conglomerado_info %>%
   inner_join(Archivo_plaga_sub, by = "plaga_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 #
 Archivo_incendio_info <- Conglomerado_info %>%
@@ -508,18 +553,20 @@ Archivo_incendio_info <- Conglomerado_info %>%
   inner_join(Archivo_incendio_sub, by = "incendio_id") %>%
   select(
     conglomerado_muestra_id,
-    archivo
+    archivo,
+    archivo_nombre_original
     )
 
 # Creando los nombres de las carpetas conglomerado_anio:
 Conglomerado_carpetas <- Conglomerado_info %>%
+  separate(fecha_visita, c("anio", "mes", "dia")) %>%
   mutate(
-    anio = substr(fecha_visita, 1, 4),
-    nombre_anio = paste(nombre, anio, sep = "-")
+    nombre_anio_mes = paste0(nombre, "/", anio, "_", mes)
   ) %>%
   select(
     conglomerado_muestra_id,
-    nombre_anio
+    nombre_anio_mes,
+    institucion
     )
 
 # Creando los paths asociados a cada tipo de archivo:
@@ -529,12 +576,16 @@ Imagen_sitio_ruta <- Imagen_sitio_info %>%
   mutate(
     id = 1:length(Imagen_sitio_info$conglomerado_muestra_id),
     tipo = substring(archivo, nchar(archivo) - 2, nchar(archivo)),
-    salida = paste(entrega, "/", nombre_anio, "/referencias/", id, "__", sitio_numero, ".", tipo, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/referencias/", id, "__",
+      sitio_numero, ".", tipo, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    #el siguiente campo se usa para los reportes
+    archivo_nombre_original,
+    institucion
   )
 
 Imagen_camara_ruta <- Imagen_camara_info %>%
@@ -543,184 +594,236 @@ Imagen_camara_ruta <- Imagen_camara_info %>%
     #sustituyendo lo matcheado con la regex por uno de sus substrings.
     #si no se matchea nada, todo se queda igual.
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/referencias/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/referencias/", nuevo_nombre,
+      sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Imagen_grabadora_ruta <- Imagen_grabadora_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/referencias/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/referencias/", nuevo_nombre,
+      sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Imagen_microfonos_ruta <- Imagen_microfonos_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/referencias/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/referencias/", nuevo_nombre,
+      sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_metadatos_ruta <- Archivo_metadatos_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/referencias/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/referencias/", nuevo_nombre,
+      sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_camara_ruta <- Archivo_camara_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     indicador = ifelse(is.na(presencia), "ns",
-      ifelse(presencia == "T", "cf", "sf")),
+      ifelse(presencia == "T", "cf", "sf"))
+  ) %>%
+  mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
     salida = paste(
-      entrega, "/", nombre_anio, "/fotos_videos/", indicador, "_", nuevo_nombre, sep = ""
+      entrega, "/", nombre_anio_mes, "/fotos_videos/", indicador, "_",
+      nuevo_nombre, sep = ""
       )
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_grabadora_ruta <- Archivo_grabadora_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
-    nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/grabaciones/", nuevo_nombre, sep = "")
+    nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo)
+    # el campo "es_audible" nunca está vacío
+  ) %>%
+  mutate(
+    carpeta = ifelse(
+      es_audible == "T",
+      "grabaciones_audibles",
+      "grabaciones_ultrasonicas")
+  ) %>%
+  mutate(
+    salida = paste(entrega, "/", nombre_anio_mes, "/", carpeta, "/", nuevo_nombre,
+      sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_especie_invasora_ruta <- Archivo_especie_invasora_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/especies_invasoras/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/especies_invasoras/",
+      nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_huella_excreta_ruta <- Archivo_huella_excreta_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/huellas_excretas/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/huellas_excretas/",
+      nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_especie_invasora_extra_ruta <- Archivo_especie_invasora_extra_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/registros_extra/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/registros_extra/",
+      nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_huella_excreta_extra_ruta <- Archivo_huella_excreta_extra_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/registros_extra/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/registros_extra/",
+      nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_especimen_restos_extra_ruta <- Archivo_especimen_restos_extra_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/registros_extra/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/registros_extra/",
+      nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_conteo_ave_ruta <- Archivo_conteo_ave_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/otros/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/otros/", nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_plaga_ruta <- Archivo_plaga_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/otros/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/otros/", nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 Archivo_incendio_ruta <- Archivo_incendio_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    salida = paste(entrega, "/", nombre_anio, "/otros/", nuevo_nombre, sep = "")
+    salida = paste(entrega, "/", nombre_anio_mes, "/otros/", nuevo_nombre, sep = "")
   ) %>%
   select(
-    conglomerado_muestra_id,
+    nombre_anio_mes,
     entrada = archivo,
-    salida
+    salida,
+    archivo_nombre_original,
+    institucion
   )
 
 # Creando la estructura de carpetas:
 
 dir.create(entrega)
 
-entrega_nombre_anio <- paste(entrega, "/", Conglomerado_carpetas$nombre_anio, sep = "")
-lapply(entrega_nombre_anio, dir.create)
+entrega_nombre_anio_mes <- paste(entrega, "/", Conglomerado_carpetas$nombre_anio_mes,
+  sep = "")
+lapply(entrega_nombre_anio_mes, dir.create, recursive = TRUE)
 
 subcarpetas <- c(
   "fotos_videos",
-  "grabaciones",
+  "grabaciones_audibles",
+  "grabaciones_ultrasonicas",
   "especies_invasoras",
   "huellas_excretas",
   "registros_extra",
@@ -728,7 +831,7 @@ subcarpetas <- c(
   "otros"
   )
 
-producto_cartesiano <- expand.grid(x = entrega_nombre_anio, y = subcarpetas)
+producto_cartesiano <- expand.grid(x = entrega_nombre_anio_mes, y = subcarpetas)
 entrega_nombre_anio_subcarpetas <- paste(producto_cartesiano$x, producto_cartesiano$y, sep = "/")
 lapply(entrega_nombre_anio_subcarpetas, dir.create)
 
@@ -757,16 +860,17 @@ terminaciones <- Archivo_ruta %>%
     terminacion = substring(entrada, nchar(entrada)-2, nchar(entrada))
   ) %>%
   select(terminacion)
-tipos_archivo <- names(table(terminaciones$terminacion))
+tipos_archivo <- unique(terminaciones$terminacion)
 
 # Enlistando todos los archivos en el directorio origen y guardándlos en un df:
 # lista_archivos_j <- list.files(path = dir_j, recursive = TRUE, full.names = TRUE)
 
-# Escribir en disco
-#write.table(lista_archivos_j[], file = "2015_08_11_archivos_snmb_cluster.csv",sep=",", row.names = FALSE)
+# Escribiendo archivo
+# write.table(lista_archivos_j, file = "2015_08_11_archivos_snmb_cluster.csv",
+#    sep=",", row.names = FALSE)
 
 # Leer archivo
-lista_archivos_j <- read.csv("2015_08_11_archivos_snmb_cluster.csv", stringsAsFactors = FALSE)$x
+lista_archivos_j <- read.csv("aux/2015_08_11_archivos_snmb_cluster.csv", stringsAsFactors = FALSE)$x
 
 ################################################################################
 ### funciones para generar nombres de archivos incluso para los muy largos ###
@@ -806,31 +910,83 @@ splitPathFile <- function(x){
 nombres_archivos_j <- splitPathFile(lista_archivos_j)[[3]]
 
 # de donde copiar
-Archivo_origen <- data.frame(nombre = nombres_archivos_j, ruta = lista_archivos_j, stringsAsFactors = FALSE)
+Archivo_origen <- data.frame(nombre = nombres_archivos_j, ruta = lista_archivos_j,
+  stringsAsFactors = FALSE)
 
-#Haciendo el join con "rutas", para encontrar los paths de entrada/salida de los archivos:
+# Haciendo el join con "rutas", para encontrar los paths de entrada/salida de los archivos:
 Rutas_origen_destino <- Archivo_ruta %>%
   inner_join(Archivo_origen, by = c("entrada" = "nombre")) %>%
   select(
+    nombre_anio_mes,
     ruta_origen = ruta,
-    ruta_destino = salida
+    ruta_destino = salida,
+    institucion
   )
 
-#Copiando los archivos:
-resultados <- apply(Rutas_origen_destino, 1, function(x) file.copy(x['ruta_origen'], x['ruta_destino'], overwrite = FALSE))
+# Tabla de archivos que se encuentran registrados en la base de datos (Archivo_ruta),
+# pero que no se encontraron en la carpeta de archivos que se entregó.
+# En esta tabla se incluye archivo_nombre_original, porque las causas por las que
+# no se encuentran los archivos son ajenas a CONABIO.
+Archivos_no_encontrados <- anti_join(Archivo_ruta, Archivo_origen,
+  by = c("entrada" = "nombre")) %>%
+  separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
+  select(
+    institucion,
+    conglomerado,
+    anio,
+    mes,
+    nombre_nuevo = entrada,
+    nombre_original = archivo_nombre_original
+  ) %>%
+  arrange(conglomerado)
+
+# Copiando los archivos:
+resultados <- apply(Rutas_origen_destino, 1, function(x) file.copy(x['ruta_origen'],
+  x['ruta_destino'], overwrite = FALSE))
 
 # ¿Qué archivos no se lograron copiar y cuáles sí?
-Rutas_origen_destino_success <- Rutas_origen_destino[resultados,]
-Rutas_origen_destino_fail <- Rutas_origen_destino[!resultados,]
+table(resultados)
+Rutas_origen_destino_success <- Rutas_origen_destino %>%
+  filter(resultados) %>%
+  separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
+  select(
+    conglomerado,
+    anio,
+    mes,
+    institucion,
+    archivo_ruta = ruta_origen
+  )
+  
+Rutas_origen_destino_fail <- Rutas_origen_destino %>%
+  filter(!resultados) %>%
+  separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
+  select(
+    conglomerado,
+    anio,
+    mes,
+    institucion,
+    archivo_ruta = ruta_origen
+  )
 
-# Archivos faaail
-head(Rutas_origen_destino_fail)
+# Archivos faaail, una razón puede ser que guardaron el mismo archivo en dos
+# lugares distintos usando el cliente viejo, entonces al hacer join de los
+# archivos en j con los registrados en la base usando el nombre como llave,
+# se duplican los registros y no los puede guardar 2 veces.
 
 ################################################################################
+
+# ACTUALIZAR ESTA SECCIÓN PARA EL 2016 EN ADELANTE...
 
 # Extracción de formatos de campo:
 # Se presupone que los formatos tienen un nombre de la forma:
 # "0*num_conglomerado[_fecha]?[otra_cosa]?.pdf"
+
+# Idea general: para cada formato encontrado en "lista_archivos_j", extraer su
+# conglomerado y año (este último en caso de que sea válido), así como su
+# ruta. Por medio del número de conglomerado (y del año), se hace el join con
+# el nombre de la carpeta a la que pertenece un formulario y se crea la nueva
+# ruta.
+
 lista_formatos <- lista_archivos_j[grep("formatos", lista_archivos_j, ignore.case = TRUE)]
 Formato_origen <- data.frame(ruta = lista_formatos, nombre = splitPathFile(lista_formatos)[[3]],
   stringsAsFactors = FALSE)
@@ -855,18 +1011,23 @@ Formatos_origen_nombre_nuevo <- Formato_origen %>%
     nombre_nuevo
   )
 
+#Notar que Conglomerado_carpetas se obtiene de la base de datos, por lo que
+#se insertarán los formatos bajo el supuesto de que en la misma base de datos,
+#no hay registros del mismo conglomerado, en el mismo año, pero en dos temporadas
+#distintas.
 Formatos_destino <- Conglomerado_carpetas %>%
+  separate(nombre_anio_mes, c("conglomerado", "anio", "mes"),
+    remove = FALSE, convert = TRUE) %>%
   mutate(
-    conglomerado = as.numeric(sub("([[:digit:]]*).*", "\\1", nombre_anio)),
-    anio = as.numeric(sub(".*-([[:digit:]]*)", "\\1", nombre_anio)),
     #anio_aux nunca es NA
+    # Se presupone que los años que no son 2014 ni 2015 están mal.
     anio_aux = ifelse(anio %in% c(2014, 2015), 1, 0)
   )
 
 Formatos_origen_destino <- Formatos_origen_nombre_nuevo %>%
   inner_join(Formatos_destino, by = "conglomerado") %>%
   mutate(
-    ruta_destino = paste(entrega, "/", nombre_anio, "/", nombre_nuevo, sep = ""),
+    ruta_destino = paste(entrega, "/", nombre_anio_mes, "/", nombre_nuevo, sep = ""),
     #bandera para filtrar: si el formato no tiene año, somos conservadores y
     #permitimos copiarlo en todas las carpetas donde se hizo el join:
     flag_1 = ifelse(anio.x == anio.y | is.na(anio.x), 1, 0),
@@ -888,14 +1049,107 @@ Formatos_origen_destino <- Formatos_origen_nombre_nuevo %>%
     ruta_destino
   )
   
-  #Copiando los archivos:
-resultados <- apply(Formatos_origen_destino, 1, function(x) file.copy(x['ruta_origen'], x['ruta_destino'], overwrite = FALSE))
+#Copiando los archivos:
+resultados_formatos <- apply(Formatos_origen_destino, 1,
+  function(x) file.copy(x['ruta_origen'], x['ruta_destino'], overwrite = FALSE))
 
+#Creando tabla de cuántos formatos tiene asociado cada conglomerado (para el reporte).
+#Notar que los conglomerados se sacan de la base de datos especificada en "base",
+#por lo que el reporte sólo es para los archivos que se están migrando en este
+#momento (no para todos los archivos en la carpeta "entrega")
+Conglomerados_formulario <- ldply(Conglomerado_carpetas$nombre_anio_mes,
+  function(x){
+    ruta_carpeta <- paste(entrega, x, sep = "/")
+    formularios <- data.frame(
+      nombre_anio_mes = x,
+      numero_formularios = length(list.files(ruta_carpeta, pattern = "pdf"))) %>%
+      separate(nombre_anio_mes, c("conglomerado", "anio", "mes"))
+    return(formularios)
+  }) %>%
+  arrange(numero_formularios)
 
+################################################################################
 
+#Creación de reportes:
 
+nombre_base <- sub("^(.*)\\..*", "\\1", basename(base))
+dir_padre <- paste("reportes", nombre_base, sep = "/")
 
+dir.create("reportes")
+dir.create(dir_padre)
 
+# Reporte de archivos que se encuentran registrados en la base de datos, pero
+# que no se encontraron en la carpeta de archivos.
 
+if(nrow(Archivos_no_encontrados) > 0)
+  write.csv(Archivos_no_encontrados, file = paste0(
+    dir_padre, "/", nombre_base, "_no_encontrados.csv"), row.names = FALSE)
 
+# Reporte de archivos que se encuentran registrados en la base de datos, y que
+# se encuentran en la carpeta de archivos, pero que no se pudieron migrar por
+# alguna otra razón, por ejemplo, artefactos del join (ver arriba para mayor
+# información).
 
+if(nrow(Rutas_origen_destino_fail) > 0)
+  write.csv(Rutas_origen_destino_fail, file = paste0(
+    dir_padre, "/", nombre_base, "_fallidos_otros.csv"), row.names = FALSE)
+
+# Reporte de número de formatos por conglomerado
+write.csv(Conglomerados_formulario, file = paste0(
+  dir_padre, "/", nombre_base, "_numero_formatos.csv"), row.names = FALSE)
+
+################################################################################
+
+# Ahora, se copiarán todos los archivos de lista_archivos_j con las terminaciones
+# adecuadas, que no estén en Rutas_origen_destino$ruta_origen a una estructura
+# especial de carpetas.
+
+# Recordando tipos de archivos encontrados en la base de datos:
+# tipos_archivo
+
+# Creando estructura de carpetas
+
+fecha_actual <- format(Sys.time(), "%Y_%m_%d")
+entrega_no_registrados <- paste(entrega, "/", fecha_actual, "_", "no_reg",
+  sep = "")
+dir.create(entrega_no_registrados)
+
+entrega_no_registrados_subcarpetas <- paste(entrega_no_registrados, c(
+  "fotos_videos",
+  "audio",
+  "archivos_pdf"), sep = "/")
+
+lapply(entrega_no_registrados_subcarpetas, dir.create)
+
+# Seleccionando archivos tipo: "jpg", "mov", "wav", "avi".
+# de "lista_archivos_j", que no se encuentren en Rutas_origen_destino$ruta_origen,
+# y escribiendo su nueva ubicación.
+
+# Recordar Archivo_origen es un df con ruta = lista_archivos_j y nombre =
+# nombres_archivos_j
+Archivos_no_registrados_origen_destino <- Archivo_origen %>%
+  filter(
+    !(ruta %in% Rutas_origen_destino$ruta_origen),
+    grepl("(jpg|mov|wav|avi|pdf)$", lista_archivos_j, ignore.case = TRUE)
+  ) %>%
+  mutate(
+    nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", nombre)
+  ) %>%
+  mutate(
+    ruta_destino = ifelse(grepl("jpg|mov|avi", nuevo_nombre, ignore.case = TRUE),
+      paste(entrega_no_registrados, "fotos_videos", nuevo_nombre, sep = "/"),
+      ifelse(grepl("wav", nuevo_nombre, ignore.case = TRUE),
+        paste(entrega_no_registrados, "audio", nuevo_nombre, sep = "/"),
+        paste(entrega_no_registrados, "archivos_pdf", sep = "/")
+      )
+    )
+  ) %>%
+  select(
+    ruta_origen = ruta,
+    ruta_destino
+  )
+
+# Copiando los archivos (no creo necesario hacer chequeos con resultados_nr,
+# puesto que son archivos no registrados en la base de datos.)
+resultados_nr <- apply(Archivos_no_registrados_origen_destino, 1,
+  function(x) file.copy(x['ruta_origen'], x['ruta_destino'], overwrite = FALSE))
