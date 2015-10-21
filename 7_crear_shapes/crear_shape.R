@@ -1,3 +1,7 @@
+# cambiar proyeccion por la proyección que usa OpenLayers
+# cambiar malla por la malla.Rmd que se creó para 2_crear_reportes
+
+
 ### Shapefiles resumen de datos en base de datos
 ### Argumentos
 # dir: directorio donde se encuentra la base de datos sqlite (.sqlite)
