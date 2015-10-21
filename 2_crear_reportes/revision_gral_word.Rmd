@@ -16,21 +16,23 @@ SAR-MOD."`
 `r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos (revisar el 
 reporte correspondiente)."`
 
-`r if(flag_imagen) "* Algunos conglomerados de la entrega ya tienen registros en 
-la base de datos."`
+`r if(flag_imagen) paste("* ", nrow(tab_imagen), " conglomerados de la entrega 
+ya tienen registros en la base de datos postgres.", sep ="")`
 
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
 
 _cgl_: número de conglomerado, _fecha_: fecha de vista, _edo_: estado, 
-_mun_: municipio, _# sitios_: número de sitios existentes.  
+_mun_: municipio, _# sitios_: número de sitios existentes, _dist_: distancia en 
+metros del Centro de conglomerado a la malla SNMB ("-" indica que el número de 
+conglomerado registrado no aparece en la malla).  
 
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
-  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios")
-  kable(tab_cgl %>% arrange(cgl))
+  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios", "dist")
+  kable(tab_cgl %>% arrange(cgl), align = c("l", "l", "l", "l", "c", "r"))
 }else{
   kable("No hay registros")
 } 
@@ -212,24 +214,4 @@ if(flag_carbono){
   kable("No hay registros")
 }
 ```
-
-```{r, eval=FALSE, echo=FALSE}
-# Copiar archivos
-copiaArchivos <- function(cgl, dir_j){
-  ruta_local <- paste("../datos/imagenes/", cgl, sep = "")
-  dir.create(ruta_local, showWarnings = TRUE, recursive = FALSE, mode = "0777")
-  archivos_cgl <- filter(archivos, conglomerado_nombre == cgl)
-  rutas_archivos <- paste(dir_j, archivos_cgl$archivo, sep = "")
-  fallas_1 <- file.copy(rutas_archivos, ruta_local)
-  nombre <- paste(ruta_local, "/", archivos_cgl$archivo, sep = "")
-  nombre_original <- paste(ruta_local, "/", 
-    archivos_cgl$archivo_nombre_original, sep = "")
-  file.rename(nombre, nombre_original)
-}
-
-dir_j <- "/Volumes/sacmod/sac20150430/fusionador_conafor_windows/fusionador_snmb/applications/init/uploads/"
-
-ldply(conglomerado$nombre, copiaArchivos, dir_j)
-```
-
 
