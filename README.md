@@ -219,6 +219,9 @@ donde el argumento es el directorio donde se debe buscar la base de datos (en el
 ### Carpetas y Archivos
 La estructura de archivos y carpetas es como sigue.
 
+### 8. Funciones adicionales
+Scripts con funciones que sirven para depurar la base de datos, por ejemplo, eliminar registros mal capturados.
+
 ```
 integracion_snmb
 │   README.md
@@ -305,6 +308,8 @@ integracion_snmb
 |   |   |   |   |   aaaa_NOMBRE.prj
 |   |   |   |   |   aaaa_NOMBRE.shp
 |   |   |   |   |   aaaa_NOMBRE.shx
+└───8_funciones_adicionales
+|   │   eliminar_registros.R
 ```
 \*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *bases*, *migraciones*, *imagen* y *shapes* (con sus contenidos) se generan con los scripts *crear_reportes.R*, *deduplicar_v10.sh*, *migrar_v10_v12.sh*, *fusionar.sh* y *crear_shape.R* respectivamente.  
 \*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las respectivas aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py), en sus versiones correspondientes. Estas aplicaciones deben llamarse *fusionador_sqlite_v10*, *fusionador_sqlite_v12*, *fusionador_postgres_v12* y *cliente_v10* respectivamente.  
