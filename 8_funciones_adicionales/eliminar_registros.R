@@ -1,17 +1,25 @@
 library(dplyr)
 library(DBI)
+library(RSQLite)
 library(RPostgreSQL)
 
+### Observaciones
+# 1. Por ahora eliminaRegistros sólo acepta variables de tipo caracter, 
+#   extender a todos los tipos es inmediato (incluir if en construcción de 
+#   vector_comillas después de reconocer el tipo)
+# 2. Esta versión de eliminaMedia solo considera eliminar conglomerados 
+#   completos porque se construyó para arreglar CONAFOR, se debe generalizar
+#   para aceptar conglomerado Y año.
 
 eliminaRegistros <- function(driver = "SQLite", path_base = ".", tabla, 
   variable, valores){
-  # elimina los registros con valor values (caracter) en variable
+  # elimina los registros con valor valores en variable
   # driver: driver de la base de datos "SQLite" ó "PostgreSQL"
   # path: en caso de seleccionar SQLite, el nombre inclyendo ruta de la base
   #   de datos sqlite
   # tabla: tabla en que se eliminarán los registros
   # variable: variable por la que se va a eliminar
-  # valores: valores de la variable var a eliminar debe ser tipo caracter
+  # valores: valores de la variable var a eliminar 
   
   drv <- dbDriver(driver)
 
@@ -66,4 +74,5 @@ ids <- eliminaRegistros(driver = "SQLite",
   path_base = "datos/2015_10_21_conafor20150904.sqlite",
   tabla = "conglomerado_muestra", 
   variable = "nombre", valores = valores)
+
 
