@@ -149,7 +149,7 @@ El resultado es:
 * Creación de la estructura de archivos con el contenido de los clientes de captura, de acuerdo a lo especificado por la base de datos.
 * En caso de ser necesario, archivo csv que contiene la información (conglomerado, año, mes, nombre nuevo, y nombre original), de archivos registrados en la base de datos, pero que no se encontraron en la carpeta de archivos: reportes/nombre_base/nombre_base_no_encontrados.csv
 * En caso de ser necesario, archivo csv que contiene la información (conglomerado, año, mes y ruta), de archivos registrados en la base de datos, que no se pudieron migrar por alguna otra razón (sí se encuentran en la carpeta de archivos): reportes/nombre_base/nombre_base_fallidos_otros.csv
-* Archivo csv con la información de los archivos migrados(nombre, ruta y peso). Sólo se incluyen los archivos registrados en alguna base de datos: reportes/nombre_base/nombre_base_archivados_migrados_registrados_bd.csv
+* Archivo csv con la información de los archivos migrados (nombre, ruta y peso). Sólo se incluyen los archivos registrados en alguna base de datos: reportes/nombre_base/nombre_base_archivados_migrados_registrados_bd.csv
 * Archivo csv que contiene una lista de los conglomerados con el número de formatos que se le asignaron: reportes/nombre_base/nombre_base_numero_formatos.csv
 
 Nota: se recomienda correr el migrador de archivos en una carpeta _entrega_ preeliminar, antes de correrlo sobre la carpeta final.
