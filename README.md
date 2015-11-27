@@ -122,6 +122,13 @@ Donde *aaaa_mm_dd_no_reg* es una carpeta que contiene los archivos de tipo: _wav
 no registrados en la base. Esta opción posiblemente es útil únicamente para la primera migración de archivos
 (los que se encuentran almacenados en el cluster), por eso se encuentra desactivada por default.
 
+Cabe destacar que los archivos se renombran antes de ingresarlos a la nueva estructura. Las reglas que se
+utilizan para este fin son las siguientes:
+
+* Para las imágenes de sitio, se renombra como: "id_autogenerado__numero_de_sitio", ejemplos: "689__Centro", "690__Sitio_2".
+* Para todas las otras imágenes se dividió en dos casos: si el nombre fue dado por [Web2py](www.web2py.com), entonces se modifica como sigue: "Archivo_huella_excreta_extra.archivo.970e798343d0182e.494d475f333030302e4a5047.JPG" pasa a ser: "Archivo_huella_excreta_extra.970e798343d0182e.JPG". Por otro lado, si el nombre no es uno de Web2py se deja igual.
+* Para los archivos tomados con la fototrampa, independientemente del nombre nuevo del archivo en cuestión, se antepone el prefijo "cf_", "sf_" o "ns_", dependiendo si el archivo fue etiquetado en el cliente original como un archivo con fauna, sin fauna, o si no fue etiquetado (respectivamente). Ejemplos: "cf_4102_S3_FCT_20141011_4.JPG", "cf_Archivo_camara.8cbae4814d75a2d8.JPG"
+
 Como los formatos de campo no se encuentran registrados en el cliente de captura, se tienen tres supuestos adicionales: 
 
 1. Los formatos se encuentran en una ruta que contiene la palabra “formatos” (no importando mayúsculas ni minúsculas).
