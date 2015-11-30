@@ -122,6 +122,13 @@ Donde *aaaa_mm_dd_no_reg* es una carpeta que contiene los archivos de tipo: _wav
 no registrados en la base. Esta opción posiblemente es útil únicamente para la primera migración de archivos
 (los que se encuentran almacenados en el cluster), por eso se encuentra desactivada por default.
 
+Cabe destacar que los archivos se renombran antes de ingresarlos a la nueva estructura. Las reglas que se
+utilizan para este fin son las siguientes:
+
+* Las imágenes de sitio registradas en alguna base de datos se renombran como: "id_autogenerado__numero_de_sitio". Ejemplos: "689__Centro", "690__Sitio_2".
+* Para todos los otros archivos se tomaron dos casos: si el nombre fue dado por [Web2py](www.web2py.com), entonces se modifica como sigue: "Archivo_huella_excreta_extra.archivo.970e798343d0182e.494d475f333030302e4a5047.JPG" pasa a ser: "Archivo_huella_excreta_extra.970e798343d0182e.JPG". Por otro lado, si el nombre no es uno de Web2py se deja igual.
+* Para los archivos tomados con la fototrampa, independientemente del nombre nuevo del archivo en cuestión, se antepone el prefijo "cf_", "sf_" o "ns_", dependiendo respectivamente si fue etiquetado en el cliente original como un archivo con fauna, sin fauna, o si no fue etiquetado. Ejemplos: "cf_4102_S3_FCT_20141011_4.JPG", "sf_Archivo_camara.8cbae4814d75a2d8.JPG".
+
 Como los formatos de campo no se encuentran registrados en el cliente de captura, se tienen tres supuestos adicionales: 
 
 1. Los formatos se encuentran en una ruta que contiene la palabra “formatos” (no importando mayúsculas ni minúsculas).
@@ -142,6 +149,7 @@ El resultado es:
 * Creación de la estructura de archivos con el contenido de los clientes de captura, de acuerdo a lo especificado por la base de datos.
 * En caso de ser necesario, archivo csv que contiene la información (conglomerado, año, mes, nombre nuevo, y nombre original), de archivos registrados en la base de datos, pero que no se encontraron en la carpeta de archivos: reportes/nombre_base/nombre_base_no_encontrados.csv
 * En caso de ser necesario, archivo csv que contiene la información (conglomerado, año, mes y ruta), de archivos registrados en la base de datos, que no se pudieron migrar por alguna otra razón (sí se encuentran en la carpeta de archivos): reportes/nombre_base/nombre_base_fallidos_otros.csv
+* Archivo csv con la información de los archivos migrados (nombre, ruta y peso). Sólo se incluyen los archivos registrados en alguna base de datos: reportes/nombre_base/nombre_base_archivados_migrados_registrados_bd.csv
 * Archivo csv que contiene una lista de los conglomerados con el número de formatos que se le asignaron: reportes/nombre_base/nombre_base_numero_formatos.csv
 
 Nota: se recomienda correr el migrador de archivos en una carpeta _entrega_ preeliminar, antes de correrlo sobre la carpeta final.
