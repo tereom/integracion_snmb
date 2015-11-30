@@ -14,7 +14,7 @@ Pasos a seguir para recibir información (clientes de captura) del SNMB:
 
 Este proceso consta de dos pasos: 
 
-+ Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *crear_tablas.py* almacenados en la carpeta *scripts_py*, este paso utiliza los modelos de la aplicación *cliente_v10* ([cliente_web2py](https://github.com/tereom/cliente_web2py) commit [a4c07eb](https://github.com/tereom/cliente_snmb/commit/a4c07eba15e066ebf50a9e40c64c702d47ff7048) para el SAR-MOD y commit [3d22bc6](https://github.com/tereom/cliente_snmb/commit/3d22bc65c3b762f9bc48b9dd49c6149bbd731e31) para el SAC-MOD). Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
++ Extraer las bases sqlite de los clientes entregados y exportar a csv. Para esto el script de bash *exportar.sh* llama a los scripts de python *exportar.py* y *crear_tablas.py* almacenados en la carpeta *scripts_py*, este paso utiliza los modelos de la aplicación *cliente_v10* (commit [a4c07eb](https://github.com/tereom/cliente_snmb/commit/a4c07eba15e066ebf50a9e40c64c702d47ff7048) para el SAR-MOD y commit [3d22bc6](https://github.com/tereom/cliente_snmb/commit/3d22bc65c3b762f9bc48b9dd49c6149bbd731e31) para el SAC-MOD). Las bases exportadas se almacenaran en la carpeta *bases* en formato csv.
 + El segundo paso consiste en fusionar los csv's. Para este paso *exportar.sh* llama al script de python *fusionar_sqlite.py*, que utiliza los modelos de la aplicación *fusionador_sqlite_v10* ([fusionador_snmb](https://github.com/fpardourrutia/fusionador_snmb) rama hotfix). El resultado son dos archivos: *storage.sqlite* y *storage.csv*.
 
 Ejemplo:
