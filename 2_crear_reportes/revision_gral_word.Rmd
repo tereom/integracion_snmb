@@ -7,17 +7,14 @@ output: word_document
 
 * Fecha del reporte: `r format(Sys.time(), '%d-%m-%y')`.
 
-* La base contiene `r cgls_unicos` conglomerados distintos correspondientes a un 
-monitoreo `r tipo`. 
+* Se consideraron los regstros correponidentes a 
+  `r paste(instituciones, collapse = ", ")` recolectados en 
+  `r paste(anios, collapse = ", ")`.
 
-`r if(tipo_na) "* No se escribió la variable monitoreo_tipo, supondremos 
-SAR-MOD."`
+* La base contiene `r cgls_unicos` conglomerados distintos. 
 
 `r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos (revisar el 
 reporte correspondiente)."`
-
-`r if(flag_imagen) paste("* ", nrow(tab_imagen), " conglomerados de la entrega 
-ya tienen registros en la base de datos postgres.", sep ="")`
 
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
@@ -27,8 +24,6 @@ _mun_: municipio, _# sitios_: número de sitios existentes, _dist_: distancia en
 metros del Centro de conglomerado a la malla SNMB ("-" indica que el número de 
 conglomerado registrado no aparece en la malla).  
 
-
-
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
   colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios", "dist")
@@ -36,15 +31,6 @@ if(flag_cgl){
 }else{
   kable("No hay registros")
 } 
-```
-
-`r if(flag_imagen){"Conglomerados con registros en la base de 
-datos:"}`
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-if(flag_imagen){
-  kable(tab_imagen_fecha)
-}
 ```
 
 En las tablas de abajo las columnas indican si se llenó la información 
@@ -64,13 +50,14 @@ if(flag_cgl){
 }
 ```
 
-`r if(tipo == "SAR-MOD") "_ave_: punto de conteo de aves, _incen_: incendios, 
-_epif_: epífitas, _leñoso_: material leñoso caído, _a.gde_: árboles grandes, 
-_a.chico_: árboles pequeños y arbustos, _carb._: carbono en el mantillo, 
-_plaga_: plagas, _impacto_: impactos actuales."`
+`r if("CONANP" %in% instituciones | "FMCN" %in% instituciones) "_ave_: punto 
+de conteo de aves, _incen_: incendios, _epif_: epífitas, _leñoso_: material
+leñoso caído, _a.gde_: árboles grandes, _a.chico_: árboles pequeños y arbustos,
+_carb._: carbono en el mantillo, _plaga_: plagas, _impacto_: impactos 
+actuales."`
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-if(flag_cgl & tipo == "SAR-MOD"){
+if(flag_cgl & ("CONANP" %in% instituciones | "FMCN" %in% instituciones)){
   colnames(tab_cgl_sar) <- c("cgl", "ave", "incen.", "epif.", "leñoso", "a.gde", 
     "a.chico", "carb.", "plaga", "impacto")
   kable(tab_cgl_sar %>% arrange(cgl) %>% distinct())
