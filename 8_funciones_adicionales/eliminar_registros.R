@@ -2,6 +2,8 @@ library(dplyr)
 library(DBI)
 library(RSQLite)
 library(RPostgreSQL)
+library(readr)
+library(stringi)
 
 ### Observaciones
 # 1. Por ahora eliminaRegistros sólo acepta variables de tipo caracter, 
@@ -30,8 +32,9 @@ eliminaRegistros <- function(driver = "SQLite", path_base = ".", tabla,
   }else{
     PASS_SNMB = Sys.getenv("PASS_SNMB")
     con <- dbConnect(drv, dbname = "snmb", host = "dbms", user = "snmb", 
-      password = PASS_SNMB) 
+      password = PASS_SNMB)
   }
+  
   valores_comillas <- Reduce("c",lapply(valores, function(i){
     paste("'", i, "'", sep = "")
     }))
@@ -55,24 +58,54 @@ eliminaRegistros <- function(driver = "SQLite", path_base = ".", tabla,
   
   dbDisconnect(con)
   
+  resumen <- data.frame(resumen = c(
+    paste0("Número de registros en la tabla original: ", num_registros),
+    paste0("Número de registros a eliminar: ", registros_eliminar),
+    paste0("Número de registros en la tabla final: ", num_registros_f)
+    ))
+  
   print("Número de registros en la tabla original:")
   print(num_registros)
   print("Número de registros a eliminar:")
   print(registros_eliminar)
-    print("Número de registros en la tabla final:")
+  print("Número de registros en la tabla final:")
   print(num_registros_f)
   
-  ids_eliminar
+  # Creando rutas para los reportes de eliminación
+  dir.create("reportes")
+
+  fecha_actual <- Sys.Date() %>%
+  stri_replace_all_fixed("-", "_")
+
+  ruta_carpeta_reportes <- paste0("reportes/", fecha_actual)
+  dir.create(ruta_carpeta_reportes)
+
+  ruta_archivo_ids_cgls <- paste0(ruta_carpeta_reportes, "/", fecha_actual, "_ids_cgls_eliminados.csv")
+  ruta_archivo_resumen <- paste0(ruta_carpeta_reportes, "/", fecha_actual, "_resumen.csv")
+
+  # Guardando reportes
+  write_csv(ids_eliminar, ruta_archivo_ids_cgls)
+  write_csv(resumen, ruta_archivo_resumen)
+  
+  return(list(
+    ids_eliminar = ids_eliminar,
+    resumen = resumen
+    ))
 }
 
-### Log
+### Ejemplo
 ### base Nash
 # nombre_borrar <- read.csv("pruebas_nash/nombre_borrar.csv", sep="")
 # valores <- as.character(nombre_borrar$nombre)
 # 
-# ids <- eliminaRegistros(driver = "SQLite", 
+# resultados <- eliminaRegistros(driver = "SQLite", 
 #   path_base = "datos/2015_10_21_conafor20150904.sqlite",
 #   tabla = "conglomerado_muestra", 
 #   variable = "nombre", valores = valores)
+
+#resultados <- eliminaRegistros(driver = "PostgreSQL", 
+#  tabla = "conglomerado_muestra", 
+#  variable = "nombre", valores = valores)
+
 
 
