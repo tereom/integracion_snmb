@@ -580,7 +580,7 @@ cgls_unicos <- length(unique(cgl_1$cgl))
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Revisamos si hay conglomerados que ya estén en la base de datos
 # Revisamos la imagen de la base de datos postgresql
-dir_imagen <- "../5_fusionar_postgres/imagen"
+dir_imagen <- "../6_fusionar_postgres/imagen"
 file_imagen <- list.files(path = dir_imagen, recursive = TRUE, 
   full.names = TRUE, pattern = "\\.sqlite")
 flag_imagen <- FALSE
