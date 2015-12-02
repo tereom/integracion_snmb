@@ -228,7 +228,17 @@ donde el argumento es el directorio donde se debe buscar la base de datos (en el
 La estructura de archivos y carpetas es como sigue.
 
 ### 8. Funciones adicionales
-Scripts con funciones que sirven para depurar la base de datos, por ejemplo, eliminar registros mal capturados.
+Scripts con funciones que sirven para depurar la base de datos:
+
+* eliminar_registros: funciones para eliminar registros de la base de datos postgres o de bases de datos sqlite. Se 
+    generan reportes de los registros eliminados.
+
+* reporteador_postgres: reporteador similar al del paso 2, con la diferencia de que trabaja con la última versión
+    de la base de datos. Adicionalmente permite crear reportes por institucion(es) o año(s) determinados. 
+    Ejemplo: 
+  ```
+  > Rscript crear_reporte.R reporte_prueba 'c(CONAFOR, CONANP)' 'c(2010, 2014)'
+  ```
 
 ```
 integracion_snmb
@@ -317,7 +327,14 @@ integracion_snmb
 |   |   |   |   |   aaaa_NOMBRE.shp
 |   |   |   |   |   aaaa_NOMBRE.shx
 └───8_funciones_adicionales
-|   │   eliminar_registros.R
+|   ├───eliminar_registros
+|   |   |   eliminar_registros.R
+|   ├───reporteador_postgres
+|   |   |   ├───reportes
+|   |   |   crear_reporte.R
+|   |   |   revision_gral.Rmd
+|   |   |   revision_gral_word.Rmd
+
 ```
 \*La carpeta *bases* y sus contenidos se generan al correr el script *exportar.sh*, de manera similar las carpetas *reportes*, *bases*, *migraciones*, *imagen* y *shapes* (con sus contenidos) se generan con los scripts *crear_reportes.R*, *deduplicar_v10.sh*, *migrar_v10_v12.sh*, *fusionar.sh* y *crear_shape.R* respectivamente.  
 \*\*La carpeta *web2py* corresponde a una carpeta de _código fuente_ de [Web2py](http://www.web2py.com/init/default/download), por lo que se debe agregar manualmente. Dentro de esta se guardan las respectivas aplicaciones del [fusionador](https://github.com/fpardourrutia/fusionador) y del [cliente](https://github.com/tereom/cliente_web2py), en sus versiones correspondientes. Estas aplicaciones deben llamarse *fusionador_sqlite_v10*, *fusionador_sqlite_v12*, *fusionador_postgres_v12* y *cliente_v10* respectivamente.  
