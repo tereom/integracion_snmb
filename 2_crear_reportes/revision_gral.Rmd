@@ -599,7 +599,7 @@ if(length(file_imagen) > 0){
     mutate(base = "entrega")
   tab_imagen_fecha_aux <- tab_imagen %>%
     rbind(tab_cgl_comp) %>%
-    arrange(desc(base))
+    arrange(cgl, desc(base))
   tab_imagen_fecha <- tab_imagen_fecha_aux %>%
     select(-conglomerado_muestra_id)
   
@@ -608,7 +608,7 @@ if(length(file_imagen) > 0){
   ids_reps_final <- tab_imagen_fecha_aux$conglomerado_muestra_id[
     duplicated(select(tab_imagen_fecha_aux, cgl, fecha))]
   
-  if(length(ids_reps) > 0){
+  if(length(ids_reps_final) > 0){
     output_txt = paste(output_dir, "/", entrega, "_rep_final.txt", sep = "")
     write.table(ids_reps_final, file = output_txt, quote = FALSE, 
       row.names = FALSE, col.names = FALSE)
