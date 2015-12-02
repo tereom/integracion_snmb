@@ -240,6 +240,8 @@ Scripts con funciones que sirven para depurar y crear reportes de la base de dat
   > Rscript crear_reporte.R reporte_prueba 'c(CONAFOR, CONANP)' 'c(2010, 2014)'
   ```
 
+### Estructura de carpetas y archivos
+
 ```
 integracion_snmb
 │   README.md
