@@ -589,16 +589,30 @@ if(length(file_imagen) > 0){
   base_imagen <- collect(tbl(src_sqlite(file_imagen), "Conglomerado_muestra"))
   tab_imagen <- base_imagen %>%
     filter(nombre %in% cgl_1$cgl) %>%
-    select(cgl = nombre, fecha = fecha_visita, edo. = estado, 
+    select(conglomerado_muestra_id = id, cgl = nombre, fecha = fecha_visita, 
+      edo. = estado, mun. = municipio) %>%
+    mutate(base = "final")
+  tab_cgl_comp <- cgl_1 %>%
+    filter(cgl %in% tab_imagen$cgl) %>%
+    select(conglomerado_muestra_id, cgl, fecha, edo. = estado, 
       mun. = municipio) %>%
     mutate(base = "entrega")
-  tab_cgl_comp <- tab_cgl %>%
-    filter(cgl %in% tab_imagen$cgl) %>%
-    select(cgl, fecha, edo. = estado, mun. = municipio) %>%
-    mutate(base = "final")
-  tab_imagen_fecha <- tab_imagen %>%
+  tab_imagen_fecha_aux <- tab_imagen %>%
     rbind(tab_cgl_comp) %>%
-    arrange(cgl, base, fecha)
+    arrange(desc(base))
+  tab_imagen_fecha <- tab_imagen_fecha_aux %>%
+    select(-conglomerado_muestra_id)
+  
+  # creamos una lista de ids con los conglomerados que ya existen en la 
+  # base de datos, esto para eliminarlos antes de fusionar
+  ids_reps_final <- tab_imagen_fecha_aux$conglomerado_muestra_id[
+    duplicated(select(tab_imagen_fecha_aux, cgl, fecha))]
+  
+  if(length(ids_reps) > 0){
+    output_txt = paste(output_dir, "/", entrega, "_rep_final.txt", sep = "")
+    write.table(ids_reps_final, file = output_txt, quote = FALSE, 
+      row.names = FALSE, col.names = FALSE)
+  }
   flag_imagen <- nrow(tab_imagen_fecha) > 0
 }
 ```
