@@ -92,19 +92,20 @@ eliminaRegistros <- function(driver = "SQLite", path_base = ".", tabla,
   ids_eliminar
 }
 
-### Ejemplo
-### base Nash
-# nombre_borrar <- read.csv("pruebas_nash/nombre_borrar.csv", sep="")
-# valores <- as.character(nombre_borrar$nombre)
-# 
-# resultados <- eliminaRegistros(driver = "SQLite", 
-#   path_base = "datos/2015_10_21_conafor20150904.sqlite",
-#   tabla = "conglomerado_muestra", 
-#   variable = "nombre", valores = valores)
+## Ejemplo
+## base Nash
+nombre_borrar <- read_csv("../pruebas_nash/nombre_borrar.csv")
+valores <- as.character(nombre_borrar$cgl) %>%
+  unique()
 
-# resultados <- eliminaRegistros(driver = "PostgreSQL", 
-#  tabla = "conglomerado_muestra", 
-#  variable = "nombre", valores = valores)
+resultados <- eliminaRegistros(driver = "SQLite", 
+  path_base = "../pruebas_nash/2015_08_05_nash.sqlite",
+  tabla = "Conglomerado_muestra", 
+  variable = "nombre", valores = valores)
+
+resultados <- eliminaRegistros(driver = "PostgreSQL", 
+ tabla = "conglomerado_muestra", 
+ variable = "nombre", valores = valores)
 
 
 
