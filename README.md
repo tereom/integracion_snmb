@@ -67,7 +67,7 @@ donde los argumentos son:
 22
 
 El resultado es:
-* copia base de datos: bases/nombre_base/nombre_base.sqlite
+* base de datos deduplicada: bases/nombre_base/nombre_base.sqlite
 * copia csv: bases/nombre_base/nombre_base.csv
 * archivo csv con la relación de los conglomerados eliminados: bases/nombre_base/nombre_base_eliminados.csv
 
