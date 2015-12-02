@@ -40,7 +40,7 @@ compara <- function(cgl_rep){
   # Conglomerado
   conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
       mutate(
-        anio = substr(fecha_visita, 3, 4),
+        anio = substr(fecha_visita, 3, 7),
         nombre = paste(nombre, anio, sep = "-")
       )
   # Sitio
@@ -238,7 +238,7 @@ compara <- function(cgl_rep){
 # creamos la tabla
 conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
       mutate(
-        anio = substr(fecha_visita, 3, 8),
+        anio = substr(fecha_visita, 3, 7),
         nombre = paste(nombre, anio, sep = "-")
       )
 
