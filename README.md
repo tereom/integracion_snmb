@@ -228,13 +228,13 @@ donde el argumento es el directorio donde se debe buscar la base de datos (en el
 La estructura de archivos y carpetas es como sigue.
 
 ### 8. Funciones adicionales
-Scripts con funciones que sirven para depurar la base de datos:
+Scripts con funciones que sirven para depurar y crear reportes de la base de datos:
 
 * eliminar_registros: funciones para eliminar registros de la base de datos postgres o de bases de datos sqlite. Se 
     generan reportes de los registros eliminados.
 
-* reporteador_postgres: reporteador similar al del paso 2, con la diferencia de que trabaja con la última versión
-    de la base de datos. Adicionalmente permite crear reportes por institucion(es) o año(s) determinados. 
+* reporteador_postgres: reporteador similar al del paso 2, con la diferencia de que trabaja con el último esquema
+    de la base de datos, y se conecta a la base postgres. Adicionalmente permite crear reportes por institucion(es) o año(s) determinados. 
     Ejemplo: 
   ```
   > Rscript crear_reporte.R reporte_prueba 'c(CONAFOR, CONANP)' 'c(2010, 2014)'
