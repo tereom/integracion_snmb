@@ -25,12 +25,14 @@ library(sp)
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Conexión a la base de datos
-PASS_SNMB = Sys.getenv("PASS_SNMB")
-base_input <- src_postgres(dbname = "snmb", host = "dbms", user = "snmb", 
-  password = PASS_SNMB)
+# PASS_SNMB = Sys.getenv("PASS_SNMB")
+# base_input <- src_postgres(dbname = "snmb", host = "dbms", user = "snmb", 
+#   password = PASS_SNMB)
+
+base_input <- src_postgres(dbname = "snmb_nash_bien", host = "localhost")
 
 # Si la base contiene conglomerados repetidos cambiamos el valor de nombre por
-# nombre-aa donde aa indica el año (ej: 72372 -> 72372-14) para poder 
+# nombre-aa-mm donde aa indica el año y mes (ej: 72372 -> 72372-14-02) para poder 
 # diferenciar conglomerados de distintos años
 # Ademas nos quedamos únicamente con una versión de conglomerado-aa
 conglomerado_raw <- collect(tbl(base_input, "conglomerado_muestra")) %>%
@@ -39,7 +41,7 @@ conglomerado_raw <- collect(tbl(base_input, "conglomerado_muestra")) %>%
 if(anyDuplicated(conglomerado_raw$nombre)){
   conglomerado <- conglomerado_raw %>%
     mutate(
-      anio = substr(fecha_visita, 3, 4),
+      anio = substr(fecha_visita, 3, 7),
       cgl = paste(nombre, anio, sep = "-")
     ) %>%
   select(conglomerado_muestra_id = id, cgl) %>%
@@ -547,9 +549,6 @@ cgls_unicos <- length(unique(cgl_1$cgl))
 
 * La base contiene `r cgls_unicos` conglomerados distintos. 
 
-`r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos (revisar el 
-reporte correspondiente)."`
-
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
 
@@ -562,7 +561,7 @@ conglomerado registrado no aparece en la malla).
 if(flag_cgl){
   colnames(tab_cgl) <- c("cgl", "inst.", "fecha", "edo.", "mun.", "# sitios",
     "dist")
-  kable(tab_cgl %>% arrange(cgl), align = c("l", "l", "l", "l", "l", "c", "r"))
+  kable(tab_cgl %>% arrange(cgl, fecha), align = c("l", "l", "l", "l", "l", "c", "r"))
 }else{
   kable("No hay registros")
 } 
