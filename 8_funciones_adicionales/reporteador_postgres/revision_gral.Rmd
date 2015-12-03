@@ -73,9 +73,9 @@ tab_camara <- archivos %>%
     ) %>%
   group_by(cgl) %>%
   summarise(
-    fecha_inicio = first(fecha_inicio),
+    fecha_inicio = first(as.character(fecha_inicio)),
     hora_inicio = first(hora_inicio),
-    fecha_termino = first(fecha_termino),
+    fecha_termino = first(as.character(fecha_termino)),
     hora_termino = first(hora_termino),
     fecha_inicio = paste(fecha_inicio, hora_inicio),
     fecha_termino = paste(fecha_termino, hora_termino),
@@ -117,9 +117,9 @@ tab_grabadora <- archivos %>%
     ) %>%
   group_by(cgl) %>%
   summarise(
-    fecha_inicio = first(fecha_inicio),
+    fecha_inicio = first(as.character(fecha_inicio)),
     hora_inicio = first(hora_inicio),
-    fecha_termino = first(fecha_termino),
+    fecha_termino = first(as.character(fecha_termino)),
     hora_termino = first(hora_termino),
     fecha_inicio = paste(fecha_inicio, hora_inicio),
     fecha_termino = paste(fecha_termino, hora_termino),
