@@ -3,7 +3,6 @@ title: "Reporte de entrega"
 output: word_document
 ---
 
-
 **Observaciones:** 
 
 * Fecha del reporte: `r format(Sys.time(), '%d-%m-%y')`.

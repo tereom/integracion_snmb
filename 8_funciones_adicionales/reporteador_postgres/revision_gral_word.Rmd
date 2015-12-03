@@ -3,7 +3,6 @@ title: "Reporte de entrega"
 output: word_document
 ---
 
-
 **Observaciones:** 
 
 * Fecha del reporte: `r format(Sys.time(), '%d-%m-%y')`.
@@ -14,8 +13,7 @@ output: word_document
 
 * La base contiene `r cgls_unicos` conglomerados distintos. 
 
-`r if(cgls_unicos < nrow(tab_cgl)) "* Hay conglomerados repetidos (revisar el 
-reporte correspondiente)."`
+`r if(cgls_unicos < nrow(tab_cgl)) paste("* Algunos conglomerados aparecen más de una vez, contando repetidos hay ", nrow(tab_cgl), ", esto pueden deberse a que el mismo conglomerado se visitó en dos o más fechas (ver tabla de conglomerados).", sep = "")`
 
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
@@ -27,8 +25,9 @@ conglomerado registrado no aparece en la malla).
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 if(flag_cgl){
-  colnames(tab_cgl) <- c("cgl", "fecha", "edo.", "mun.", "# sitios", "dist")
-  kable(tab_cgl %>% arrange(cgl), align = c("l", "l", "l", "l", "c", "r"))
+  colnames(tab_cgl) <- c("cgl", "inst.", "fecha", "edo.", "mun.", "# sitios",
+    "dist")
+  kable(tab_cgl %>% arrange(cgl, fecha), align = c("l", "l", "l", "l", "l", "c", "r"))
 }else{
   kable("No hay registros")
 } 

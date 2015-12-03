@@ -549,6 +549,8 @@ cgls_unicos <- length(unique(cgl_1$cgl))
 
 * La base contiene `r cgls_unicos` conglomerados distintos. 
 
+`r if(cgls_unicos < nrow(tab_cgl)) paste("* Algunos conglomerados aparecen más de una vez, contando repetidos hay ", nrow(tab_cgl), ", esto pueden deberse a que el mismo conglomerado se visitó en dos o más fechas (ver tabla de conglomerados).", sep = "")`
+
 ## Conglomerados y sitio
 En la siguiente tabla las columnas indican:
 
