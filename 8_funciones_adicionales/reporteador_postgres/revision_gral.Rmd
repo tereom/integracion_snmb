@@ -366,7 +366,7 @@ cgl_1 <- collect(tbl(base_input, "conglomerado_muestra")) %>%
 tab_dist <- distanciaMalla()
 
 num_sitios <- sitio %>%
-  filter(sitio_numero != "punto de control") %>%
+  filter(sitio_numero != "Punto de control") %>%
   group_by(conglomerado_muestra_id) %>%
   summarise(
     n_sitios = n()

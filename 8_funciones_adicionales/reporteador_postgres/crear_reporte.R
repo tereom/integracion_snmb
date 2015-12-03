@@ -9,7 +9,7 @@
 #   un vector, se escribe como vector de caracteres, ej. c("CONAFOR", "CONANP")
 # anios: años para los que se generará el reporte, el default es 2012:2020
 # Ejemplo
-# Rscript crear_reporte.R reporte_prueba 'c(CONAFOR, CONANP)' 'c(2010, 2014)' 
+# Rscript crear_reporte.R reporte_prueba 'c("CONAFOR", "CONANP")' 'c(2010, 2014)' 
 # El ejemplo crea:
 # 1 reporte pdf: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.pdf
 # 2 copia en word: reportes/aaaa_mm_dd_entrega/aaaa_mm_dd_entrega.docx
