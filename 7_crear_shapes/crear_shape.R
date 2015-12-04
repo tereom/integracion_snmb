@@ -19,39 +19,46 @@ library("RPostgreSQL")
 library("plyr")
 library("dplyr")
 
-### Leer base
-dir_base <- list.files(path = dir, recursive = TRUE, full.names = TRUE, 
-  pattern = "\\.sqlite$")
-base_input <- src_sqlite(dir_base)
 
 ### Leer shapes
-# cargar coordenadas (shapes SINaMBioD)
-coords <- readOGR("mallaSiNaMBioD/mallaSiNaMBioD.shp", "mallaSiNaMBioD")
-coords_df <- coords %>%
-  data.frame() %>%
+# cargar coordenadas malla que se creó para 2_crear_reportes
+load("../2_crear_reportes/malla.RData")
+coords_df <- malla %>%
   mutate(
-    Cgl = as.character(id_snmb)
-    ) %>%
-  select(Cgl, coords.x1, coords.x2)
+    Cgl = as.character(cgl)
+  ) %>%
+  select(-cgl)
 
 
 # Crear carpeta de salidas
 dir.create("shapes")
 
-crearShape <- function(nombre_inst, anio_shape){
-  # nombre_inst (string): "CONAFOR", "CONANP" ó "FMCN"
-  # anio_shape (string): "2014", "2015"
-  nombre_shape <- paste(anio_shape, nombre_inst, sep = "_")
-  dir <- paste("shapes/", nombre_shape, sep = "")
-  dir.create(dir)
+crearShape <- function(nombre_inst = c("CONAFOR", "CONANP", "FMCN"), 
+  anio_shape = c("2013", "2014", "2015"), base_input = base_input){
+  # nombre_inst (string): "CONAFOR", "CONANP" ó "FMCN", c("CONAFOR", "CONANP")
+  # anio_shape (string): "2014", "2015", c("2014", "2015")
+  # mult_insts (logical): si se va hacer un mismo shape para varias insts.
+  
+  nombre_shape <- paste(paste(anio_shape, collapse = "_"), 
+    paste(nombre_inst, collapse = "_"), sep = "_")
+  dir_shapes <- paste("shapes/", nombre_shape, sep = "")
+  dir.create(dir_shapes)
 
+  # identificamos si el shape corresponderá a más de una institución
+  mult_insts <- ifelse(length(nombre_inst) > 1, TRUE, FALSE)
   # información para el shape
   conglomerado <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
     mutate(
       anio = substr(fecha_visita, 1, 4)
     ) %>%
-    filter(anio == anio_shape, institucion == nombre_inst) %>% 
-    select(conglomerado_muestra_id = id, cgl = nombre, fecha_visita)
+    filter(anio %in% anio_shape, institucion %in% nombre_inst)
+  if(mult_insts){
+    conglomerado <- select(conglomerado, inst = institucion, 
+      conglomerado_muestra_id = id, cgl = nombre, fecha_visita)
+  }else{
+    conglomerado <- select(conglomerado, conglomerado_muestra_id = id, 
+      cgl = nombre, fecha_visita)
+  }
   
   # número de sitios
   sitio <- collect(tbl(base_input, "Sitio_muestra")) %>%
@@ -203,7 +210,7 @@ crearShape <- function(nombre_inst, anio_shape){
     group_by(cgl) %>%
     summarise(n_arboles_g = sum(existe == "T", na.rm = TRUE))
   
-  # número de epífitas distintas (cambiará con el nuevo modelo!)
+  # número de epífitas distintas
   tab_epifitas <- collect(tbl(base_input, "Informacion_epifitas")) %>%
     mutate_each(
       funs(. == "T"), matches("observa")
@@ -244,7 +251,7 @@ crearShape <- function(nombre_inst, anio_shape){
       num_impactos = sum(hay_evidencia == "T")
     )
   
-  if(nombre_inst == "CONAFOR"){
+  if(!mult_insts & nombre_inst == "CONAFOR"){
     tab_shape <- conglomerado %>%
       left_join(tab_sitio, by = "cgl") %>%
       left_join(tab_ei, by = "cgl") %>%
@@ -285,42 +292,63 @@ crearShape <- function(nombre_inst, anio_shape){
     tab_shape_f <- tab_shape %>%
       mutate_each(funs(codeNA)) %>%
       select(-conglomerado_muestra_id)
-    colnames(tab_shape_f) <- c("Cgl", "Visita", "Sitios", "Invasoras", 
-      "Huella/ex", "Fauna", "Grab", "Extra", "Ave", "Leñoso", "Carbono", 
-      "Arb_ch", "Arb_gd", "Epifitas", "Incendio", "Plagas", "Impactos")
+    if(mult_insts){
+      colnames(tab_shape_f) <- c("Inst", "Cgl", "Visita", "Sitios", "Invasoras", 
+        "Huella/ex", "Fauna", "Grab", "Extra", "Ave", "Leñoso", "Carbono", 
+        "Arb_ch", "Arb_gd", "Epifitas", "Incendio", "Plagas", "Impactos")
+    }else{
+      colnames(tab_shape_f) <- c("Cgl", "Visita", "Sitios", "Invasoras", 
+        "Huella/ex", "Fauna", "Grab", "Extra", "Ave", "Leñoso", "Carbono", 
+        "Arb_ch", "Arb_gd", "Epifitas", "Incendio", "Plagas", "Impactos")
+    }
+
   }
   # Unir con tablas de sarmod/sacmod
   tab_coords <- tab_shape_f %>%
     inner_join(coords_df, by = c("Cgl")) %>%
     as.data.frame()
-  coordinates(tab_coords) = ~coords.x1 + coords.x2
-  projection(tab_coords) <- projection(coords)
+  coordinates(tab_coords) = ~lon+lat
+  projection(tab_coords) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   
   # Escribir shapes
-  writeOGR(tab_coords, dir, nombre_shape, driver = "ESRI Shapefile", 
+  writeOGR(tab_coords, dir_shapes, nombre_shape, driver = "ESRI Shapefile", 
     verbose = FALSE, 
     overwrite_layer = TRUE)
   
   # guardar Rdata para pruebas ggvis
   save(tab_shape, sitio_coords, 
-  file = paste("salidas/", nombre_shape, ".Rdata", sep = ""))
+    file = paste("salidas/", nombre_shape, ".Rdata", sep = ""))
   
   tab_shape_f
 }
 
+### Leer base
+dir_base <- list.files(path = dir, recursive = TRUE, full.names = TRUE, 
+  pattern = "\\.sqlite$")
+base_input <- src_sqlite(dir_base)
 
-# fmcn_2015 <- crearShape(nombre_inst = "FMCN", anio_shape = "2015")
-# fmcn_2014 <- crearShape(nombre_inst = "FMCN", anio_shape = "2014")
-# conafor_2015 <- crearShape(nombre_inst = "CONAFOR", anio_shape = "2015")
-# conafor_2014 <- crearShape(nombre_inst = "CONAFOR", anio_shape = "2014")
+# fmcn_2015 <- crearShape(nombre_inst = "FMCN", anio_shape = "2015", 
+#   base_input = base_input)
+# fmcn_2014 <- crearShape(nombre_inst = "FMCN", anio_shape = "2014", 
+#   base_input = base_input)
+# conafor_2015 <- crearShape(nombre_inst = "CONAFOR", anio_shape = "2015", 
+#   base_input = base_input)
+# conafor_2014 <- crearShape(nombre_inst = "CONAFOR", anio_shape = "2014", 
+#   base_input = base_input)
 
 conglomerado_m <- collect(tbl(base_input, "Conglomerado_muestra")) %>%
-    mutate(
-      anio = substr(fecha_visita, 1, 4)
-    )
+  mutate(
+    anio = substr(fecha_visita, 1, 4)
+  )
 anios <- sort(unique(conglomerado_m$anio))
 insts <- unique(conglomerado_m$institucion)
 if("2013" %in% anios) anios <- anios[-1]
 
 comb <- expand.grid(insts, anios)
-tabs <- lapply(1:nrow(comb), function(i) crearShape(comb[i, 1], comb[i, 2]))
+tabs <- lapply(1:nrow(comb), function(i) crearShape(nombre_inst = comb[i, 1], 
+  anio_shape = comb[i, 2], 
+  base_input))
+
+# shape con todos los conglomerados
+# shapes_todos <- crearShape(nombre_inst = c("CONAFOR", "CONANP", "FMCN"), 
+#   anio_shape = c("2014", "2015"))
