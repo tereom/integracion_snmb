@@ -543,9 +543,7 @@ cgls_unicos <- length(unique(cgl_1$cgl))
 
 * Fecha del reporte: `r format(Sys.time(), '%d-%m-%y')`.
 
-* Se consideraron los regstros correponidentes a 
-  `r paste(instituciones, collapse = ", ")` recolectados en 
-  `r paste(anios, collapse = ", ")`.
+* Se consideraron los registros correponidentes a `r paste(instituciones, collapse = ", ")` recolectados en `r paste(anios, collapse = ", ")`.
 
 * La base contiene `r cgls_unicos` conglomerados distintos. 
 
