@@ -45,4 +45,4 @@ mv ${base_fusionador_postgres%%/}/storage.csv ${base_dir%%/}/imagen/$(date +"%Y_
 
 # Limpiar carpetas "databases"
 rm -f ${base_fusionador_sqlite%%/}/*
-rm -f ${base_fusionador_postgres%%/}/storage.csv
+#rm -f ${base_fusionador_postgres%%/}/storage.csv
