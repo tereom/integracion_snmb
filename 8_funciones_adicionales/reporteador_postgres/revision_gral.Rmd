@@ -29,7 +29,7 @@ library(sp)
 # base_input <- src_postgres(dbname = "snmb", host = "dbms", user = "snmb", 
 #   password = PASS_SNMB)
 
-base_input <- src_postgres(dbname = "snmb_nash_bien", host = "localhost")
+base_input <- src_postgres(dbname = "2015_12_03_snmb_v12", host = "localhost", user = "fpardo", password = "Kamatar1")
 
 # Si la base contiene conglomerados repetidos cambiamos el valor de nombre por
 # nombre-aa-mm donde aa indica el año y mes (ej: 72372 -> 72372-14-02) para poder 

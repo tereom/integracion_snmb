@@ -38,9 +38,10 @@ python ../web2py/web2py.py -S fusionador_sqlite_v12 -M -R ${base_dir%%/}/scripts
 # Fusionar csv en sqlite
 python ../web2py/web2py.py -S fusionador_sqlite_v12 -M -R ${base_dir%%/}/scripts_py/fusionar_sqlite.py -A applications/fusionador_postgres_v12/databases/storage.csv
 
-# Mover base de datos a carpeta "imagen", borrando todo lo que contiene
+# Mover base de datos y csv a carpeta "imagen", borrando todo lo que contiene
 rm -f ${base_dir%%/}/imagen/*
 mv ${base_fusionador_sqlite%%/}/storage.sqlite ${base_dir%%/}/imagen/$(date +"%Y_%m_%d").sqlite
+mv ${base_fusionador_postgres%%/}/storage.csv ${base_dir%%/}/imagen/$(date +"%Y_%m_%d").csv
 
 # Limpiar carpetas "databases"
 rm -f ${base_fusionador_sqlite%%/}/*
