@@ -92,6 +92,12 @@ Archivo_incendio <- collect(tbl(base_input, "Archivo_incendio"))
 # a los archivos con conglomerado (a excepción de "Sitio_muestra", cuyo campo
 # "sitio_numero" se utilizará para renombrar algunos archivos)
 
+# Supuestos:
+# 1. La base de datos contiene al menos un conglomerado.
+# 2. La información y fotografías de sitio se entregaron correctamente en dicha base
+# (ésto porque se procesan las imágenes de sitio de manera ligeramente distinta
+# a las demás)
+
 ###
 Conglomerado_muestra_sub <- Conglomerado_muestra %>%
   select(
@@ -100,6 +106,7 @@ Conglomerado_muestra_sub <- Conglomerado_muestra %>%
     fecha_visita,
     # para los reportes de archivos registrados en la base de datos pero no vistos
     institucion
+    #####
     )
 
 Sitio_muestra_sub <- Sitio_muestra %>%
@@ -172,6 +179,7 @@ Archivo_grabadora_sub <- Archivo_grabadora %>%
     archivo_nombre_original,
     es_audible
     )
+########
 
 ###
 Transecto_especies_invasoras_muestra_sub <- Transecto_especies_invasoras_muestra %>%
@@ -928,53 +936,77 @@ Rutas_origen_destino <- Archivo_ruta %>%
 # En esta tabla se incluye archivo_nombre_original, porque las causas por las que
 # no se encuentran los archivos son ajenas a CONABIO.
 Archivos_no_encontrados <- anti_join(Archivo_ruta, Archivo_origen,
-  by = c("entrada" = "nombre")) %>%
-  separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
-  select(
-    institucion,
-    conglomerado,
-    anio,
-    mes,
-    nombre_nuevo = entrada,
-    nombre_original = archivo_nombre_original
-  ) %>%
-  arrange(conglomerado)
+  by = c("entrada" = "nombre"))
 
-# Copiando los archivos:
-resultados <- apply(Rutas_origen_destino, 1, function(x) file.copy(x['ruta_origen'],
-  x['ruta_destino'], overwrite = FALSE))
+if(nrow(Archivos_no_encontrados) > 0){
+  Archivos_no_encontrados <- Archivos_no_encontrados %>%
+    separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
+    select(
+      institucion,
+      conglomerado,
+      anio,
+      mes,
+      nombre_nuevo = entrada,
+      nombre_original = archivo_nombre_original
+    ) %>%
+    arrange(conglomerado)
+} else {
+  Archivos_no_encontrados <- data.frame()
+}
 
-# ¿Qué archivos no se lograron copiar y cuáles sí?
-table(resultados)
-Rutas_origen_destino_success <- Rutas_origen_destino %>%
-  filter(resultados) %>%
-  separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
-  select(
-    conglomerado,
-    anio,
-    mes,
-    institucion,
-    archivo_ruta = ruta_origen
-  )
+if(nrow(Rutas_origen_destino) > 0){
   
-Rutas_origen_destino_fail <- Rutas_origen_destino %>%
-  filter(!resultados) %>%
-  separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
-  select(
-    conglomerado,
-    anio,
-    mes,
-    institucion,
-    archivo_ruta = ruta_origen
-  )
+  # Copiando los archivos:
+  resultados <- apply(Rutas_origen_destino, 1, function(x) file.copy(x['ruta_origen'],
+    x['ruta_destino'], overwrite = FALSE))
 
-# Archivos faaail, una razón puede ser que guardaron el mismo archivo en dos
-# lugares distintos usando el cliente viejo, entonces al hacer join de los
-# archivos en j con los registrados en la base usando el nombre como llave,
-# se duplican los registros y no los puede guardar 2 veces.
+  # ¿Qué archivos no se lograron copiar y cuáles sí?
+  table(resultados)
+  
+  if(sum(resultados) > 0){
+    Rutas_origen_destino_success <- Rutas_origen_destino %>%
+      filter(resultados) %>%
+      separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
+      select(
+        conglomerado,
+        anio,
+        mes,
+        institucion,
+        archivo_ruta = ruta_origen
+        )
+  } else {
+   Rutas_origen_destino_success <- data.frame()
+  }
+  
+  if(sum(!resultados) > 0){
+    
+    # Archivos faaail, una razón puede ser que guardaron el mismo archivo en dos
+    # lugares distintos usando el cliente viejo, entonces al hacer join de los
+    # archivos en j con los registrados en la base usando el nombre como llave,
+    # se duplican los registros y no los puede guardar 2 veces.
+
+    Rutas_origen_destino_fail <- Rutas_origen_destino %>%
+      filter(!resultados) %>%
+      separate(nombre_anio_mes, c("conglomerado", "anio", "mes")) %>%
+      select(
+        conglomerado,
+        anio,
+        mes,
+        institucion,
+        archivo_ruta = ruta_origen
+        )
+  } else {
+  Rutas_origen_destino_fail <- data.frame()
+  }
+  
+} else {
+  resultados <- c()
+  Rutas_origen_destino_success <- data.frame()
+  Rutas_origen_destino_fail <- data.frame()
+}
 
 ################################################################################
-
+############################# FALTA REVISAR ESTA SECCIÓN
 # ACTUALIZAR ESTA SECCIÓN PARA EL 2016 EN ADELANTE...
 
 # Extracción de formatos de campo:
