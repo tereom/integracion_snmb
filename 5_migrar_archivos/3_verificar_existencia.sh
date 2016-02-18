@@ -19,3 +19,27 @@ base_dir=$( cd "$( dirname "$0" )" && pwd )
 # misma carpeta creada en "0_crear_carpetas_reportes"
 nombre_carpeta=temp_"$(basename "$1")"
 
+# la carpeta de productos intermedios especificada en "0_crear_carpetas_reportes.sh"
+ruta_archivos="${base_dir%%/}"/reportes/"$nombre_carpeta"/productos_intermedios
+#echo "$ruta_archivos"
+
+#nombres de archivos para formar el path completo hacia ellos
+nombre_archivo_lista=temp_"$(basename "$1")"_lista.csv
+nombre_archivo_existencia=temp_"$(basename "$1")"_existencia.csv
+
+path_archivo_lista="$ruta_archivos"/"$nombre_archivo_lista"
+path_archivo_existencia="$ruta_archivos"/"$nombre_archivo_existencia"
+#echo "$path_archivo_existencia"
+
+#eliminando el archivo de existencia, puesto que en la línea siguiente se llena con un
+#append, siempre preguntando por seguridad.
+
+if [ -f "$path_archivo_existencia" ]; then
+	rm -i "$path_archivo_existencia"
+fi
+
+#corriendo el código para verificar la existencia de los archivos:
+
+while read -r linea; do
+   echo "$([ -f "$linea" ] && echo TRUE || echo FALSE)" >> "$path_archivo_existencia"
+done < "$path_archivo_lista"

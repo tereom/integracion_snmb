@@ -17,17 +17,16 @@ base_dir=$( cd "$( dirname "$0" )" && pwd )
 nombre_carpeta=temp_"$(basename "$1")"
 
 # la carpeta de productos intermedios especificada en "0_crear_carpetas_reportes.sh"
-ruta_archivos="${base_dir%%/}"/reportes/"$nombre_carpeta"/productos_intermedios
-#echo "$ruta_archivos"
+ruta_archivo="${base_dir%%/}"/reportes/"$nombre_carpeta"/productos_intermedios
+nombre_archivo=temp_"$(basename "$1")"_lista.csv
 
-nombre_archivo_lista=temp_"$(basename "$1")"_lista.csv
-path_archivo_lista="$ruta_archivos"/"$nombre_archivo_lista"
-#echo "${#path_archivo_lista}"
+# path al archivo donde se guardará la lista:
+path_archivo="$ruta_archivo"/"$nombre_archivo"
+#echo "$path_archivo"
+#echo "${#path_archivo}"
 
-nombre_archivo_existencia=temp_"$(basename "$1")"_existencia.csv
-path_archivo_existencia="$ruta_archivos"/"$nombre_archivo_existencia"
-#echo "$path_archivo_existencia"
-
+#corriendo el código para enlistar archivos:
+find "$1" -type f > "$path_archivo"
 
 
 
