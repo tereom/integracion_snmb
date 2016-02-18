@@ -31,15 +31,21 @@ path_archivo_lista="$ruta_archivos"/"$nombre_archivo_lista"
 path_archivo_existencia="$ruta_archivos"/"$nombre_archivo_existencia"
 #echo "$path_archivo_existencia"
 
-#eliminando el archivo de existencia, puesto que en la línea siguiente se llena con un
-#append, siempre preguntando por seguridad.
+#creando la función para verificar la existencia de los archivos:
+function verificarExistencia()
+#$1: $path_archivo_lista
+#$2: "$path_archivo_existencia"
+{
+	while read -r linea; do
+		echo "$([ -f "$linea" ] && echo TRUE || echo FALSE)" >> "$2"
+	done < "$1"
+}
+
+#Corriendo la función en el caso en que no se haya creado el archivo de existencias.
 
 if [ -f "$path_archivo_existencia" ]; then
-	rm -i "$path_archivo_existencia"
+	echo "el archivo con de existencias ya fue creado"
+	exit 1
+else
+	verificarExistencia "$path_archivo_lista" "$path_archivo_existencia"
 fi
-
-#corriendo el código para verificar la existencia de los archivos:
-
-while read -r linea; do
-   echo "$([ -f "$linea" ] && echo TRUE || echo FALSE)" >> "$path_archivo_existencia"
-done < "$path_archivo_lista"

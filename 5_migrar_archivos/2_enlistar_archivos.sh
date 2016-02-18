@@ -22,11 +22,16 @@ nombre_archivo=temp_"$(basename "$1")"_lista.csv
 
 # path al archivo donde se guardará la lista:
 path_archivo="$ruta_archivo"/"$nombre_archivo"
-#echo "$path_archivo"
+echo "$path_archivo"
 #echo "${#path_archivo}"
 
 #corriendo el código para enlistar archivos:
-find "$1" -type f > "$path_archivo"
+if [ -f "$path_archivo" ]; then
+	echo "el archivo con la lista ya fue creado"
+	exit 1
+else
+	find "$1" -type f > "$path_archivo"
+fi
 
 
 
