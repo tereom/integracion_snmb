@@ -22,7 +22,7 @@
 
 # En este script, como su nombre lo indica, se hace el join de la lista de rutas
 # originales de cada archivo, con las rutas nuevas creadas a partir de la base de
-# datos, por medio del nombre de archivo.
+# datos, usando el nombre de archivo como llave.
 
 library("plyr")
 library("dplyr")
@@ -32,7 +32,7 @@ library("readr")
 args <- commandArgs(trailingOnly = TRUE)
 
 # Leyendo el directorio de la entrega, con el fin de localizar los archivos que
-# contienen la información de las rutas origen y destino
+# contienen la información de las rutas de entrada y salida.
 dir_entrega <- args[1]
 #dir_entrega <- "/Volumes/sacmod"
 
@@ -45,33 +45,94 @@ directorio_archivos <- paste0(
 
 # Archivo con las rutas actuales de los archivos a migrar:
 # temp_basename(dir_entrega)_lista.csv
-ruta_archivo_origen <- paste0(
+ruta_temp_lista <- paste0(
   directorio_archivos,
   "/temp_", basename(dir_entrega), "_lista.csv"
   )
 
 # Archivo con la validación de la existencia de los archivos a migrar:
-ruta_archivo_existencia <- paste0(
+ruta_temp_existencia <- paste0(
   directorio_archivos,
   "/temp_", basename(dir_entrega), "_existencia.csv"
 )
 
 # Archivo con las rutas nuevas que tendrán los archivos:
 # temp_basename(dir_entrega)_nuevas_rutas.csv
-ruta_archivo_destino <- paste0(
+ruta_temp_nuevas_rutas <- paste0(
   directorio_archivos,
   "/temp_", basename(dir_entrega), "_nuevas_rutas.csv"
   )
 
-Rutas_origen <- read_csv(ruta_archivo_origen, col_names = FALSE)
-#glimpse(Rutas_origen)
+##################
+# Primero se validará que se pueda acceder a todos los archivos enlistados:
+existencia <- read_csv(ruta_temp_existencia, col_names = FALSE)
 
-existencia <- read_csv(ruta_archivo_existencia, col_names = FALSE)
-#table(existencia)
+tabla_existencia <- table(existencia)
 
-Rutas_destino <- read_csv(ruta_archivo_destino) %>%
+if("FALSE" %in% names(tabla_existencia)){
+  stop(paste0("Existen algunos archivos enlistados a los que no se puede acceder, ",
+    "favor de revisar el archivo: ",
+    "temp_", basename(dir_entrega), "_existencia.csv"))
+}
+##################
+
+# Formando el data frame de Rutas_entrada, con la lista de archivos en "dir_entrega",
+# más el nombre base de cada archivo enlistado.
+
+# Leyendo las funciones para obtener el nombre base de archivos:
+source("aux/4_funciones.R")
+
+Rutas_entrada <- read_csv(ruta_temp_lista, col_names = FALSE) %>%
+  mutate(
+    ruta_entrada = X1,
+    nombre_entrada = splitPathFile(ruta_entrada)[[3]]
+  ) %>%
+  select(-X1)
+#glimpse(Rutas_entrada)
+
+##################
+
+#Leyendo el data frame con las nuevas rutas (rutas de salida)
+Rutas_salida <- read_csv(ruta_temp_nuevas_rutas)
+#glimpse(Rutas_salida)
+
+##################
+
+#Formando la tabla que mapea las rutas. Cabe destacar que si un archivo está
+#repetido en dir_entrega (con dos rutas distintas), entonces, a la hora de hacer
+#el join por el nombre del archivo, aparecerán registros con distinta ruta de entrada
+#pero misma ruta de salida. Para optimizar rendimiento, conviene quitar archivos con
+#la misma ruta de salida.
+
+#Obviamente, archivos que no están registrados en la base de datos no tienen una
+#ruta de salida, y son omitidos en la tabla de "Rutas_entrada_salida".
+
+Rutas_entrada_salida <- Rutas_entrada %>%
+  inner_join(Rutas_salida, by = c("nombre_entrada" = "nombre_web2py")) %>%
+  mutate(
+    nombre_web2py = nombre_entrada
+  ) %>%
+  select(-nombre_entrada) %>%
   filter(!duplicated(.$ruta_salida))
-#glimpse(Rutas_destino)
+#glimpse(Rutas_entrada_salida)
+
+#Obteniendo tipos de archivo:
+# tipos_archivo <- Rutas_entrada_salida %>%
+#   mutate(
+#     terminacion = substring(nombre_web2py, nchar(nombre_web2py)-2, nchar(nombre_web2py))
+#   ) %>%
+#   group_by(terminacion) %>%
+#   tally()
+
+#Guardando "Rutas_entrada_salida" en un archivo csv:
+ruta_temp_mapeo_rutas <- paste0(
+  directorio_archivos,
+  "/temp_", basename(dir_entrega), "_mapeo_rutas.csv"
+  )
+
+write_csv(Rutas_entrada_salida, ruta_temp_mapeo_rutas)
+
+
 
 
 

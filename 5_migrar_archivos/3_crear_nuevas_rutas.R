@@ -867,14 +867,6 @@ Archivo_ruta <- rbind(
   Archivo_incendio_ruta
   )
 
-# Obteniendo tipos de archivo:
- # tipos_archivo <- Archivo_ruta %>%
- #   mutate(
- #     terminacion = substring(nombre_web2py, nchar(nombre_web2py)-2, nchar(nombre_web2py))
- #   ) %>%
- #   group_by(terminacion) %>%
- #   tally()
-
 # Escribiendo csv con las rutas que va a tener cada archivo en la estructura de
 # archivos del cliente de captura:
 ruta_archivo <- paste0(
