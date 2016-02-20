@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Argumentos
 # 1. dir_entrega: ruta de la carpeta donde están los clientes de captura,

@@ -869,11 +869,33 @@ Archivo_ruta <- rbind(
 
 # Escribiendo csv con las rutas que va a tener cada archivo en la estructura de
 # archivos del cliente de captura:
-ruta_archivo <- paste0(
+dir_archivos <- paste0(
   "reportes",
   "/temp_", basename(dir_entrega),
-  "/productos_intermedios",
+  "/productos_intermedios")
+
+ruta_archivo_nuevas_rutas <- paste0(
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_nuevas_rutas.csv"
   )
 
-write_csv(Archivo_ruta, ruta_archivo)
+write_csv(Archivo_ruta, ruta_archivo_nuevas_rutas)
+
+# También se guardarán como objetos de R, "ruta_estructura" y "Conglomerado_carpetas".
+# La razón de que no se guarden en csv, es que estos objetos no los consideramos
+# valiosos por sí mismos, sino son insumos para "5_crear_estructura_carpetas.R".
+
+ruta_objeto_ruta_estructura <- paste0(
+  dir_archivos,
+  "/temp_", basename(dir_entrega), "_ruta_estructura.rds"
+  )
+
+saveRDS(ruta_estructura, ruta_objeto_ruta_estructura)
+
+ruta_objeto_conglomerado_carpetas <- paste0(
+  dir_archivos,
+  "/temp_", basename(dir_entrega), "_conglomerado_carpetas.rds"
+  )
+
+saveRDS(Conglomerado_carpetas, ruta_objeto_conglomerado_carpetas)
+#readRDS(ruta_objeto_conglomerado_carpetas)
