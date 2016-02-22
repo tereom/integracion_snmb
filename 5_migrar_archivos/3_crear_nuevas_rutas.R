@@ -26,6 +26,16 @@
 # especificar el path de la carpeta donde se aloja la estructura de archivos,
 # así como el nombre de la misma.
 
+# El archivo con las rutas destino para cada archivo se encuentra en:
+# reportes/temp_basename(ruta_entrega)/productos_intermedios/
+# temp_basename(dir_entrega)_3_nuevas_rutas.csv
+
+# Asimismo, en la misma carpeta, se guardan dos objetos de r, que sirven como insumos
+# para el script "5_crear_estructura_carpetas.R":
+# temp_basename(dir_entrega)_3_ruta_estructura.rds
+# temp_basename(dir_entrega)_3_conglomerado_carpetas.rds
+
+
 library("plyr")
 library("dplyr")
 library("tidyr")
@@ -53,7 +63,6 @@ dir_estructura <- args[3]
 ruta_estructura <- paste0(dir_estructura, "/", nombre_estructura)
 
 # Ruta de la base de datos a utilizar:
-
 nombre_base <- args[4]
 #nombre_base <- "2015_12_14_6.sqlite"
 
@@ -589,11 +598,13 @@ Archivo_incendio_info <- Conglomerado_info %>%
 Conglomerado_carpetas <- Conglomerado_info %>%
   separate(fecha_visita, c("anio", "mes", "dia")) %>%
   mutate(
-    cgl_anio_mes = paste0(nombre, "/", anio, "_", mes)
+    cgl = nombre,
+    fecha = paste0(anio, "_", mes)
   ) %>%
   select(
     conglomerado_muestra_id,
-    cgl_anio_mes,
+    cgl,
+    fecha,
     institucion
     )
 
@@ -603,11 +614,12 @@ Imagen_sitio_ruta <- Imagen_sitio_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/referencias/",
-      nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/referencias/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -621,11 +633,12 @@ Imagen_camara_ruta <- Imagen_camara_info %>%
     #sustituyendo lo matcheado con la regex por uno de sus substrings.
     #si no se matchea nada, todo se queda igual.
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/referencias/", nuevo_nombre,
-      sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/referencias/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -637,11 +650,12 @@ Imagen_grabadora_ruta <- Imagen_grabadora_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/referencias/", nuevo_nombre,
-      sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/referencias/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -653,11 +667,12 @@ Imagen_microfonos_ruta <- Imagen_microfonos_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/referencias/", nuevo_nombre,
-      sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/referencias/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -669,11 +684,12 @@ Archivo_metadatos_ruta <- Archivo_metadatos_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/referencias/", nuevo_nombre,
-      sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/referencias/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -685,11 +701,12 @@ Archivo_camara_ruta <- Archivo_camara_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(
-      ruta_estructura, "/", cgl_anio_mes, "/fotos_videos/", nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/fotos_videos/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -710,11 +727,12 @@ Archivo_grabadora_ruta <- Archivo_grabadora_info %>%
       "grabaciones_ultrasonicas")
   ) %>%
   mutate(
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/", carpeta, "/", nuevo_nombre,
-      sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/", carpeta, "/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -726,11 +744,12 @@ Archivo_especie_invasora_ruta <- Archivo_especie_invasora_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/especies_invasoras/",
-      nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/especies_invasoras/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -742,11 +761,12 @@ Archivo_huella_excreta_ruta <- Archivo_huella_excreta_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/huellas_excretas/",
-      nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/huellas_excretas/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -758,11 +778,12 @@ Archivo_especie_invasora_extra_ruta <- Archivo_especie_invasora_extra_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/registros_extra/",
-      nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/registros_extra/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -774,11 +795,12 @@ Archivo_huella_excreta_extra_ruta <- Archivo_huella_excreta_extra_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/registros_extra/",
-      nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/registros_extra/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -790,11 +812,12 @@ Archivo_especimen_restos_extra_ruta <- Archivo_especimen_restos_extra_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/registros_extra/",
-      nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/registros_extra/",
+      nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -806,10 +829,11 @@ Archivo_conteo_ave_ruta <- Archivo_conteo_ave_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/otros/", nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/otros/", nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -821,10 +845,11 @@ Archivo_plaga_ruta <- Archivo_plaga_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/otros/", nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/otros/", nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -836,10 +861,11 @@ Archivo_incendio_ruta <- Archivo_incendio_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
   mutate(
     nuevo_nombre = gsub("(.*\\.).*\\.(.*\\.).*\\.", "\\1\\2", archivo),
-    ruta_salida = paste(ruta_estructura, "/", cgl_anio_mes, "/otros/", nuevo_nombre, sep = "")
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/otros/", nuevo_nombre)
   ) %>%
   select(
-    cgl_anio_mes,
+    cgl,
+    fecha,
     nombre_original = archivo_nombre_original,
     nombre_web2py = archivo,
     nombre_cluster = nuevo_nombre,
@@ -876,7 +902,7 @@ dir_archivos <- paste0(
 
 ruta_archivo_nuevas_rutas <- paste0(
   dir_archivos,
-  "/temp_", basename(dir_entrega), "_nuevas_rutas.csv"
+  "/temp_", basename(dir_entrega), "_3_nuevas_rutas.csv"
   )
 
 write_csv(Archivo_ruta, ruta_archivo_nuevas_rutas)
@@ -887,14 +913,14 @@ write_csv(Archivo_ruta, ruta_archivo_nuevas_rutas)
 
 ruta_objeto_ruta_estructura <- paste0(
   dir_archivos,
-  "/temp_", basename(dir_entrega), "_ruta_estructura.rds"
+  "/temp_", basename(dir_entrega), "_3_ruta_estructura.rds"
   )
 
 saveRDS(ruta_estructura, ruta_objeto_ruta_estructura)
 
 ruta_objeto_conglomerado_carpetas <- paste0(
   dir_archivos,
-  "/temp_", basename(dir_entrega), "_conglomerado_carpetas.rds"
+  "/temp_", basename(dir_entrega), "_3_conglomerado_carpetas.rds"
   )
 
 saveRDS(Conglomerado_carpetas, ruta_objeto_conglomerado_carpetas)

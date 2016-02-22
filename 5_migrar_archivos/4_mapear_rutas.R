@@ -22,7 +22,10 @@
 
 # En este script, como su nombre lo indica, se hace el join de la lista de rutas
 # originales de cada archivo, con las rutas nuevas creadas a partir de la base de
-# datos, usando el nombre de archivo como llave.
+# datos, usando el nombre de archivo como llave. Éste join se guarda en el archivo:
+# reportes/temp_basename(ruta_entrega)/productos_intermedios/
+# temp_basename(dir_entrega)_4_mapeo_rutas.csv
+
 
 library("plyr")
 library("dplyr")
@@ -37,30 +40,29 @@ dir_entrega <- args[1]
 #dir_entrega <- "/Volumes/sacmod"
 
 # Creando el directorio hacia los archivos:
-# "temp_sacmod_lista.csv" y "temp_sacmod_existencia.csv"
+# "temp_sacmod_1_lista.csv" y "temp_sacmod_2_existencia.csv"
 directorio_archivos <- paste0(
   "reportes",
   "/temp_", basename(dir_entrega),
   "/productos_intermedios")
 
 # Archivo con las rutas actuales de los archivos a migrar:
-# temp_basename(dir_entrega)_lista.csv
 ruta_temp_lista <- paste0(
   directorio_archivos,
-  "/temp_", basename(dir_entrega), "_lista.csv"
+  "/temp_", basename(dir_entrega), "_1_lista.csv"
   )
 
 # Archivo con la validación de la existencia de los archivos a migrar:
 ruta_temp_existencia <- paste0(
   directorio_archivos,
-  "/temp_", basename(dir_entrega), "_existencia.csv"
+  "/temp_", basename(dir_entrega), "_2_existencia.csv"
 )
 
 # Archivo con las rutas nuevas que tendrán los archivos:
 # temp_basename(dir_entrega)_nuevas_rutas.csv
 ruta_temp_nuevas_rutas <- paste0(
   directorio_archivos,
-  "/temp_", basename(dir_entrega), "_nuevas_rutas.csv"
+  "/temp_", basename(dir_entrega), "_3_nuevas_rutas.csv"
   )
 
 ##################
@@ -72,7 +74,7 @@ tabla_existencia <- table(existencia)
 if("FALSE" %in% names(tabla_existencia)){
   stop(paste0("Existen algunos archivos enlistados a los que no se puede acceder, ",
     "favor de revisar el archivo: ",
-    "temp_", basename(dir_entrega), "_existencia.csv"))
+    "temp_", basename(dir_entrega), "_2_existencia.csv"))
 }
 ##################
 
@@ -125,12 +127,12 @@ Rutas_entrada_salida <- Rutas_entrada %>%
 #   tally()
 
 #Guardando "Rutas_entrada_salida" en un archivo csv:
-ruta_temp_mapeo_rutas <- paste0(
+ruta_archivo_mapeo_rutas <- paste0(
   directorio_archivos,
-  "/temp_", basename(dir_entrega), "_mapeo_rutas.csv"
+  "/temp_", basename(dir_entrega), "_4_mapeo_rutas.csv"
   )
 
-write_csv(Rutas_entrada_salida, ruta_temp_mapeo_rutas)
+write_csv(Rutas_entrada_salida, ruta_archivo_mapeo_rutas)
 
 
 

@@ -11,7 +11,7 @@
 # "1_enlistar_archivos.sh". Ésto con el fin de verificar que bash puede acceder
 # a la ruta que acaba de escribir. Ruta del archivo output:
 # ${base_dir%%/}/reportes/temp_basename(dir_entrega)/productos_intermedios
-# /temp_basename(dir_entrega)_existencia.csv
+# /temp_basename(dir_entrega)_2_existencia.csv
 
 base_dir=$( cd "$( dirname "$0" )" && pwd )
 #echo "$base_dir"
@@ -24,8 +24,8 @@ dir_archivos="${base_dir%%/}"/reportes/"$nombre_carpeta"/productos_intermedios
 #echo "$dir_archivos"
 
 #nombres de archivos para formar el path completo hacia ellos
-nombre_archivo_lista=temp_"$(basename "$1")"_lista.csv
-nombre_archivo_existencia=temp_"$(basename "$1")"_existencia.csv
+nombre_archivo_lista=temp_"$(basename "$1")"_1_lista.csv
+nombre_archivo_existencia=temp_"$(basename "$1")"_2_existencia.csv
 
 ruta_archivo_lista="$dir_archivos"/"$nombre_archivo_lista"
 ruta_archivo_existencia="$dir_archivos"/"$nombre_archivo_existencia"

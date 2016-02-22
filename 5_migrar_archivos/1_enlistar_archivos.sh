@@ -8,7 +8,7 @@
 # Output:
 # lista de archivos en dir_entrega: 
 # ${base_dir%%/}/reportes/temp_basename(dir_entrega)/productos_intermedios
-# /temp_basename(dir_entrega)_lista.csv 
+# /temp_basename(dir_entrega)_1_lista.csv 
 
 base_dir=$( cd "$( dirname "$0" )" && pwd )
 #echo "$base_dir"
@@ -18,7 +18,7 @@ nombre_carpeta=temp_"$(basename "$1")"
 
 # la carpeta de productos intermedios especificada en "0_crear_carpetas_reportes.sh"
 dir_archivo="${base_dir%%/}"/reportes/"$nombre_carpeta"/productos_intermedios
-nombre_archivo=temp_"$(basename "$1")"_lista.csv
+nombre_archivo=temp_"$(basename "$1")"_1_lista.csv
 
 # path al archivo donde se guardará la lista:
 ruta_archivo="$dir_archivo"/"$nombre_archivo"

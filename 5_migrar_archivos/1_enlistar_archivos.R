@@ -4,30 +4,6 @@ library("tidyr")
 library("stringi")
 library("readr")
 
-# Creando la estructura de carpetas:
-
-dir.create(ruta_estructura)
-
-ruta_cgl_anio_mes <- paste(ruta_estructura, "/", Conglomerado_carpetas$cgl_anio_mes,
-  sep = "")
-resultados_crear_carpetas <- lapply(ruta_cgl_anio_mes, dir.create, recursive = TRUE)
-
-subcarpetas <- c(
-  "fotos_videos",
-  "grabaciones_audibles",
-  "grabaciones_ultrasonicas",
-  "especies_invasoras",
-  "huellas_excretas",
-  "registros_extra",
-  "referencias",
-  "otros"
-  )
-
-producto_cartesiano <- expand.grid(x = ruta_cgl_anio_mes, y = subcarpetas)
-ruta_subcarpetas <- paste(producto_cartesiano$x, producto_cartesiano$y, sep = "/")
-lapply(ruta_subcarpetas, dir.create)
-
-######
 
 # Haciendo el join con "rutas", para encontrar las rutas de entrada/salida de los archivos:
 Rutas_origen_destino <- Archivo_ruta %>%
