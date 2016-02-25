@@ -16,11 +16,10 @@ base_dir=$( cd "$( dirname "$0" )" && pwd )
 #---------base
 #------------base de datos con la información de los archivos
 #				(introducirla manualmente por seguridad)	
-#---------productos_intermedios
+#---------productos
 #------------temp_basename(dir_entrega)_lista.csv lista de archivos en dir_entrega
 #------------temp_basename(dir_entrega)_existencia.csv prueba de que bash
 #			 puede acceder a dichos archivos.
-#---------reportes_migracion
 
 #Creando dicha estructura:
 
@@ -34,9 +33,7 @@ mkdir "${base_dir%%/}"/reportes/"$nombre_carpeta"
 
 mkdir "${base_dir%%/}"/reportes/"$nombre_carpeta"/base
 
-mkdir "${base_dir%%/}"/reportes/"$nombre_carpeta"/productos_intermedios
-
-mkdir "${base_dir%%/}"/reportes/"$nombre_carpeta"/reportes_migracion
+mkdir "${base_dir%%/}"/reportes/"$nombre_carpeta"/productos
 
 #El nombre de la carpeta se cambiará de temp_basename(dir_entrega) a
 #aaaa_mm_dd_basename(dir_entrega) cuando se termine el proceso de migración.

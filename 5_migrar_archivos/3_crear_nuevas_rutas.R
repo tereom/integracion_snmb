@@ -5,7 +5,7 @@
 # nombre_estructura
 # ├───conglomerado
 # |   ├───anio_mes
-# |   |   |   formato_campo.pdf
+# |   |   ├───formato_campo
 # |   |   ├───fotos_videos
 # |   |   ├───grabaciones_audibles
 # |   |   ├───grabaciones_ultrasonicas
@@ -27,7 +27,7 @@
 # así como el nombre de la misma.
 
 # El archivo con las rutas destino para cada archivo se encuentra en:
-# reportes/temp_basename(ruta_entrega)/productos_intermedios/
+# reportes/temp_basename(dir_entrega)/productos/
 # temp_basename(dir_entrega)_3_nuevas_rutas.csv
 
 # Asimismo, en la misma carpeta, se guardan dos objetos de r, que sirven como insumos
@@ -898,7 +898,7 @@ Archivo_ruta <- rbind(
 dir_archivos <- paste0(
   "reportes",
   "/temp_", basename(dir_entrega),
-  "/productos_intermedios")
+  "/productos")
 
 ruta_archivo_nuevas_rutas <- paste0(
   dir_archivos,

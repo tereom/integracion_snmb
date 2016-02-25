@@ -5,7 +5,7 @@
 # nombre_estructura
 # ├───conglomerado
 # |   ├───anio_mes
-# |   |   |   formato_campo.pdf
+# |   |   ├───formato_campo
 # |   |   ├───fotos_videos
 # |   |   ├───grabaciones_audibles
 # |   |   ├───grabaciones_ultrasonicas
@@ -23,7 +23,7 @@
 # En este script, como su nombre lo indica, se hace el join de la lista de rutas
 # originales de cada archivo, con las rutas nuevas creadas a partir de la base de
 # datos, usando el nombre de archivo como llave. Éste join se guarda en el archivo:
-# reportes/temp_basename(ruta_entrega)/productos_intermedios/
+# reportes/temp_basename(ruta_entrega)/productos/
 # temp_basename(dir_entrega)_4_mapeo_rutas.csv
 
 
@@ -40,34 +40,34 @@ dir_entrega <- args[1]
 #dir_entrega <- "/Volumes/sacmod"
 
 # Creando el directorio hacia los archivos:
-# "temp_sacmod_1_lista.csv" y "temp_sacmod_2_existencia.csv"
+# "temp_basename(dir_entrega)_1_lista.csv" y "temp_basename(dir_entrega)_2_existencia.csv"
 directorio_archivos <- paste0(
   "reportes",
   "/temp_", basename(dir_entrega),
-  "/productos_intermedios")
+  "/productos")
 
 # Archivo con las rutas actuales de los archivos a migrar:
-ruta_temp_lista <- paste0(
+ruta_archivo_lista <- paste0(
   directorio_archivos,
   "/temp_", basename(dir_entrega), "_1_lista.csv"
   )
 
 # Archivo con la validación de la existencia de los archivos a migrar:
-ruta_temp_existencia <- paste0(
+ruta_archivo_existencia <- paste0(
   directorio_archivos,
   "/temp_", basename(dir_entrega), "_2_existencia.csv"
 )
 
 # Archivo con las rutas nuevas que tendrán los archivos:
 # temp_basename(dir_entrega)_nuevas_rutas.csv
-ruta_temp_nuevas_rutas <- paste0(
+ruta_archivo_nuevas_rutas <- paste0(
   directorio_archivos,
   "/temp_", basename(dir_entrega), "_3_nuevas_rutas.csv"
   )
 
 ##################
 # Primero se validará que se pueda acceder a todos los archivos enlistados:
-existencia <- read_csv(ruta_temp_existencia, col_names = FALSE)
+existencia <- read_csv(ruta_archivo_existencia, col_names = FALSE)
 
 tabla_existencia <- table(existencia)
 
@@ -84,7 +84,7 @@ if("FALSE" %in% names(tabla_existencia)){
 # Leyendo las funciones para obtener el nombre base de archivos:
 source("aux/4_funciones.R")
 
-Rutas_entrada <- read_csv(ruta_temp_lista, col_names = FALSE) %>%
+Rutas_entrada <- read_csv(ruta_archivo_lista, col_names = FALSE) %>%
   mutate(
     ruta_entrada = X1,
     nombre_entrada = splitPathFile(ruta_entrada)[[3]]
@@ -95,7 +95,7 @@ Rutas_entrada <- read_csv(ruta_temp_lista, col_names = FALSE) %>%
 ##################
 
 #Leyendo el data frame con las nuevas rutas (rutas de salida)
-Rutas_salida <- read_csv(ruta_temp_nuevas_rutas)
+Rutas_salida <- read_csv(ruta_archivo_nuevas_rutas)
 #glimpse(Rutas_salida)
 
 ##################

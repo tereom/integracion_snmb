@@ -5,7 +5,7 @@
 # nombre_estructura
 # ├───conglomerado
 # |   ├───anio_mes
-# |   |   |   formato_campo.pdf
+# |   |   ├───formato_campo
 # |   |   ├───fotos_videos
 # |   |   ├───grabaciones_audibles
 # |   |   ├───grabaciones_ultrasonicas
@@ -29,7 +29,7 @@
 
 # Además de crearse la estructura de carpetas, al correr este script, se genera el
 # archivo:
-# reportes/temp_basename(ruta_entrega)/productos_intermedios/
+# reportes/temp_basename(ruta_entrega)/productos/
 # temp_basename(dir_entrega)_5_cgl_muestra_carpetas.csv
 # que sirve para verificar que se pudieron crear las carpetas correspondientes
 # a cada muestra de cada conglomerado. Si ésto no fue así, y se descartaron
@@ -38,11 +38,10 @@
 # Por ello, si se encuentra un problema, el script avisará inmediatamente.
 
 # Se genera también el archivo:
-# reportes/temp_basename(ruta_entrega)/productos_intermedios/
+# reportes/temp_basename(ruta_entrega)/productos/
 # temp_basename(dir_entrega)_5_cgl_muestra_subcarpetas.csv
 # que contiene la información acerca de si se pudieron generar las subcarpetas
 # correspondientes a cada muestra del conglomerado (o no).
-
 
 library("plyr")
 library("dplyr")
@@ -57,7 +56,7 @@ dir_entrega <- args[1]
 dir_archivos <- paste0(
   "reportes",
   "/temp_", basename(dir_entrega),
-  "/productos_intermedios"
+  "/productos"
   )
 
 ruta_objeto_ruta_estructura <- paste0(
@@ -120,10 +119,11 @@ ruta_archivo_cgl_muestra_carpetas <- paste0(
 # Guardando el informe:
 write_csv(Cgl_muestra_carpetas, ruta_archivo_cgl_muestra_carpetas)
 
-## Creando las subcarpetas con el número (éstas se crearán por completez en caso
-# de que haya surgido algún problema en el paso anterior.)
+## Creando las subcarpetas (éstas se crearán por completez en caso de que haya
+# surgido algún problema en el paso anterior.)
 
 subcarpetas <- c(
+  "formato_campo",
   "fotos_videos",
   "grabaciones_audibles",
   "grabaciones_ultrasonicas",
