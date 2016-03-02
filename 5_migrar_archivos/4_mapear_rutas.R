@@ -41,27 +41,27 @@ dir_entrega <- args[1]
 
 # Creando el directorio hacia los archivos:
 # "temp_basename(dir_entrega)_1_lista.csv" y "temp_basename(dir_entrega)_2_existencia.csv"
-directorio_archivos <- paste0(
+dir_archivos <- paste0(
   "reportes",
   "/temp_", basename(dir_entrega),
   "/productos")
 
 # Archivo con las rutas actuales de los archivos a migrar:
 ruta_archivo_lista <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_1_lista.csv"
   )
 
 # Archivo con la validación de la existencia de los archivos a migrar:
 ruta_archivo_existencia <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_2_existencia.csv"
 )
 
 # Archivo con las rutas nuevas que tendrán los archivos:
 # temp_basename(dir_entrega)_nuevas_rutas.csv
 ruta_archivo_nuevas_rutas <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_3_nuevas_rutas.csv"
   )
 
@@ -85,11 +85,10 @@ if("FALSE" %in% names(tabla_existencia)){
 source("aux/4_funciones.R")
 
 Rutas_entrada <- read_csv(ruta_archivo_lista, col_names = FALSE) %>%
-  mutate(
+  transmute(
     ruta_entrada = X1,
     nombre_entrada = splitPathFile(ruta_entrada)[[3]]
-  ) %>%
-  select(-X1)
+  )
 #glimpse(Rutas_entrada)
 
 ##################
@@ -128,7 +127,7 @@ Rutas_entrada_salida <- Rutas_entrada %>%
 
 #Guardando "Rutas_entrada_salida" en un archivo csv:
 ruta_archivo_mapeo_rutas <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_4_mapeo_rutas.csv"
   )
 
