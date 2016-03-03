@@ -43,6 +43,18 @@ nombre_archivo_errores_migracion=temp_"$(basename "$1")"_6_errores_migracion.txt
 
 ## Creando el código de migración si es que no existe:
 
+# Ejemplo de código creado:
+## if [ -f "temp_sacmod_7_errores_migracion.txt" ]; then
+## 	 echo "la migración ya fue realizada, ver archivo temp_sacmod_7_errores_migracion.txt"
+## else
+## 	 cp "/Volumes/sacmod/data_26_01_2015_tres/Entrega de Productos/AGOSTO/DIAAPROY/CS/E_20140829/BIODIVERSIDAD/CLIENTE DE CAPTURA/64199/resources/archives/imagenes/64199_S3_CVTC_20140808_3.JPG" "/Volumes/sacmod/archivos_snmb_2/64199/2014_08/fotos_videos/64199_S3_CVTC_20140808_3.JPG" 2>> "temp_sacmod_7_errores_migracion.txt"
+## 	 cp "/Volumes/sacmod/data_26_01_2015_tres/Entrega de Productos/AGOSTO/DIAAPROY/CS/E_20140829/BIODIVERSIDAD/CLIENTE DE CAPTURA/68898/resources/archives/imagenes/68898_S3_CVTC_20140818_3.JPG" "/Volumes/sacmod/archivos_snmb_2/68898/2014_08/fotos_videos/68898_S3_CVTC_20140818_3.JPG" 2>> "temp_sacmod_7_errores_migracion.txt"
+## 	 cp "/Volumes/sacmod/data_26_01_2015_tres/Entrega de Productos/AGOSTO/DIAAPROY/CS/E_20140829/BIODIVERSIDAD/CLIENTE DE CAPTURA/65027/resources/archives/imagenes/65027_S3_CVTC_20140804_3.JPG" "/Volumes/sacmod/archivos_snmb_2/65027/2014_08/fotos_videos/65027_S3_CVTC_20140804_3.JPG" 2>> "temp_sacmod_7_errores_migracion.txt"
+## 	 cp "/Volumes/sacmod/data_26_01_2015_tres/Entrega de Productos/AGOSTO/DIAAPROY/CS/E_20140829/BIODIVERSIDAD/CLIENTE DE CAPTURA/69841/resources/archives/imagenes/69841_S3_FCT_20140824_3.JPG" "/Volumes/sacmod/archivos_snmb_2/69841/2014_08/fotos_videos/69841_S3_FCT_20140824_3.JPG" 2>> "temp_sacmod_7_errores_migracion.txt"
+## 	 cp "/Volumes/sacmod/data_26_01_2015_tres/Entrega de Productos/AGOSTO/DIAAPROY/CS/E_20140829/BIODIVERSIDAD/CLIENTE DE CAPTURA/69841/resources/archives/imagenes/69841_T2_EXC_20140823_2.JPG" "/Volumes/sacmod/archivos_snmb_2/69841/2014_08/huellas_excretas/69841_T2_EXC_20140823_2.JPG" 2>> "temp_sacmod_7_errores_migracion.txt"
+## fi
+
+
 function crearCodigo()
 #$1: $ruta_archivo_mapeo_rutas
 #$2: $ruta_archivo_codigo_migracion

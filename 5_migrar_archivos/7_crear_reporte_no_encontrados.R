@@ -54,20 +54,20 @@ dir_entrega <- args[1]
 # Creando el directorio hacia los archivos:
 # "temp_basename(dir_entrega)_1_lista.csv" y
 # "temp_basename(dir_entrega)_3_nuevas_rutas.csv"
-directorio_archivos <- paste0(
+dir_archivos <- paste0(
   "reportes",
   "/temp_", basename(dir_entrega),
   "/productos")
 
 # Archivo con las rutas actuales de los archivos a migrar:
 ruta_archivo_lista <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_1_lista.csv"
   )
 
 # Archivo con las rutas nuevas generadas a partir de la base de datos:
 ruta_archivo_nuevas_rutas <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_3_nuevas_rutas.csv"
   )
 
@@ -112,7 +112,7 @@ Archivos_no_encontrados <- Rutas_salida %>%
 
 #Guardando "Archivos_no_encontrados" en un archivo csv:
 ruta_archivo_no_encontrados <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_7_no_encontrados.csv"
   )
 
@@ -133,7 +133,7 @@ Archivos_no_encontrados_simple <- Archivos_no_encontrados %>%
 
 #Guardando "Archivos_no_encontrados_simple" en un archivo csv:
 ruta_archivo_no_encontrados_simple <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_7_no_encontrados_simple.csv"
   )
 
@@ -152,7 +152,7 @@ Resumen_no_encontrados <- Archivos_no_encontrados %>%
 
 #Guardando "Resumen_no_encontrados" en un archivo csv:
 ruta_archivo_resumen_no_encontrados <- paste0(
-  directorio_archivos,
+  dir_archivos,
   "/temp_", basename(dir_entrega), "_7_resumen_no_encontrados.csv"
   )
 
