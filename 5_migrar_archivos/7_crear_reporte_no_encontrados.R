@@ -77,7 +77,7 @@ ruta_archivo_nuevas_rutas <- paste0(
 # más el nombre base de cada archivo enlistado.
 
 # Leyendo las funciones para obtener el nombre base de archivos:
-source("aux/4_funciones.R")
+source("aux/obtener_nombre_base.R")
 
 Rutas_entrada <- read_csv(ruta_archivo_lista, col_names = FALSE) %>%
   mutate(

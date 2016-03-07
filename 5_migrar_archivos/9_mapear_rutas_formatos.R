@@ -94,7 +94,7 @@ ruta_objeto_conglomerado_carpetas <- paste0(
 # formatos de campo en "dir_entrega", más el nombre base de cada archivo enlistado.
 
 # Leyendo las funciones para obtener el nombre base de archivos:
-source("aux/4_funciones.R")
+source("aux/obtener_nombre_base.R")
 
 Formatos_campo_info <- read_csv(ruta_archivo_lista_formatos, col_names = FALSE) %>%
   transmute(
