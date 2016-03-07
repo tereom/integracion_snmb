@@ -94,7 +94,7 @@ ruta_objeto_conglomerado_carpetas <- paste0(
 # formatos de campo en "dir_entrega", más el nombre base de cada archivo enlistado.
 
 # Leyendo las funciones para obtener el nombre base de archivos:
-source("aux/obtener_nombre_base.R")
+source("funciones_auxiliares/obtener_nombre_base.R")
 
 Formatos_campo_info <- read_csv(ruta_archivo_lista_formatos, col_names = FALSE) %>%
   transmute(
@@ -181,18 +181,18 @@ Formatos_campo_info_llave_cgl_fecha <- Formatos_campo_info %>%
 
 # 2. Hacer los joins de cada una de las tablas anteriores con "Conglomerado_carpetas",
 # usando como llave ya sea el cgl o el cgl y la fecha. Notar que aquí estamos suponiendo
-# que los nombres de los formatos tienen todos el mismo formato: si en dir_entrega
+# que los nombres de los formatos tienen todos la misma forma: si en dir_entrega
 # hay un conglomerado muestreado dos veces, pero en un formato sólo viene el nombre
 # del conglomerado, y en otro, además, la fecha de muestreo, el primer formato
 # quedará asociado a ambos muestreos. 
 
-# Más general, suponemos que el nombre del archivo con el formato de campo
-# identifica de manera única a un muestreo de conglomerado contenido en dicha
-# entrega. Si no es así, el problema quedará detectado en los reportes de muestreo.
-# Ésto es porque no queremos complicar de más el código.
+# Más general, para que no haya formatos de campo que se asocien a más de un
+# muestreo de conglomerado, es necesario que el nombre del archivo con el formato
+# de campo identifique de manera única a un muestreo de conglomerado contenido en
+# dicha entrega. Si no es así, se tendrán múltiples formatso asociados a un mismo
+# muestreo, de los cuáles sólo uno será el correctpo. Este problema quedará
+# detectado en los reportes de muestreo.
 
-# Encontrando el muestreo de conglomerado al que corresponde cada formato. Sabemos
-# que la fecha de muestreo es la fecha en el nombre del archivo (si es que la tiene).
 # Lo ideal sería que cada renglón de "Conglomerado_carpetas" tuviera asociado al
 # menos un formato de campo (posiblemente ésto no pase, si no tenemos los formatos
 # completos)
@@ -203,17 +203,32 @@ Formatos_campo_info_llave_cgl_fecha <- Formatos_campo_info %>%
 Rutas_entrada_salida_llave_cgl <- Conglomerado_carpetas %>%
   inner_join(Formatos_campo_info_llave_cgl, by = "cgl") %>%
   mutate(
-    nuevo_nombre = paste0(cgl, "_", fecha.x, ".pdf"),
-    # Sabemos que la carpeta "cgl/fecha.x" existe pues con "Conglomerado_carpetas"
-    # creamos precísamente la estructura de carpetas.
-    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha.x, "/formato_campo/", nuevo_nombre)
-  ) %>%
+    nuevo_nombre = paste0(cgl, "_", fecha.x)
+    # Debido a que renombramos los formatos utilizando el nombre del conglomerado
+    # y la fecha, obtenidos de la tabla " Conglomerado_carpetas", entonces puede
+    # ser que formatos distintos tengan la misma ruta de salida. Esta es la razón
+    # por la que no agregamos todavía la terminación al nuevo nombre: se deduplicarán
+    # dichos nombres agregando un sufijo, en caso de que más de un formato quede
+    # asociado a un muestreo.
+    
+    # Esto no lo hacemos para los archivos registrados en cualquier base de datos,
+    # puesto que suponemos que todos los clientes de captura asocian un identificador
+    # único a cada archivo, y por medio de éste, se puede asociar dicho archivo
+    # de manera única a un muestreo.
+    
+    # Aún no se crea la ruta de salida, puesto que primero se deduplicarán los
+    # nombres nuevos de los archivos, pero para lograr ésto, se deben juntar ambas
+    # Rutas_entrada_salida_llave (cgl/cgl_fecha). Ésto porque posiblemente se
+    # asocie al mismo muestreo dos formatos: uno que en su nombre sólo tiene el
+    # número de conglomerado, otro que tiene además, la fecha. Si deduplicamos
+    # sin juntar ambos data_frames, no deduplicaríamos en la unión.
+    ) %>%
   select(
     cgl,
     fecha = fecha.x,
     institucion,
     ruta_entrada,
-    ruta_salida
+    nuevo_nombre
   )
 #glimpse(Rutas_entrada_salida_llave_cgl)
 #Rutas_entrada_salida_llave_cgl$ruta_salida
@@ -221,23 +236,50 @@ Rutas_entrada_salida_llave_cgl <- Conglomerado_carpetas %>%
 Rutas_entrada_salida_llave_cgl_fecha <- Conglomerado_carpetas %>%
   inner_join(Formatos_campo_info_llave_cgl_fecha, by = c("cgl", "fecha")) %>%
   mutate(
-    nuevo_nombre = paste0(cgl, "_", fecha, ".pdf"),
-    # Sabemos que la carpeta "cgl/fecha" existe pues con "Conglomerado_carpetas"
-    # creamos precísamente la estructura de carpetas.
-    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha, "/formato_campo/", nuevo_nombre)
+    nuevo_nombre = paste0(cgl, "_", fecha)
+    # Debido a que renombramos los formatos utilizando el nombre del conglomerado
+    # y la fecha, obtenidos de la tabla " Conglomerado_carpetas", entonces puede
+    # ser que formatos distintos tengan la misma ruta de salida. Esta es la razón
+    # por la que no agregamos todavía la terminación al nuevo nombre: se deduplicarán
+    # dichos nombres agregando un sufijo, en caso de que más de un formato quede
+    # asociado a un muestreo.
+    
+    # Esto no lo hacemos para los archivos registrados en cualquier base de datos,
+    # puesto que suponemos que todos los clientes de captura asocian un identificador
+    # único a cada archivo, y por medio de éste, se puede asociar dicho archivo
+    # de manera única a un muestreo.
+    
+    # Aún no se crea la ruta de salida, puesto que primero se deduplicarán los
+    # nombres nuevos de los archivos, pero para lograr ésto, se deben juntar ambas
+    # Rutas_entrada_salida_llave (cgl/cgl_fecha). Ésto porque posiblemente se
+    # asocie al mismo muestreo dos formatos: uno que en su nombre sólo tiene el
+    # número de conglomerado, otro que tiene además, la fecha. Si deduplicamos
+    # sin juntar ambos data_frames, no deduplicaríamos en la unión.
   ) %>%
   select(
     cgl,
     fecha,
     institucion,
     ruta_entrada,
-    ruta_salida
+    nuevo_nombre
   )
 #glimpse(Rutas_entrada_salida_llave_cgl_fecha)
 #Rutas_entrada_salida_llave_cgl_fecha$ruta_salida
 
+# Juntando las 2 tablas calculadas anteriormente, y, ahora sí, deduplicando
+# nombres con la función homónima en "/aux/deduplicar_vector.R"
+source("funciones_auxiliares/deduplicar_vector.R")
+
 Rutas_entrada_salida <- Rutas_entrada_salida_llave_cgl %>%
-  rbind(Rutas_entrada_salida_llave_cgl_fecha)
+  rbind(Rutas_entrada_salida_llave_cgl_fecha) %>%
+  mutate(
+    nuevo_nombre = paste0(deduplicarVector(nuevo_nombre), ".pdf"),
+    
+    # Sabemos que la carpeta "cgl/fecha.x" existe pues con "Conglomerado_carpetas"
+    # creamos precísamente la estructura de carpetas.
+    ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha.x,
+      "/formato_campo/", nuevo_nombre)
+  )
 
 #Guardando "Rutas_entrada_salida" en un archivo csv:
 ruta_archivo_mapeo_rutas_formatos <- paste0(
@@ -246,24 +288,3 @@ ruta_archivo_mapeo_rutas_formatos <- paste0(
   )
 
 write_csv(Rutas_entrada_salida, ruta_archivo_mapeo_rutas_formatos)
-
-# Finalmente, cabe destacar que al hacer el join anterior, debido a que renombramos
-# los formatos utilizando el nombre del conglomerado y la fecha, obtenidos de
-# la tabla " Conglomerado_carpetas", entonces puede ser que formatos distintos
-# tengan la misma ruta de salida. Por ello, hay que lidiar con este problema en
-# la migración de archivos (renombrando apropiadamente para evitar sobreescribir)
-
-#El problema anterior puede surgir si hay distintos formatos que se asocian a un
-# único muestreo (por ejemplo, porque no tienen información de fecha los nombres
-# de los formatos, y en la entrega se muestreó más de una vez el mismo conglomerado),
-
-#Formatos que no se asociaron a ningún conglomerado:
-Formatos_no_asociados <- Formatos_campo_info_restantes %>%
-  anti_join(Formatos_por_muestreo_join_cgl_fecha, by = "ruta_entrada")
-
-#Viendo si coinciden en conglomerado los formatos no asociados, con algún muestreo
-
-sum(Formatos_no_asociados$cgl %in% Conglomerado_carpetas$cgl)
-# Posiblemente estos formatos está con 2 nombres: el nombre del conglomerado
-# y el nombre del conglomerado_fecha. Como ya fueron incluídos los primeros,
-# éstos ya no fueron incluidos. Creo que es mejor ser conservadores e incluir todos...
