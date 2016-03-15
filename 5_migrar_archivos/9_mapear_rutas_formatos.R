@@ -138,7 +138,7 @@ Formatos_campo_info <- read_csv(ruta_archivo_lista_formatos, col_names = FALSE) 
     # "Conglomerado_carpetas"
     fecha = ifelse(is.na(anio) | is.na(mes), NA, paste0(anio, "_", mes))
   ) %>%
-  # Esta tabla no se va a exportrar a csv, ya que como referencia de las rutas a 
+  # Esta tabla no se va a exportar a csv, ya que como referencia de las rutas a 
   # los formatos tenemos a "temp_basename(dir_entrega)_8_lista_formatos.csv", por
   # ello, podemos filtrar sin riesgo a perder información útil en caso de error.
   
@@ -190,7 +190,7 @@ Formatos_campo_info_llave_cgl_fecha <- Formatos_campo_info %>%
 # muestreo de conglomerado, es necesario que el nombre del archivo con el formato
 # de campo identifique de manera única a un muestreo de conglomerado contenido en
 # dicha entrega. Si no es así, se tendrán múltiples formatso asociados a un mismo
-# muestreo, de los cuáles sólo uno será el correctpo. Este problema quedará
+# muestreo, de los cuáles sólo uno será el correcto. Este problema quedará
 # detectado en los reportes de muestreo.
 
 # Lo ideal sería que cada renglón de "Conglomerado_carpetas" tuviera asociado al
@@ -273,12 +273,27 @@ source("funciones_auxiliares/deduplicar_vector.R")
 Rutas_entrada_salida <- Rutas_entrada_salida_llave_cgl %>%
   rbind(Rutas_entrada_salida_llave_cgl_fecha) %>%
   mutate(
-    nuevo_nombre = paste0(deduplicarVector(nuevo_nombre), ".pdf"),
+    # aunque se puede deduplicar el nuevo nombre, y con ésto es más que suficiente,
+    # creo que es mejor deduplicar por ruta. Razones:
+    # 1. Es más transparente, ya que, en general, dos archivos pueden tener el
+    # el mismo nombre destino, y no tener problemas de sobreescritura a la hora
+    # de copiarlos simplemente porque tienen distinta ruta.
+    # 2. Al deduplicar por ruta, nos aseguramos en el caso anterior, que sólo
+    # numeremos archivos en el caso estríctamente necesario. Ésto es: no queremos
+    # que dos archivos que tienen el mismo nombre destino pero distinta ruta
+    # acaben con nombres numerados, ya que nunca fue necesario.
+    # 3. Aunque en este caso es lo mismo, debido a que el nuevo nombre y la nueva
+    # ruta se forman con la misma información, y se deduplica uno si y sólo si se
+    # deduplica el otro, en general no es lo mismo, y este script es más robusto a
+    # cambios si se deduplica por ruta.
+    #nuevo_nombre = paste0(deduplicarVector(nuevo_nombre), ".pdf"),
     
     # Sabemos que la carpeta "cgl/fecha.x" existe pues con "Conglomerado_carpetas"
     # creamos precísamente la estructura de carpetas.
     ruta_salida = paste0(ruta_estructura, "/", cgl, "/", fecha.x,
-      "/formato_campo/", nuevo_nombre)
+      "/formato_campo/", nuevo_nombre) %>%
+      deduplicarVector() %>%
+      paste0(".pdf")
   )
 
 #Guardando "Rutas_entrada_salida" en un archivo csv:

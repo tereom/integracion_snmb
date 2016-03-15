@@ -55,6 +55,9 @@ function copiarFormatosNoAsociados()
 
 	while read -r linea; do
 		cp "$linea" "$2"/"$(basename "$linea")" #__"$RANDOM".pdf
+		# se supone que en una misma entrega, los formatos se agrupan en la misma
+		# carpeta (formatos), por lo que no pueden haber nombres duplicados entre
+		# ellos (de ahí que se haya eliminado el $RANDOM)
 	# <<<: leer de una variable
 	done <<< "$rutas_formatos"
 }

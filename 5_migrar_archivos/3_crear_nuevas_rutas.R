@@ -608,7 +608,10 @@ Conglomerado_carpetas <- Conglomerado_info %>%
     institucion
     )
 
-# Creando las rutas asociadas a cada tipo de archivo:
+# Creando las rutas asociadas a cada tipo de archivo. Cabe destacar que se recorta
+# el nombre de cada archivo de Web2py, cuidando que éste siga identificando a un
+# archivo de manera única. Los nombres de los archivos que no son de Web2py se
+# mantienen iguales.
 
 Imagen_sitio_ruta <- Imagen_sitio_info %>%
   inner_join(Conglomerado_carpetas, by = "conglomerado_muestra_id") %>%
@@ -909,7 +912,8 @@ write_csv(Archivo_ruta, ruta_archivo_nuevas_rutas)
 
 # También se guardarán como objetos de R, "ruta_estructura" y "Conglomerado_carpetas".
 # La razón de que no se guarden en csv, es que estos objetos no los consideramos
-# valiosos por sí mismos, sino son insumos para "5_crear_estructura_carpetas.R".
+# valiosos por sí mismos, sino son insumos para "5_crear_estructura_carpetas.R" y
+# scripts posteriores.
 
 ruta_objeto_ruta_estructura <- paste0(
   dir_archivos,

@@ -2,15 +2,16 @@
 
 # Input:
 # dir_entrega: ruta de la carpeta donde están los clientes de captura, ésta se
-# utilizará para obtener el archivo: "temp_basename(dir_entrega)_4_mapeo_rutas.csv",
+# utilizará para obtener el archivo:
+# "temp_basename(dir_entrega)_9_mapeo_rutas_formatos.csv",
 # así como para guardar el archivo output en la carpeta adecuada.
-# Ejemplo: bash 6_crear_codigo_migracion.sh /Volumes/sacmod/FMCN
+# Ejemplo: bash 10_crear_codigo_migracion_formatos.sh /Volumes/sacmod/FMCN
 
 # Output:
 # Script con el código de bash para hacer la migración de archivos, utilizando la
-# información de "temp_basename(dir_entrega)_4_mapeo_rutas.csv":
+# información de "temp_basename(dir_entrega)_9_mapeo_rutas_formatos.csv":
 # ${base_dir%%/}/reportes/temp_basename(dir_entrega)/productos
-# /temp_basename(dir_entrega)_6_codigo_migracion.sh
+# /temp_basename(dir_entrega)_10_codigo_migracion_formatos.sh
 
 ## Todo lo siguiente es para crear la ruta al archivo con el mapeo de rutas,
 ## así como la ruta donde se guardará el archivo de salida.
@@ -25,27 +26,30 @@ dir_archivos="${base_dir%%/}"/reportes/"$nombre_carpeta"/productos
 
 # ruta del archivo con el mapeo de las rutas actuales de los archivos a las nuevas
 # rutas que tendrán:
-nombre_archivo_mapeo_rutas=temp_"$(basename "$1")"_4_mapeo_rutas_prueba.csv
+nombre_archivo_mapeo_rutas=temp_"$(basename "$1")"_9_mapeo_rutas_formatos.csv
 ruta_archivo_mapeo_rutas="$dir_archivos"/"$nombre_archivo_mapeo_rutas"
+#echo "$ruta_archivo_mapeo_rutas"
 
 # creando la ruta del archivo que contendrá el código en bash para hacer la
 # migración
-nombre_archivo_codigo_migracion=temp_"$(basename "$1")"_6_codigo_migracion_prueba.sh
+nombre_archivo_codigo_migracion=temp_"$(basename "$1")"_10_codigo_migracion_formatos.sh
 ruta_archivo_codigo_migracion="$dir_archivos"/"$nombre_archivo_codigo_migracion"
+#echo "$ruta_archivo_codigo_migracion"
 
 # creando la ruta del archivo que contendrá los errores de migración (a este archivo
 # se le hará referencia en el código de la migración, por eso es importante tenerlo).
 # cabe destacar que a este archivo no se le pone el directorio: "dir_archivos", 
-# por portabilidad de "temp_basename(dir_entrega)_6_codigo_migracion.sh".
+# por portabilidad de "temp_basename(dir_entrega)_10_codigo_migracion_formatos.sh".
 # La idea es que este último se corra desde la carpeta que lo contiene, para que
 # el archivo de errores quede guardado ahí mismo.
-nombre_archivo_errores_migracion=temp_"$(basename "$1")"_6_errores_migracion.txt
+nombre_archivo_errores_migracion=temp_"$(basename "$1")"_10_errores_migracion_formatos.txt
+#echo "$nombre_archivo_errores_migracion"
 
 ## Creando el código de migración si es que no existe:
 
 # Ejemplo de código creado:
-## if [ -f "temp_sacmod_7_errores_migracion.txt" ]; then
-## 	 echo "la migración ya fue realizada, ver archivo temp_sacmod_7_errores_migracion.txt"
+## if [ -f "temp_sacmod_10_errores_migracion_formatos.txt" ]; then
+## 	 echo "la migración ya fue realizada, ver archivo temp_sacmod_10_errores_migracion_formatos.txt"
 ## else
 ## 	 rsync --progress "/Volumes/sacmod/data_26_01_2015_tres/Entrega de Productos/AGOSTO/DIAAPROY/CS/E_20140829/BIODIVERSIDAD/CLIENTE DE CAPTURA/64199/resources/archives/imagenes/64199_S3_CVTC_20140808_3.JPG" "/Volumes/sacmod/archivos_snmb_2/64199/2014_08/fotos_videos/64199_S3_CVTC_20140808_3.JPG" 2>> "temp_sacmod_7_errores_migracion.txt"
 ## 	 rsync --progress "/Volumes/sacmod/data_26_01_2015_tres/Entrega de Productos/AGOSTO/DIAAPROY/CS/E_20140829/BIODIVERSIDAD/CLIENTE DE CAPTURA/68898/resources/archives/imagenes/68898_S3_CVTC_20140818_3.JPG" "/Volumes/sacmod/archivos_snmb_2/68898/2014_08/fotos_videos/68898_S3_CVTC_20140818_3.JPG" 2>> "temp_sacmod_7_errores_migracion.txt"
@@ -76,8 +80,8 @@ function crearCodigo()
 			print "else"
 		}
 		(NR > 1) {
-			ruta_entrada = $1;
-			ruta_salida = $6;
+			ruta_entrada = $4;
+			ruta_salida = $5;
 			print "\t rsync --progress " ruta_entrada " " ruta_salida " 2>> \"" archivo_errores "\"";
 		}
 		END {
