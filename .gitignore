@@ -2,7 +2,6 @@
 .Rproj.user
 .Rhistory
 .RData
-*.history
 reportes
 bases
 migraciones
