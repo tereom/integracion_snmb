@@ -68,8 +68,8 @@ function crearCodigo()
 	# 2>> escribe los errores en el archivo indicado (sin borrar los anteriores).
 	# la diagonal al final de la primera línea es para escapar el salto "\n"
 
-	codigo_migracion="$(awk -F, -v archivo_errores="$nombre_archivo_errores_migracion" \
-		'BEGIN {
+	codigo_migracion="$(awk -F, -v archivo_errores="$nombre_archivo_errores_migracion" '
+		BEGIN {
 			print "if [ -f \"" archivo_errores "\" ]; then"
 			print "\t echo \"la migración ya fue realizada, ver archivo " archivo_errores \
 			"\""
