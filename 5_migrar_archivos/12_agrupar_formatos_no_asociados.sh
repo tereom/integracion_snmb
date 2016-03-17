@@ -31,12 +31,12 @@ dir_archivos="${base_dir%%/}"/reportes/"$nombre_carpeta"/productos
 # muestra en dir_entrega.
 nombre_archivo_formatos_no_asociados=temp_"$(basename "$1")"_11_formatos_no_asociados.csv
 ruta_archivo_formatos_no_asociados="$dir_archivos"/"$nombre_archivo_formatos_no_asociados"
-echo "$ruta_archivo_formatos_no_asociados"
+#echo "$ruta_archivo_formatos_no_asociados"
 
 # obteniendo ruta absoluta de la carpeta donde se van a agrupar los archivos
 # anteriores.
 ruta_carpeta_formatos_no_asociados="$2"
-echo "$ruta_carpeta_formatos_no_asociados"
+#echo "$ruta_carpeta_formatos_no_asociados"
 
 ##############
 #Creando la función para leer las rutas de los formatos del archivo apropiado
@@ -66,9 +66,9 @@ function copiarFormatosNoAsociados()
 # carpeta, pero ésta no existe
 
 if [ -d "$ruta_carpeta_formatos_no_asociados" ]; then
-	echo "la carpeta destino ya existe, favor de especificar otra."
+	echo la carpeta destino ya existe, favor de especificar otra
 elif [ ! -d "$(dirname "$ruta_carpeta_formatos_no_asociados")" ]; then
-	echo "no existe el directorio donde se quiere colocar la carpeta destino"
+	echo no existe el directorio donde se quiere colocar la carpeta destino
 else
 	mkdir "$ruta_carpeta_formatos_no_asociados"
 	copiarFormatosNoAsociados "$ruta_archivo_formatos_no_asociados"\

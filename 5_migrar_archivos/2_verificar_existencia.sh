@@ -44,7 +44,7 @@ function verificarExistencia()
 #Corriendo la función en el caso en que no se haya creado el archivo de existencias.
 
 if [ -f "$ruta_archivo_existencia" ]; then
-	echo "el archivo de existencias ya fue creado"
+	echo el archivo de existencias ya fue creado
 else
 	verificarExistencia "$ruta_archivo_lista" "$ruta_archivo_existencia"
 fi

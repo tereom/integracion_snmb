@@ -93,7 +93,7 @@ function crearCodigo()
 
 
 if [ -f "$ruta_archivo_codigo_migracion" ]; then
-	echo "el archivo con el código de migración ya fue creado"
+	echo el archivo con el código de migración ya fue creado
 else
 	crearCodigo "$ruta_archivo_mapeo_rutas" "$ruta_archivo_codigo_migracion"
 fi

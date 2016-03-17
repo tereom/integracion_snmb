@@ -27,7 +27,7 @@ ruta_archivo="$dir_archivo"/"$nombre_archivo"
 
 #corriendo el código para enlistar archivos:
 if [ -f "$ruta_archivo" ]; then
-	echo "el archivo con la lista ya fue creado"
+	echo el archivo con la lista ya fue creado
 else
 	find "$1" -type f > "$ruta_archivo"
 fi

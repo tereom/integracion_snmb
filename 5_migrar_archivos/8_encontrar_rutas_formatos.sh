@@ -35,7 +35,7 @@ ruta_archivo_lista_formatos="$dir_archivos"/"$nombre_archivo_lista_formatos"
 
 # grepeando formularios de la lista:
 if [ -f "$ruta_archivo_lista_formatos" ]; then
-	echo "el archivo con la lista de formatos de campo ya fue creado"
+	echo el archivo con la lista de formatos de campo ya fue creado
 else
 	# se supone que las rutas hacia archivos que contienen formatos de campo
 	# tienen la palabra "formato" en su ruta.
