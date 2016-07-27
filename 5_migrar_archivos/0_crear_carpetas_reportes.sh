@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Argumentos
+# Argumentos:
 # 1. dir_entrega: ruta de la carpeta donde están los clientes de captura,
 # de la cuál se migrarán los archivos.
 # Ejemplo: bash 0_crear_carpetas_reportes.sh /Volumes/sacmod/FMCN
@@ -17,9 +17,7 @@ base_dir=$( cd "$( dirname "$0" )" && pwd )
 #------------base de datos con la información de los archivos
 #				(introducirla manualmente por seguridad)	
 #---------productos
-#------------temp_basename(dir_entrega)_lista.csv lista de archivos en dir_entrega
-#------------temp_basename(dir_entrega)_existencia.csv prueba de que bash
-#			 puede acceder a dichos archivos.
+#------------productos varios (reportes, auxiliares, etc.)
 
 #Creando dicha estructura:
 
@@ -35,5 +33,5 @@ mkdir "${base_dir%%/}"/reportes/"$nombre_carpeta"/base
 
 mkdir "${base_dir%%/}"/reportes/"$nombre_carpeta"/productos
 
-#El nombre de la carpeta se cambiará de temp_basename(dir_entrega) a
-#aaaa_mm_dd_basename(dir_entrega) cuando se termine el proceso de migración.
+# El nombre de la carpeta se cambiará de temp_basename(dir_entrega) a
+# aaaa_mm_dd_basename(dir_entrega) cuando se termine el proceso de migración.
