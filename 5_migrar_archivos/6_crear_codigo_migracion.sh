@@ -78,7 +78,7 @@ function crearCodigo()
 		(NR > 1) {
 			ruta_entrada = $1;
 			ruta_salida = $6;
-			print "\t rsync --progress " ruta_entrada " " ruta_salida " 2>> \"" archivo_errores "\"";
+			print "\t rsync --progress \"" ruta_entrada "\" \"" ruta_salida "\" 2>> \"" archivo_errores "\"";
 		}
 		END {
 			print "fi"
