@@ -35,8 +35,11 @@
 # Además de lo anterior, se guarda un reporte simplificado en:
 # temp_basename(dir_entrega)_7_no_encontrados_simplificado.csv
 
-# Y un archivo resumen de archivos faltantes por conglomerado y fecha en:
+# Un archivo resumen de archivos faltantes por conglomerado y fecha en:
 # temp_basename(dir_entrega)_7_resumen_no_encontrados.csv
+
+# Y un archivo SQL para eliminar los archivos registrados y no encontrados de la
+# base de datos
 
 
 library("plyr")
@@ -158,9 +161,36 @@ ruta_archivo_resumen_no_encontrados <- paste0(
 
 write_csv(Resumen_no_encontrados, ruta_archivo_resumen_no_encontrados)
 
+##################
 
+# Creando el script SQL para eliminar archivos registrados en la base y no encontrados.
+# para ello, primero se obtendrá del nombre Web2py del archivo, la tabla a la que
+# corresponde el mismo, y luego se generarán los queries
 
+Script_eliminar_archivos_bd <- Archivos_no_encontrados %>%
+  select(
+    nombre_tabla,
+    nombre_web2py
+  ) %>%
+  # Generando un query para cada tabla:
+  dlply("nombre_tabla", function(x){
+    paste0("DELETE FROM ", x[1,1], " WHERE archivo IN ('",
+      paste0(x[,2], collapse = "', '"),
+      "');"
+    )}
+  ) %>%
+  as.character()
 
+#apply(1, function(x){paste0("DELETE FROM ", x[1], " WHERE archivo = '", x[2], "';")}) %>%
+#as_data_frame()
+
+#Guardando Script_eliminar_archivos_bd en un archivo sql:
+ruta_script_eliminar_archivos_bd <- paste0(
+  dir_archivos,
+  "/temp_", basename(dir_entrega), "_7_eliminar_archivos_no_encontrados.sql"
+)
+
+write(Script_eliminar_archivos_bd, ruta_script_eliminar_archivos_bd)
 
 
 
